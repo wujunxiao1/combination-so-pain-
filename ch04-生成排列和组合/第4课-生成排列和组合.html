@@ -1,0 +1,618 @@
+<title>第4课 生成排列和组合</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; every algorithm gets a "machine" panel you can step through, with the reason for each step written under it. */
+:root{
+  --paper:#f5f6f3; --surface:#ffffff; --ink:#1c2422; --muted:#5d6a66; --line:#d7ddd9;
+  --accent:#1f6f5c; --accent-soft:#e1efe9; --mark:#f3cf5b; --mark-ink:#3b2f00; --warn:#b4472f;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75}
+.wrap{max-width:46rem;margin:0 auto;padding-inline:16px;padding-block:2rem 4rem}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35}
+h1{font-size:1.9rem;margin:0 0 .4rem}
+h2{font-size:1.45rem;margin:3rem 0 .8rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.12rem;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+.lede{color:var(--muted)}
+.meta{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+code,.mono{font-family:var(--mono);font-size:.95em}
+b,strong{font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.2rem 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;padding:.2rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:.9rem;background:var(--surface)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rule{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0}
+.rule p{margin:.2rem 0}
+ol.steps{padding-left:1.4rem;margin:.6rem 0}
+ol.steps li{margin:.25rem 0}
+.tip{font-size:.95rem;color:var(--muted)}
+.tip b{color:var(--ink)}
+/* machine panel */
+.machine{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.2rem 0}
+.machine .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.machine .title{font-weight:700;font-size:.95rem}
+.machine .count{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+button,select,input{font:inherit}
+button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font-size:.9rem}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,.toc a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text]{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.25rem .5rem;font-size:.9rem}
+input[type=text]{font-family:var(--mono);width:12rem;max-width:100%}
+.caption{margin-top:.7rem;padding:.6rem .8rem;background:var(--paper);border-radius:6px;font-size:.95rem;min-height:3.2em}
+.caption .hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:3px}
+/* tiles */
+.tiles{display:flex;flex-wrap:wrap;gap:.45rem;align-items:flex-end;min-height:4.2rem}
+.tile{display:flex;flex-direction:column;align-items:center;min-width:2.6rem}
+.tile .arrow{font-family:var(--mono);font-size:1.15rem;line-height:1;color:var(--muted);height:1.3rem}
+.tile .num{font-family:var(--mono);font-weight:600;font-size:1.35rem;width:2.6rem;height:2.6rem;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:6px;background:var(--surface)}
+.tile.mobile .num{border-color:var(--accent);border-style:dashed}
+.tile.mobile .arrow{color:var(--accent)}
+.tile.big .num{background:var(--mark);color:var(--mark-ink);border:1.5px solid var(--mark)}
+.tile.flip .arrow{color:var(--warn)}
+.tile.empty .num{color:var(--muted);border-style:dotted}
+.tile .lab{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.15rem}
+.history{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:.6rem;line-height:1.6;word-break:break-all}
+.history .now{color:var(--ink);font-weight:600}
+/* tables */
+.scroll{overflow-x:auto;margin:.8rem 0}
+table{border-collapse:collapse;font-size:.93rem;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:.35rem .7rem;text-align:left;white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:.85rem}
+td.mono{font-family:var(--mono)}
+td .hl,span.hl{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+/* gray mirror */
+.mirror{display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;margin:.8rem 0}
+.col{font-family:var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.5rem .8rem;min-width:7rem}
+.col .cap{font-family:var(--sans);font-size:.8rem;color:var(--muted);margin-bottom:.2rem}
+.col div{line-height:1.7}
+.col .pre{color:var(--accent);font-weight:600}
+.col .flipline{border-top:2px dashed var(--warn);margin:.2rem 0}
+/* hasse */
+.figs{display:flex;flex-wrap:wrap;gap:1rem;margin:.8rem 0}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem;flex:1 1 15rem;min-width:0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.3rem}
+svg .edge{stroke:var(--muted);stroke-width:1.5}
+svg .node{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+svg text{fill:var(--ink);font-family:var(--mono);font-size:13px}
+.classes{display:flex;flex-wrap:wrap;gap:.6rem;margin:.8rem 0}
+.cls{border:1.5px solid var(--accent);border-radius:999px;padding:.2rem .9rem;font-family:var(--mono);background:var(--surface)}
+/* practice */
+.q{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600}
+details{margin-top:.5rem}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+details[open] summary{margin-bottom:.3rem}
+.ans{font-size:.95rem}
+@media (prefers-reduced-motion:no-preference){.tile .num{transition:background .2s,border-color .2s}}
+@media (max-width:480px){h1{font-size:1.55rem}.tile,.tile .num{min-width:2.2rem;width:2.2rem}.tile .num{height:2.2rem;font-size:1.15rem}}
+</style>
+
+<div class="wrap">
+<p class="meta">组合数学 · 讲义 04 · 幻灯片第 170–218 页 · Brualdi 第4章</p>
+<h1>第4课　生成排列和组合</h1>
+<p class="lede">前三章问的是"有多少个"。这一章问的是另一件事：<b>怎样按规矩把它们一个不漏、一个不重地全部列出来</b>。每个算法下面都有一个可以一步一步点的演示，每一步都会写出"为什么这样走"。</p>
+<ul class="toc">
+  <li><a href="#jt">1 生成全排列</a></li>
+  <li><a href="#inv">2 逆序列</a></li>
+  <li><a href="#bin">3 生成子集</a></li>
+  <li><a href="#gray">4 Gray 码</a></li>
+  <li><a href="#lex">5 字典序 r-组合</a></li>
+  <li><a href="#po">6 偏序与等价关系</a></li>
+  <li><a href="#practice">练习</a></li>
+</ul>
+
+<!-- ============ 1 ============ -->
+<h2 id="jt">1　生成全排列：可移动整数算法（幻灯片 171–175）</h2>
+
+<h3>出发点：把 n 插进去</h3>
+<p>先看一个简单的观察：从 {1,…,n} 的一个排列里删掉 n，剩下的就是 {1,…,n−1} 的排列。反过来，<b>把 n 插到 {1,…,n−1} 的每个排列的每个空位里</b>，就能得到 {1,…,n} 的全部排列。</p>
+<p>n=3 时，从 n=2 的两个排列 12、21 出发，让 3 从右往左、再从左往右地"扫"过去：</p>
+<div class="scroll"><table>
+<tr><th>从 12 出发，3 从右往左走</th><td class="mono">12<span class="hl">3</span> → 1<span class="hl">3</span>2 → <span class="hl">3</span>12</td></tr>
+<tr><th>换成 21，3 从左往右走回来</th><td class="mono"><span class="hl">3</span>21 → 2<span class="hl">3</span>1 → 21<span class="hl">3</span></td></tr>
+</table></div>
+<p>一共 6 个，相邻两个之间<b>只交换了一对相邻的数</b>。下面的算法就是把这种"来回扫"写成机械的规则。</p>
+
+<h3>可移动整数</h3>
+<p>给每个数头上加一个箭头（←或→）。<b>如果一个数的箭头指向一个比它小的相邻数，它就是"可移动的"</b>。</p>
+<ul>
+  <li><span class="mono">←2 ←1</span>：2 的箭头指向 1，1 比 2 小，所以 2 可移动。</li>
+  <li><span class="mono">←1 ←2</span>：1 的箭头指向外面，什么都没指，不可移动。</li>
+  <li><span class="mono">→3 ←4</span>：3 的箭头指向 4，4 比 3 大，3 不可移动；4 指向 3，4 可移动。</li>
+</ul>
+<p class="tip">所以 <b>1 永远不可移动</b>（没有比它小的数）；n 只要箭头不指向边界外，就总是可移动的。</p>
+
+<div class="rule">
+<p><b>算法</b>（Johnson–Trotter）：从 <span class="mono">←1 ←2 … ←n</span> 开始，只要还有可移动的数，就重复：</p>
+<ol class="steps">
+<li>找出<b>最大的</b>可移动整数 m；</li>
+<li>把 m 和它箭头指向的相邻数交换（箭头跟着数走）；</li>
+<li>把<b>所有比 m 大的数</b>的箭头反向。</li>
+</ol>
+<p>没有可移动的数时停止，这时 n! 个排列刚好全部列完。</p>
+</div>
+
+<div class="machine" id="jtBox">
+  <div class="head"><span class="title">演示：可移动整数算法</span><span class="count" id="jtCount"></span></div>
+  <div class="tiles" id="jtTiles"></div>
+  <div class="caption" id="jtCap"></div>
+  <div class="controls">
+    <label for="jtN">n =</label>
+    <select id="jtN"><option>3</option><option selected>4</option><option>5</option></select>
+    <button id="jtPrev">上一步</button>
+    <button id="jtNext" class="primary">下一步</button>
+    <button id="jtAll">跑到底</button>
+    <button id="jtReset">重置</button>
+  </div>
+  <div class="history" id="jtHist"></div>
+</div>
+<p class="tip">图例：<b>虚线框</b>是可移动的数，<b>黄色</b>是本步要移动的最大可移动数，<b>红色箭头</b>是本步刚被反向的。n=4 时的 24 行和讲义第 175 页逐行一致，可以对照着看。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="inv">2　逆序与逆序列（幻灯片 176–184）</h2>
+
+<h3>逆序</h3>
+<p>在排列里，<b>前面的数比后面的数大</b>，这一对就叫一个逆序。例如排列 31524：</p>
+<ul>
+<li>3 在 1 前面且 3 &gt; 1：逆序 (3,1)</li>
+<li>3 在 2 前面且 3 &gt; 2：逆序 (3,2)</li>
+<li>5 在 2 前面：(5,2)；5 在 4 前面：(5,4)</li>
+</ul>
+<p>一共 4 个逆序。只有 12…n 一个逆序都没有。逆序个数是奇数的叫<b>奇排列</b>，偶数的叫<b>偶排列</b>（行列式的正负号就是这么定的，幻灯片 183）。</p>
+
+<h3>逆序列 a₁, a₂, …, aₙ</h3>
+<p><b>aⱼ = 排在 j 前面、而且比 j 大的数有几个</b>。它衡量 j "被挤到后面多远"。还是 31524：</p>
+<div class="scroll"><table>
+<tr><th>j</th><th>j 前面的数</th><th>其中比 j 大的</th><th>aⱼ</th></tr>
+<tr><td class="mono">1</td><td class="mono">3</td><td class="mono">3</td><td class="mono">1</td></tr>
+<tr><td class="mono">2</td><td class="mono">3, 1, 5</td><td class="mono">3, 5</td><td class="mono">2</td></tr>
+<tr><td class="mono">3</td><td class="mono">（没有）</td><td class="mono">—</td><td class="mono">0</td></tr>
+<tr><td class="mono">4</td><td class="mono">3, 1, 5, 2</td><td class="mono">5</td><td class="mono">1</td></tr>
+<tr><td class="mono">5</td><td class="mono">3, 1</td><td class="mono">—</td><td class="mono">0</td></tr>
+</table></div>
+<p>所以 31524 的逆序列是 <b class="mono">1, 2, 0, 1, 0</b>，加起来 4，正好是逆序总数。</p>
+
+<div class="machine">
+  <div class="head"><span class="title">自己试：输入一个排列，算逆序列</span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="invIn">排列：</label><input type="text" id="invIn" value="31524" inputmode="numeric" autocomplete="off">
+    <button id="invGo" class="primary">计算</button>
+  </div>
+  <div class="caption" id="invOut"></div>
+</div>
+
+<h3>逆序列的范围，以及为什么能反推回排列</h3>
+<p>比 j 大的数只有 n−j 个，所以 <b>0 ≤ aⱼ ≤ n−j</b>：a₁ 在 0…n−1 之间，a₂ 在 0…n−2 之间，……，aₙ 一定是 0。满足这些范围的序列一共有 n×(n−1)×…×1 = n! 个，正好和排列一样多。</p>
+<div class="rule"><p><b>定理</b>：每个满足上面范围的序列 b₁,…,bₙ，都<b>恰好</b>是一个排列的逆序列。所以排列和逆序列一一对应。</p></div>
+<p>怎么从逆序列造出排列？讲义给了两种算法。<b>算法 II</b>（填空位）最直观：</p>
+<ol class="steps">
+<li>先摆 n 个空位。</li>
+<li>放 1：前面要有 b₁ 个比它大的数，而所有别的数都比 1 大，所以 1 放在<b>第 b₁+1 个空位</b>。</li>
+<li>放 2：前面要有 b₂ 个比 2 大的数。这些数还没放，必须给它们留出 b₂ 个空位，所以 2 放在<b>从左数第 b₂+1 个空位</b>。</li>
+<li>依此类推：放 k 时，数剩下的空位，放在第 bₖ+1 个。</li>
+</ol>
+
+<div class="machine" id="recBox">
+  <div class="head"><span class="title">演示：由逆序列 5,3,4,0,2,1,1,0 造排列（讲义第 181 页例题）</span><span class="count" id="recCount"></span></div>
+  <div class="tiles" id="recTiles"></div>
+  <div class="caption" id="recCap"></div>
+  <div class="controls">
+    <button id="recPrev">上一步</button>
+    <button id="recNext" class="primary">下一步</button>
+    <button id="recReset">重置</button>
+  </div>
+</div>
+<p class="tip">讲义里的<b>算法 I</b> 是反过来做：先写 8，再按 b₇ 把 7 插到 8 的前或后，再按 b₆ 插 6……插 k 时，它前面要有 bₖ 个已经写好的数（这些都比 k 大）。两种算法得到同一个排列 48625137。</p>
+
+<h3>用相邻交换排好序</h3>
+<p>每交换一对相邻的、顺序颠倒的数，逆序个数恰好减 1。所以<b>把排列变成 12…n 最少要交换的次数 = 逆序个数</b>。讲义第 184 页把 361245 变成 123456，用了 6 次，因为 361245 有 6 个逆序：(3,1)(3,2)(6,1)(6,2)(6,4)(6,5)。</p>
+<p class="mono">361245 → 316245 → 136245 → 132645 → 123645 → 123465 → 123456</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="bin">3　生成全部子集：二进制加 1（幻灯片 185–189）</h2>
+<p>集合 S = {x<sub>n−1</sub>, …, x₁, x₀}。每个子集对应一个由 0 和 1 组成的 n 元组 a<sub>n−1</sub>…a₁a₀：<b>aᵢ = 1 表示 xᵢ 在子集里</b>，0 表示不在。</p>
+<ul>
+<li>S = {x₆,…,x₀} 时，子集 {x₅, x₄, x₂, x₀} 对应 <span class="mono">0110101</span>。</li>
+<li>反过来，<span class="mono">1010001</span> 对应 {x₆, x₄, x₀}。</li>
+</ul>
+<p>把 n 元组看成二进制数，从 0 一直加 1 加到 2ⁿ−1，就按顺序列出了全部 2ⁿ 个子集。所以"第 k 个子集"就是 k 的二进制（从第 0 个开始数）。例如 7 元集合的第 108 个子集：108 = 1101100₂，对应 {x₆, x₅, x₃, x₂}。</p>
+<div class="rule">
+<p><b>加 1 的规则</b>：从右往左找<b>第一个 0</b>，把它变成 1，它右边的 1 全部变成 0。</p>
+<p>例：<span class="mono">1010111</span> 最右边的 0 在 a₃，变成 <span class="mono">1011000</span>。对应子集从 {x₆,x₄,x₂,x₁,x₀} 变成 {x₆,x₄,x₃}。</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="gray">4　反射 Gray 码（幻灯片 190–197）</h2>
+<p>二进制顺序有个缺点：<span class="mono">0111 → 1000</span> 一下子改了 4 位。能不能排一个顺序，让<b>相邻两个子集只差一个元素</b>（n 元组只改 1 位）？可以，这就是 Gray 码。在 n 维立方体上看，它是沿着棱走、每个顶点恰好经过一次的路线。</p>
+
+<h3>构造：复制、倒过来、加前缀</h3>
+<p>从 n−1 阶造 n 阶：先把 n−1 阶<b>按原顺序</b>抄一遍，每个前面加 0；再把它<b>倒过来</b>抄一遍，每个前面加 1。</p>
+<div class="mirror">
+  <div class="col"><div class="cap">2 阶</div><div>00</div><div>01</div><div>11</div><div>10</div></div>
+  <div class="col"><div class="cap">3 阶 = 0 + 原顺序</div><div><span class="pre">0</span>00</div><div><span class="pre">0</span>01</div><div><span class="pre">0</span>11</div><div><span class="pre">0</span>10</div><div class="flipline"></div><div class="cap">1 + 倒过来</div><div><span class="pre">1</span>10</div><div><span class="pre">1</span>11</div><div><span class="pre">1</span>01</div><div><span class="pre">1</span>00</div></div>
+</div>
+<p>为什么接缝处也只差 1 位？上半段最后一个是 <span class="mono">0 10</span>，下半段第一个是 <span class="mono">1 10</span>，后面两位相同（倒过来抄，接缝两边是同一行），只有前缀变了。</p>
+
+<h3>不用构造整张表，直接求下一个</h3>
+<div class="rule">
+<p><b>规则</b>（幻灯片 194）：数一数当前 n 元组里有几个 1。</p>
+<ol class="steps">
+<li>1 的个数是<b>偶数</b>：改最右边一位 a₀。</li>
+<li>1 的个数是<b>奇数</b>：找到最右边的 1，改它<b>左边紧挨着</b>的那一位。</li>
+</ol>
+<p>到 <span class="mono">10…0</span> 时结束。</p>
+</div>
+<p>讲义第 197 页的例子：<span class="mono">10100110</span> 有 4 个 1（偶数），改最后一位得 <span class="mono">10100111</span>；<span class="mono">00011111</span> 有 5 个 1（奇数），最右边的 1 在最后一位，改倒数第二位得 <span class="mono">00011101</span>。</p>
+
+<div class="machine" id="bitBox">
+  <div class="head"><span class="title">演示：同一个 4 元集合，两种顺序对比</span><span class="count" id="bitCount"></span></div>
+  <div class="tiles" id="bitTiles"></div>
+  <div class="caption" id="bitCap"></div>
+  <div class="controls">
+    <label for="bitMode">顺序：</label>
+    <select id="bitMode"><option value="bin">二进制加 1</option><option value="gray" selected>反射 Gray 码</option></select>
+    <button id="bitPrev">上一步</button>
+    <button id="bitNext" class="primary">下一步</button>
+    <button id="bitReset">重置</button>
+  </div>
+  <div class="history" id="bitHist"></div>
+</div>
+<p class="tip">黄色格子是这一步改动的位。切到"二进制加 1"多点几下，到 0111 → 1000 那一步会看到 4 格同时变黄；Gray 码每一步只有 1 格。</p>
+
+<!-- ============ 5 ============ -->
+<h2 id="lex">5　字典序生成 r-组合（幻灯片 198–206）</h2>
+<p>只要大小为 r 的子集时，把每个组合的元素<b>从小到大</b>写成一个"单词"，例如 {2,3,4,7,8} 写成 <span class="mono">23478</span>，然后像查字典一样排序：从第一位开始比，第一个不同的位置上谁小谁在前。<span class="mono">23478</span> 和 <span class="mono">23567</span> 前两位相同，第三位 4 &lt; 5，所以 23478 在前。</p>
+<p>{1,…,n} 的 r-组合里，第一个是 <span class="mono">12…r</span>，最后一个是 <span class="mono">(n−r+1)…n</span>。</p>
+
+<div class="rule">
+<p><b>求下一个</b>：</p>
+<ol class="steps">
+<li>从右往左找第一个<b>还能变大</b>的位置 k：aₖ+1 ≤ n，而且 aₖ+1 不在当前组合里。</li>
+<li>把 aₖ 加 1，它后面各位依次填 aₖ+2, aₖ+3, …（能填多小就填多小）。前面各位不动。</li>
+</ol>
+</div>
+<p>讲义第 201 页的例子：{1,…,9} 的 5-组合，<span class="mono">12389</span> 的下一个是什么？</p>
+<ul>
+<li>最后一位 9 已经是 n，不能加；倒数第二位 8 加 1 是 9，但 9 已经在组合里，也不能加。</li>
+<li>第三位 3 加 1 是 4，不在组合里，可以。所以 k=3。</li>
+<li>3 变成 4，后面填 5、6：答案 <span class="mono">12456</span>。</li>
+</ul>
+
+<div class="machine" id="lexBox">
+  <div class="head"><span class="title">演示：{1,…,6} 的 4-组合（讲义第 204 页）</span><span class="count" id="lexCount"></span></div>
+  <div class="tiles" id="lexTiles"></div>
+  <div class="caption" id="lexCap"></div>
+  <div class="controls">
+    <button id="lexPrev">上一步</button>
+    <button id="lexNext" class="primary">下一步</button>
+    <button id="lexReset">重置</button>
+  </div>
+  <div class="history" id="lexHist"></div>
+</div>
+
+<h3>某个组合排第几</h3>
+<p>与其往前数，不如<b>数排在它后面的有几个</b>，再用总数减。以 {1,…,6} 的 4-组合 <span class="mono">1356</span> 为例（总数 C(6,4)=15）：</p>
+<ul>
+<li>第一位比 1 大的：从 {2,…,6} 这 5 个数里选 4 个，C(5,4) = 5 个。</li>
+<li>第一位是 1、第二位比 3 大的：从 {4,5,6} 选 3 个，C(3,3) = 1 个。</li>
+<li>前两位是 13、第三位比 5 大的：从 {6} 选 2 个，C(1,2) = 0 个。</li>
+<li>前三位是 135、第四位比 6 大的：C(0,1) = 0 个。</li>
+</ul>
+<p>排在后面的共 6 个，所以 1356 排第 15 − 6 = <b>9</b> 位。可以在上面的演示里点到第 9 个核对一下。一般公式（幻灯片 205）：</p>
+<div class="rule"><p class="mono">位置 = C(n,r) − C(n−a₁, r) − C(n−a₂, r−1) − … − C(n−aᵣ, 1)</p></div>
+
+<div class="machine">
+  <div class="head"><span class="title">自己试：算一个组合的位置</span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="posN">n =</label><input type="text" id="posN" value="6" style="width:3.5rem" inputmode="numeric" autocomplete="off">
+    <label for="posC">组合：</label><input type="text" id="posC" value="1356" style="width:8rem" inputmode="numeric" autocomplete="off">
+    <button id="posGo" class="primary">计算</button>
+  </div>
+  <div class="caption" id="posOut"></div>
+</div>
+<p class="tip">要生成 r-排列，可以先按字典序生成 r-组合，再把每个组合的全部排列列出来（幻灯片 204 的 {1,2,3,4} 的 3-排列例子）。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="po">6　偏序与等价关系（幻灯片 207–218）</h2>
+
+<h3>关系和五个性质</h3>
+<p>集合 X 上的一个<b>关系</b> R，就是规定哪些有序对 (a,b) "有关系"，记作 aRb。比如"整除"：2|6 成立，3|5 不成立。关系可能有以下性质（下面都用具体的关系举例）：</p>
+<ul>
+<li><b>自反</b>：每个 x 都有 xRx。≤ 是（3 ≤ 3），&lt; 不是。</li>
+<li><b>反自反</b>：每个 x 都没有 xRx。&lt; 是，⊂（真包含）是。</li>
+<li><b>对称</b>：xRy 就一定 yRx。"同奇偶"是；≤ 不是（2 ≤ 5 但 5 ≤ 2 不成立）。</li>
+<li><b>反对称</b>：xRy 和 yRx 同时成立，就一定 x = y。≤ 是；整除在正整数上也是（a|b 且 b|a 推出 a=b）。</li>
+<li><b>传递</b>：xRy、yRz 就一定 xRz。≤、⊆、整除都是。</li>
+</ul>
+
+<h3>偏序：自反 + 反对称 + 传递</h3>
+<p>⊆、≤、整除 | 都是偏序。之所以叫"偏"，是因为<b>有些元素之间比不了大小</b>：{1} 和 {2} 谁也不包含谁，2 和 3 谁也不整除谁。如果任意两个都能比（比如 ≤），就叫<b>全序</b>（线序）。n 个元素上的全序，和 n 个元素的排列一一对应，所以有 n! 个。</p>
+<p>如果 a &lt; b 而且中间再也夹不进别的元素，就说 <b>b 覆盖 a</b>。只画覆盖关系、让大的在上面，得到的图叫 <b>Hasse 图</b>：</p>
+<div class="figs">
+<figure>
+<svg viewBox="0 0 240 230" role="img" aria-label="{1,2,3} 的子集按包含关系的 Hasse 图">
+  <line class="edge" x1="120" y1="200" x2="40" y2="140"/><line class="edge" x1="120" y1="200" x2="120" y2="140"/><line class="edge" x1="120" y1="200" x2="200" y2="140"/>
+  <line class="edge" x1="40" y1="140" x2="40" y2="75"/><line class="edge" x1="40" y1="140" x2="120" y2="75"/>
+  <line class="edge" x1="120" y1="140" x2="40" y2="75"/><line class="edge" x1="120" y1="140" x2="200" y2="75"/>
+  <line class="edge" x1="200" y1="140" x2="120" y2="75"/><line class="edge" x1="200" y1="140" x2="200" y2="75"/>
+  <line class="edge" x1="40" y1="75" x2="120" y2="20"/><line class="edge" x1="120" y1="75" x2="120" y2="20"/><line class="edge" x1="200" y1="75" x2="120" y2="20"/>
+  <circle class="node" cx="120" cy="200" r="5"/><text x="132" y="215">∅</text>
+  <circle class="node" cx="40" cy="140" r="5"/><text x="2" y="144">{1}</text>
+  <circle class="node" cx="120" cy="140" r="5"/><text x="130" y="152">{2}</text>
+  <circle class="node" cx="200" cy="140" r="5"/><text x="208" y="144">{3}</text>
+  <circle class="node" cx="40" cy="75" r="5"/><text x="2" y="66">{1,2}</text>
+  <circle class="node" cx="120" cy="75" r="5"/><text x="96" y="66">{1,3}</text>
+  <circle class="node" cx="200" cy="75" r="5"/><text x="190" y="66">{2,3}</text>
+  <circle class="node" cx="120" cy="20" r="5"/><text x="132" y="18">{1,2,3}</text>
+</svg>
+<figcaption>{1,2,3} 的子集，按 ⊆（幻灯片 213）</figcaption>
+</figure>
+<figure>
+<svg viewBox="0 0 240 230" role="img" aria-label="1 到 8 按整除关系的 Hasse 图">
+  <line class="edge" x1="120" y1="205" x2="40" y2="140"/><line class="edge" x1="120" y1="205" x2="110" y2="140"/><line class="edge" x1="120" y1="205" x2="170" y2="140"/><line class="edge" x1="120" y1="205" x2="220" y2="140"/>
+  <line class="edge" x1="40" y1="140" x2="40" y2="80"/><line class="edge" x1="40" y1="140" x2="110" y2="80"/>
+  <line class="edge" x1="110" y1="140" x2="110" y2="80"/>
+  <line class="edge" x1="40" y1="80" x2="40" y2="22"/>
+  <circle class="node" cx="120" cy="205" r="5"/><text x="130" y="220">1</text>
+  <circle class="node" cx="40" cy="140" r="5"/><text x="22" y="144">2</text>
+  <circle class="node" cx="110" cy="140" r="5"/><text x="118" y="152">3</text>
+  <circle class="node" cx="170" cy="140" r="5"/><text x="178" y="144">5</text>
+  <circle class="node" cx="220" cy="140" r="5"/><text x="226" y="132">7</text>
+  <circle class="node" cx="40" cy="80" r="5"/><text x="22" y="84">4</text>
+  <circle class="node" cx="110" cy="80" r="5"/><text x="118" y="84">6</text>
+  <circle class="node" cx="40" cy="22" r="5"/><text x="50" y="26">8</text>
+</svg>
+<figcaption>1 到 8，按"整除"（幻灯片 214）</figcaption>
+</figure>
+</div>
+<p class="tip">读图方法：沿着线一直往上走能到达，就表示"小于等于"。比如右图 2 → 4 → 8，所以 2|8；3 和 4 之间没有往上的路，所以它们不可比。</p>
+
+<h3>线性扩张：把偏序"排成一排"</h3>
+<p>能不能把一个偏序集的元素排成一行，使得原来 a ≤ b 的，排完 a 仍在 b 前面？可以，方法是<b>反复拿走一个最小元</b>（下面没有比它小的元素）：</p>
+<ul>
+<li>左图：先拿 ∅，再拿三个单元素集，再拿三个两元素集，最后拿 {1,2,3}：∅, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}。</li>
+<li>右图：1, 2, …, 8 本身就是一个线性扩张，因为 i | j 时一定有 i ≤ j。</li>
+</ul>
+
+<h3>等价关系：自反 + 对称 + 传递</h3>
+<p>和偏序只差一个字：偏序要<b>反</b>对称，等价关系要<b>对称</b>。例子："除以 3 余数相同"。和 a 等价的全体元素叫 a 的<b>等价类</b> [a]。在 {1,…,9} 上：</p>
+<div class="classes"><span class="cls">[3] = {3, 6, 9}</span><span class="cls">[1] = {1, 4, 7}</span><span class="cls">[2] = {2, 5, 8}</span></div>
+<div class="rule"><p><b>定理</b>（幻灯片 218）：等价类把 X 分成互不相交的非空部分；反过来，X 的任意一种划分，都对应一个等价关系（"在同一块里"）。所以<b>等价关系 ⇔ 划分</b>。</p></div>
+
+<!-- ============ practice ============ -->
+<h2 id="practice">练习（Exercises.pdf 题号）</h2>
+<p class="tip">先自己做，再点开答案。答案都用程序枚举核对过。#161（n=5 的全部排列）你在作业里已经做过，这里不重复。</p>
+
+<div class="q"><span class="src">#160</span>
+<p>找出 <span class="mono">→4 ←8 →3 ←1 →6 ←7 ←2 →5</span> 中所有可移动的整数。</p>
+<details><summary>看答案</summary><div class="ans"><p><b>8、3、7。</b>逐个看箭头指向的邻居：4→8（8 更大，不行）；8←4（4 更小，可以）；3→1（可以）；1←3（更大，不行）；6→7（不行）；7←6（可以）；2←7（不行）；5→（指向外面，不行）。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#159</span>
+<p>用第 1 节的算法生成 {1,2,3,4,5} 的排列时，31524 的下一个是什么？上一个是什么？</p>
+<details><summary>看答案</summary><div class="ans"><p>算法里 31524 这一行带的箭头是 <span class="mono">←3 ←1 ←5 ←2 ←4</span>。最大的可移动数是 5（指向 1），交换后得下一个 <b>35124</b>。上一个是 <b>31254</b>（那时 5 在 2 和 4 之间，向左移一格得到 31524）。可以把演示的 n 调成 5 点到这里核对。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#164</span>
+<p>求 35168274 和 83476215 的逆序列。</p>
+<details><summary>看答案</summary><div class="ans"><p>35168274：<b>2, 4, 0, 4, 0, 0, 1, 0</b>。例如 a₂ = 4，因为 2 前面比它大的有 3、5、6、8。</p><p>83476215：<b>6, 5, 1, 1, 3, 2, 1, 0</b>。可以把它们输进第 2 节的计算框里核对。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#165</span>
+<p>求逆序列分别为 2,5,5,0,2,1,1,0 和 6,6,1,4,2,1,0,0 的排列。</p>
+<details><summary>看答案</summary><div class="ans"><p><b>48165723</b> 和 <b>73658412</b>。用算法 II：第一个序列中 1 放第 3 个空位，2 放剩下空位里的第 6 个，3 放剩下的第 6 个……</p></div></details>
+</div>
+
+<div class="q"><span class="src">#166</span>
+<p>{1,…,6} 的排列中，恰好有 15 个逆序的有几个？14 个？13 个？</p>
+<details><summary>看答案</summary><div class="ans"><p>最多 C(6,2) = 15 个逆序，只有 654321 一个。少 1 个逆序：在 654321 里交换一对相邻数，有 5 种，所以 14 个逆序的有 <b>5</b> 个。13 个逆序的有 <b>14</b> 个（可以用逆序列数：a₁+…+a₆ = 13，每个 aⱼ 不超过 6−j，等价于"从最大值总共少 2"，按少在哪里分类：同一位少 2 有 4 种，两位各少 1 有 C(5,2)=10 种，共 14）。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#173</span>
+<p>按二进制加 1 的顺序，求下列子集（S = {x₇,…,x₀}）的下一个：{x₄,x₁,x₀}，{x₇,x₅,x₃}，{x₇,x₅,x₄,x₃,x₂,x₁,x₀}，{x₀}。</p>
+<details><summary>看答案</summary><div class="ans"><p>{x₄, x₂}；{x₇, x₅, x₃, x₀}；{x₇, x₆}；{x₁}。例如第一个：00010011 加 1 得 00010100。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#181</span>
+<p>求 9 阶反射 Gray 码中 010100110、110001100、111111111 的下一个。</p>
+<details><summary>看答案</summary><div class="ans"><p>前两个都有偶数个 1（4 个），改最后一位：<b>010100111</b>、<b>110001101</b>。111111111 有 9 个 1（奇数），最右边的 1 在最后一位，改倒数第二位：<b>111111101</b>。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#186</span>
+<p>{1,…,10} 的 6-组合按字典序，2,3,4,6,9,10 的下一个和上一个分别是什么？</p>
+<details><summary>看答案</summary><div class="ans"><p>下一个：10 和 9 都不能再加（9+1=10 已在组合中），6 可以变 7，后面填 8、9：<b>2,3,4,7,8,9</b>。</p><p>上一个：<b>2,3,4,6,8,10</b>。（反过来想：找下一个是 234 69 10 的那个组合。）</p></div></details>
+</div>
+
+<div class="q"><span class="src">#191</span>
+<p>2489 在 {1,…,9} 的 4-组合字典序中排第几？</p>
+<details><summary>看答案</summary><div class="ans"><p>C(9,4) − C(7,4) − C(5,3) − C(1,2) − C(0,1) = 126 − 35 − 10 − 0 − 0 = <b>81</b>。可以用第 5 节的计算框核对。</p></div></details>
+</div>
+
+<div class="q"><span class="src">#203</span>
+<p>整数集上定义 aRb 当且仅当 a = ±b。R 是等价关系吗？</p>
+<details><summary>看答案</summary><div class="ans"><p><b>是。</b>自反：a = +a。对称：a = ±b 推出 b = ±a。传递：a = ±b、b = ±c 推出 a = ±c。等价类是 {0}, {1,−1}, {2,−2}, …</p></div></details>
+</div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s);
+
+  /* ---------- 1. Johnson–Trotter ---------- */
+  function jtStates(n){
+    let p=[...Array(n)].map((_,i)=>i+1), d=Array(n).fill(-1);
+    const out=[{p:[...p],d:[...d],moved:null,flipped:[],mob:[],from:null}];
+    for(;;){
+      const mob=[];
+      for(let i=0;i<n;i++){const j=i+d[i]; if(j>=0&&j<n&&p[j]<p[i]) mob.push(p[i]);}
+      out[out.length-1].mob=mob;
+      if(!mob.length) break;
+      const m=Math.max(...mob), i=p.indexOf(m), j=i+d[i], other=p[j];
+      [p[i],p[j]]=[p[j],p[i]]; [d[i],d[j]]=[d[j],d[i]];
+      const flipped=[];
+      for(let k=0;k<n;k++) if(p[k]>m){d[k]=-d[k];flipped.push(p[k]);}
+      out.push({p:[...p],d:[...d],moved:m,other,dir:d[p.indexOf(m)],flipped,mob:[]});
+    }
+    return out;
+  }
+  let jt={n:4,s:[],i:0};
+  function jtRender(){
+    const st=jt.s[jt.i], nx=jt.s[jt.i+1];
+    const big=nx?nx.moved:null;
+    $('jtTiles').innerHTML=st.p.map((v,k)=>{
+      const cls=['tile']; if(st.mob.includes(v)) cls.push('mobile'); if(v===big) cls.push('big'); if(st.flipped.includes(v)) cls.push('flip');
+      return `<div class="${cls.join(' ')}"><span class="arrow">${st.d[k]<0?'←':'→'}</span><span class="num">${v}</span></div>`;}).join('');
+    $('jtCount').textContent=`第 ${jt.i+1} / ${jt.s.length} 个排列`;
+    let cap='';
+    if(jt.i>0){
+      const flip=st.flipped.length?`比 ${st.moved} 大的数 ${st.flipped.join('、')} 的箭头反向（红色）。`:`没有比 ${st.moved} 大的数，箭头都不变。`;
+      cap+=`刚才：${st.moved} 和 ${st.other} 交换。${flip}<br>`;
+    } else cap+='起点：所有箭头朝左。<br>';
+    if(nx) cap+=`现在可移动的数：${st.mob.join('、')}。最大的是 <span class="hl">${nx.moved}</span>，下一步把它和箭头指向的 ${nx.other} 交换。`;
+    else cap+=`没有可移动的数了，算法结束。一共 ${jt.s.length} 个排列 = ${jt.n}!。`;
+    $('jtCap').innerHTML=cap;
+    $('jtHist').innerHTML=jt.s.slice(0,jt.i+1).map((x,k)=>`<span class="${k===jt.i?'now':''}">${x.p.join('')}</span>`).join(' · ');
+    $('jtPrev').disabled=jt.i===0; $('jtNext').disabled=!nx; $('jtAll').disabled=!nx;
+  }
+  function jtInit(){jt.n=+$('jtN').value; jt.s=jtStates(jt.n); jt.i=0; jtRender();}
+  $('jtN').addEventListener('change',jtInit);
+  $('jtNext').addEventListener('click',()=>{if(jt.i<jt.s.length-1){jt.i++;jtRender();}});
+  $('jtPrev').addEventListener('click',()=>{if(jt.i>0){jt.i--;jtRender();}});
+  $('jtAll').addEventListener('click',()=>{jt.i=jt.s.length-1;jtRender();});
+  $('jtReset').addEventListener('click',()=>{jt.i=0;jtRender();});
+  jtInit();
+
+  /* ---------- 2a. inversion sequence calculator ---------- */
+  function invCalc(){
+    const raw=$('invIn').value.replace(/[^0-9]/g,'');
+    const p=raw.split('').map(Number), n=p.length;
+    const ok=n>0&&n<=9&&[...p].sort().join('')===[...Array(n)].map((_,i)=>i+1).join('');
+    if(!ok){$('invOut').innerHTML=`请输入 1 到 n 每个数字恰好出现一次的排列，例如 31524（最多 9 位）。`;return;}
+    const rows=[]; const a=[];
+    for(let j=1;j<=n;j++){const before=p.slice(0,p.indexOf(j)); const big=before.filter(x=>x>j); a.push(big.length);
+      rows.push(`a${sub(j)} = ${big.length}`+(big.length?`（前面比 ${j} 大的：${big.join('、')}）`:''));}
+    const tot=a.reduce((s,x)=>s+x,0);
+    $('invOut').innerHTML=rows.join('<br>')+`<br><b>逆序列：${a.join(', ')}</b>，逆序共 ${tot} 个，是${tot%2?'奇':'偶'}排列。`;
+  }
+  function sub(j){return String(j).split('').map(c=>'₀₁₂₃₄₅₆₇₈₉'[+c]).join('');}
+  $('invGo').addEventListener('click',invCalc);
+  $('invIn').addEventListener('keydown',e=>{if(e.key==='Enter')invCalc();});
+  invCalc();
+
+  /* ---------- 2b. reconstruct from inversion sequence (Algorithm II) ---------- */
+  const B=[5,3,4,0,2,1,1,0];
+  const rec={s:[],i:0};
+  (function(){let slots=Array(8).fill(null); rec.s.push({slots:[...slots],k:0,pos:null});
+    for(let k=1;k<=8;k++){const empt=[];slots.forEach((v,i)=>{if(v===null)empt.push(i);}); const pos=empt[B[k-1]]; slots[pos]=k; rec.s.push({slots:[...slots],k,pos,empt});}})();
+  function recRender(){
+    const st=rec.s[rec.i];
+    $('recTiles').innerHTML=st.slots.map((v,i)=>`<div class="tile ${v===null?'empty':''} ${i===st.pos?'big':''}"><span class="num">${v===null?'·':v}</span><span class="lab">${i+1}</span></div>`).join('');
+    $('recCount').textContent=`已放 ${st.k} / 8 个数`;
+    if(st.k===0) $('recCap').innerHTML='8 个空位，下面的小数字是位置编号。逆序列 b = 5, 3, 4, 0, 2, 1, 1, 0。';
+    else if(st.k<8){const b=B[st.k-1]; $('recCap').innerHTML=`放 ${st.k}：b${sub(st.k)} = ${b}，前面要留 ${b} 个空位给比 ${st.k} 大的数，所以放进<span class="hl">从左数第 ${b+1} 个空位</span>（位置 ${st.pos+1}）。`;}
+    else $('recCap').innerHTML=`放 8：只剩一个空位。结果是 <b>${st.slots.join('')}</b>，和讲义一致。`;
+    $('recPrev').disabled=rec.i===0; $('recNext').disabled=rec.i===rec.s.length-1;
+  }
+  $('recNext').addEventListener('click',()=>{if(rec.i<rec.s.length-1){rec.i++;recRender();}});
+  $('recPrev').addEventListener('click',()=>{if(rec.i>0){rec.i--;recRender();}});
+  $('recReset').addEventListener('click',()=>{rec.i=0;recRender();});
+  recRender();
+
+  /* ---------- 3/4. binary vs gray ---------- */
+  const NB=4;
+  function grayNext(a){ // a: array of bits, index 0 = a_{n-1}
+    const ones=a.reduce((s,x)=>s+x,0), b=[...a];
+    if(ones%2===0){b[NB-1]^=1; return {b,changed:[NB-1],why:`有 ${ones} 个 1（偶数），改最右边一位 a₀。`};}
+    let r=NB-1; while(b[r]===0) r--; b[r-1]^=1;
+    return {b,changed:[r-1],why:`有 ${ones} 个 1（奇数），最右边的 1 是 a${sub(NB-1-r)}，改它左边的 a${sub(NB-r)}。`};
+  }
+  function binNext(a){
+    const b=[...a]; let r=NB-1; while(b[r]===1){b[r]=0;r--;} b[r]=1;
+    const changed=[]; for(let i=r;i<NB;i++) changed.push(i);
+    return {b,changed,why:`从右往左第一个 0 是 a${sub(NB-1-r)}，把它变 1${r<NB-1?'，右边的 1 全变 0':''}。`};
+  }
+  const bit={mode:'gray',s:[],i:0};
+  function bitInit(){
+    bit.mode=$('bitMode').value; let a=Array(NB).fill(0); bit.s=[{a,changed:[],why:''}];
+    for(let k=1;k<(1<<NB);k++){const r=(bit.mode==='gray'?grayNext:binNext)(a); a=r.b; bit.s.push({a,changed:r.changed,why:r.why});}
+    bit.i=0; bitRender();
+  }
+  const setName=a=>{const e=[];a.forEach((v,i)=>{if(v)e.push('x'+sub(NB-1-i));}); return e.length?'{'+e.join(', ')+'}':'∅';};
+  function bitRender(){
+    const st=bit.s[bit.i], nx=bit.s[bit.i+1];
+    $('bitTiles').innerHTML=st.a.map((v,i)=>`<div class="tile ${st.changed.includes(i)?'big':''}"><span class="num">${v}</span><span class="lab">a${sub(NB-1-i)}</span></div>`).join('')+
+      `<div class="tile" style="min-width:auto;margin-left:.6rem;align-self:center"><span class="mono">${setName(st.a)}</span></div>`;
+    $('bitCount').textContent=`第 ${bit.i} 个（共 16 个，从 0 开始）`;
+    let cap=bit.i?`刚才：${st.why} 改了 ${st.changed.length} 位。<br>`:'起点 0000，空集。<br>';
+    cap+= nx?`下一步：${nx.why}`:(bit.mode==='gray'?'到 1000 结束，16 个子集全部列出。':'到 1111 结束，16 个子集全部列出。');
+    $('bitCap').innerHTML=cap;
+    $('bitHist').innerHTML=bit.s.slice(0,bit.i+1).map((x,k)=>`<span class="${k===bit.i?'now':''}">${x.a.join('')}</span>`).join(' · ');
+    $('bitPrev').disabled=bit.i===0; $('bitNext').disabled=!nx;
+  }
+  $('bitMode').addEventListener('change',bitInit);
+  $('bitNext').addEventListener('click',()=>{if(bit.i<bit.s.length-1){bit.i++;bitRender();}});
+  $('bitPrev').addEventListener('click',()=>{if(bit.i>0){bit.i--;bitRender();}});
+  $('bitReset').addEventListener('click',()=>{bit.i=0;bitRender();});
+  bitInit();
+
+  /* ---------- 5. lexicographic r-combinations ---------- */
+  const LN=6, LR=4;
+  function lexNext(a){
+    let k=LR-1; while(k>=0&&(a[k]+1>LN||a.includes(a[k]+1))) k--;
+    if(k<0) return null;
+    const b=a.slice(0,k); for(let t=0;t<LR-k;t++) b.push(a[k]+1+t);
+    return {b,k};
+  }
+  const lex={s:[],i:0};
+  (function(){let a=[1,2,3,4]; lex.s.push({a,k:null}); for(;;){const r=lexNext(a); if(!r) break; lex.s.push({a:r.b,k:r.k,prev:a}); a=r.b;}})();
+  function whyLex(a){
+    const r=lexNext(a); if(!r) return `${a.join('')} 是最后一个（(n−r+1)…n = 3456），结束。`;
+    const parts=[];
+    for(let k=LR-1;k>r.k;k--){const v=a[k]; parts.push(v+1>LN?`第 ${k+1} 位 ${v} 已经是 ${LN}`:`第 ${k+1} 位 ${v} 加 1 得 ${v+1}，已在组合里`);}
+    return (parts.length?parts.join('；')+'，都不能加。':'')+`第 ${r.k+1} 位 ${a[r.k]} 可以加 1，变成 ${a[r.k]+1}，后面依次填满：下一个是 <span class="hl">${r.b.join('')}</span>。`;
+  }
+  function lexRender(){
+    const st=lex.s[lex.i], nx=lexNext(st.a);
+    $('lexTiles').innerHTML=st.a.map((v,i)=>`<div class="tile ${nx&&i===nx.k?'big':''} ${st.k!==null&&i>=st.k?'mobile':''}"><span class="num">${v}</span><span class="lab">a${sub(i+1)}</span></div>`).join('');
+    $('lexCount').textContent=`第 ${lex.i+1} / ${lex.s.length} 个`;
+    $('lexCap').innerHTML=(lex.i?`虚线框是上一步改动过的位。<br>`:'第一个 4-组合是 1234。<br>')+whyLex(st.a);
+    $('lexHist').innerHTML=lex.s.slice(0,lex.i+1).map((x,k)=>`<span class="${k===lex.i?'now':''}">${x.a.join('')}</span>`).join(' · ');
+    $('lexPrev').disabled=lex.i===0; $('lexNext').disabled=lex.i===lex.s.length-1;
+  }
+  $('lexNext').addEventListener('click',()=>{if(lex.i<lex.s.length-1){lex.i++;lexRender();}});
+  $('lexPrev').addEventListener('click',()=>{if(lex.i>0){lex.i--;lexRender();}});
+  $('lexReset').addEventListener('click',()=>{lex.i=0;lexRender();});
+  lexRender();
+
+  /* ---------- 5b. position calculator ---------- */
+  function C(n,k){if(k<0||n<k) return 0; let r=1; for(let i=1;i<=k;i++) r=r*(n-k+i)/i; return Math.round(r);}
+  function posCalc(){
+    const n=parseInt($('posN').value,10); const a=$('posC').value.replace(/[^0-9]/g,'').split('').map(Number); const r=a.length;
+    const inc=a.every((v,i)=>i===0||v>a[i-1]);
+    if(!(n>=1&&n<=9)||!r||!inc||a[0]<1||a[r-1]>n){$('posOut').innerHTML='n 取 1 到 9；组合写成从小到大的数字，比如 1356，每个数在 1 到 n 之间。';return;}
+    const terms=[]; let after=0;
+    a.forEach((v,i)=>{const c=C(n-v,r-i); after+=c; terms.push(`C(${n-v},${r-i})=${c}`);});
+    const tot=C(n,r);
+    $('posOut').innerHTML=`总数 C(${n},${r}) = ${tot}。排在后面的：${terms.join(' + ')} = ${after}。<br><b>${a.join('')} 排第 ${tot-after} 位。</b>`;
+  }
+  $('posGo').addEventListener('click',posCalc);
+  ['posN','posC'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')posCalc();}));
+  posCalc();
+})();
+</script>
