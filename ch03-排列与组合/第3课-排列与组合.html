@@ -1,0 +1,779 @@
+<title>第3课 排列与组合</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; each new idea starts with "why we need it", then a tiny example, then the rule. Demo panels sit right after the idea they illustrate. */
+:root{
+  --paper:#f5f6f3; --surface:#ffffff; --ink:#1c2422; --muted:#5d6a66; --line:#d7ddd9;
+  --accent:#1f6f5c; --accent-soft:#e1efe9; --mark:#f3cf5b; --mark-ink:#3b2f00; --warn:#b4472f;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75}
+.wrap{max-width:46rem;margin:0 auto;padding-inline:16px;padding-block:2rem 4rem}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35}
+h1{font-size:1.9rem;margin:0 0 .4rem}
+h2{font-size:1.45rem;margin:3rem 0 .8rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.12rem;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+a{color:var(--accent)}
+.lede{color:var(--muted)}
+.meta{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+code,.mono{font-family:var(--mono);font-size:.95em}
+b,strong{font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.2rem 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;padding:.2rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:.9rem;background:var(--surface)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rule{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0}
+.rule p{margin:.2rem 0}
+.why{font-size:.95rem;margin:.4rem 0 .8rem}
+.why b{color:var(--accent)}
+ol.steps{padding-left:1.4rem;margin:.6rem 0}
+ol.steps li{margin:.25rem 0}
+.tip{font-size:.95rem;color:var(--muted)}
+.tip b{color:var(--ink)}
+.formula{font-family:var(--mono);font-weight:600;font-size:1.02rem;overflow-wrap:anywhere}
+/* machine panel */
+.machine{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.2rem 0}
+.machine .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.machine .title{font-weight:700;font-size:.95rem}
+.machine .count{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.machine .sublab{font-size:.85rem;color:var(--muted);margin:.5rem 0 .25rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+button,select,input{font:inherit}
+button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font-size:.9rem}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,.toc a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.25rem .5rem;font-size:.9rem}
+.caption{margin-top:.7rem;padding:.6rem .8rem;background:var(--paper);border-radius:6px;font-size:.95rem;min-height:3.2em}
+.caption .hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:3px}
+/* tiles */
+.tiles{display:flex;flex-wrap:wrap;gap:.45rem;align-items:flex-end;min-height:3rem}
+.tile{display:flex;flex-direction:column;align-items:center;min-width:2.6rem}
+.tile .num{font-family:var(--mono);font-weight:600;font-size:1.35rem;width:2.6rem;height:2.6rem;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:6px;background:var(--surface)}
+.tile.big .num{background:var(--mark);color:var(--mark-ink);border:1.5px solid var(--mark)}
+.tile.empty .num{color:var(--muted);border-style:dotted}
+.tile.slot .num{color:var(--accent);border-style:dashed;border-color:var(--accent);font-size:1rem}
+.tile .lab{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:.15rem}
+.tile .seg{font-family:var(--mono);font-size:.78rem;color:var(--accent);font-weight:600;line-height:1.1}
+.tiles.tight{gap:.3rem}
+.tiles.tight .tile{min-width:1.95rem}
+.tiles.tight .tile .num{width:1.95rem;height:2.3rem;font-size:1.1rem}
+.tile.star .num{color:var(--accent)}
+.tile.star.alt .num{background:var(--accent-soft)}
+.tile.bar .num{background:var(--mark);color:var(--mark-ink);border-color:var(--mark)}
+.history{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:.6rem;line-height:1.6;word-break:break-all}
+.history .now{color:var(--ink);font-weight:600}
+.history div.now{background:var(--accent-soft);border-radius:4px;padding:0 .3rem}
+/* digit picker */
+.digits{display:flex;flex-wrap:wrap;gap:.3rem}
+.dg{font-family:var(--mono);font-weight:600;font-size:1.05rem;width:2.1rem;height:2.1rem;display:inline-grid;place-items:center;border:1.5px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);padding:0}
+button.dg.sel{background:var(--mark);color:var(--mark-ink);border-color:var(--mark)}
+span.dg.ok{border-color:var(--accent);color:var(--accent)}
+span.dg.off{color:var(--muted);border-style:dotted;text-decoration:line-through;opacity:.6}
+.tally{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:.5rem;line-height:1.7}
+.tally span{display:inline-block;margin-right:.6rem}
+.tally .now{color:var(--mark-ink);background:var(--mark);border-radius:3px;padding:0 .25em}
+/* enumerator chips */
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;align-items:flex-start}
+.chip{font-family:var(--mono);font-size:.92rem;border:1px solid var(--accent);border-radius:6px;padding:.1rem .5rem;background:var(--surface);text-align:center;line-height:1.4}
+.chip small{display:block;font-size:.72rem;color:var(--muted)}
+.grp{display:flex;flex-wrap:wrap;gap:.3rem;border:1.5px dashed var(--line);border-radius:8px;padding:.3rem}
+.grp .glab{width:100%;font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+/* list blocks */
+.listing{font-family:var(--mono);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.35rem .7rem;margin:.4rem 0 .2rem;overflow-wrap:anywhere}
+.case{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.case h4{margin:0 0 .3rem;font-size:1rem;font-family:var(--serif)}
+.case .tag{display:inline-block;font-size:.8rem;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:0 .55rem;margin-right:.3rem}
+/* tables */
+.scroll{overflow-x:auto;margin:.8rem 0}
+table{border-collapse:collapse;font-size:.93rem;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:.35rem .7rem;text-align:left;white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:.85rem}
+td.mono{font-family:var(--mono)}
+span.hl{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+/* figures */
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem;min-width:0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.3rem}
+.circ{max-width:17rem;margin:0 auto}
+.circ svg text{font-family:var(--mono);font-size:15px;fill:var(--ink)}
+.circ .tbl{fill:var(--accent-soft);stroke:var(--line);stroke-width:1.5}
+.circ .seat{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:3 3}
+.circ .person{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.circ .person.first{fill:var(--mark);stroke:var(--mark)}
+.circ .start{fill:var(--warn)}
+.circ .startlab{fill:var(--warn);font-size:12px;font-family:var(--sans)}
+.circ .dir{fill:none;stroke:var(--muted);stroke-width:1.2}
+.circ .dirhead{fill:var(--muted)}
+.circ .ppl,.circ .ppl text{transform-box:view-box}
+.circ .ppl text{transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:no-preference){.circ .ppl,.circ .ppl text{transition:transform .45s ease}}
+/* practice */
+.q{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600}
+details{margin-top:.5rem}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+details[open] summary{margin-bottom:.3rem}
+.ans{font-size:.95rem}
+@media (max-width:480px){h1{font-size:1.55rem}.tile,.tile .num{min-width:2.2rem;width:2.2rem}.tile .num{height:2.2rem;font-size:1.15rem}.tiles.tight .tile,.tiles.tight .tile .num{min-width:1.8rem;width:1.8rem}}
+</style>
+
+<div class="wrap">
+<p class="meta">组合数学 · 讲义 03 · 幻灯片第 123–169 页 · Brualdi 第3章</p>
+<h1>第3课　排列与组合</h1>
+<p class="lede">这一章回答"有多少个"。东西少的时候可以全部列出来数，东西一多就列不完了，所以要学会<b>拆开来数</b>。本课先讲四条拆法（计数原理），再用它们一步步推出五个公式。每个新概念都按"为什么需要它 → 小例子 → 一般规律"的顺序讲，规律的理由就写在规律旁边。</p>
+
+<div class="rule">
+<p><b>本课目标</b>：掌握四个计数原理，会判断一道题是"排列还是组合、能不能重复"，并熟练使用这一章的五个公式。</p>
+</div>
+<p><b>和作业的衔接</b>：你做作业（<a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/%E4%BD%9C%E4%B8%9A/%E4%BD%9C%E4%B8%9A-83-95-104-126-131-141.md" target="_blank" rel="noopener">作业-83-95-104-126-131-141.md</a>）时已经用过这一章的不少东西：</p>
+<ul>
+<li>#104（四位数）用的是乘法原理和加法原理，见<a href="#count">第 1 节</a>；</li>
+<li>#126（桥牌）用的是多重集排列公式，见<a href="#multi">第 4 节</a>；</li>
+<li>#141（方程整数解）用的是隔板法，见<a href="#bars">第 5 节</a>；</li>
+<li>#131（格路）、#151（A、B 的排列）用的也是多重集排列。</li>
+</ul>
+<p class="tip">这一课把它们串成一个整体。练习题会避开你做过的这几道。</p>
+
+<ul class="toc">
+  <li><a href="#count">1 四个计数原理</a></li>
+  <li><a href="#perm">2 集合的排列</a></li>
+  <li><a href="#comb">3 集合的组合</a></li>
+  <li><a href="#multi">4 多重集的排列</a></li>
+  <li><a href="#bars">5 隔板法</a></li>
+  <li><a href="#four">6 先问两个问题</a></li>
+  <li><a href="#practice">练习</a></li>
+</ul>
+
+<!-- ============ 1 ============ -->
+<h2 id="count">1　四个计数原理（幻灯片 123–135）</h2>
+<p>四条原理各对应一种拆法：<b>分类</b>（加法）、<b>分步</b>（乘法）、<b>数反面</b>（减法）、<b>每组一样多</b>（除法）。后面所有公式都是它们的组合。</p>
+
+<h3>1.1 加法原理：分类</h3>
+<p><b>什么时候用</b>：要数的东西天然分成几种，每种单独数都很容易。</p>
+<p><b>小例子</b>：选一门课，数学课有 4 门、生物课有 3 门，只选一门。你选的那门要么是数学课、要么是生物课，所以共 4 + 3 = 7 种。</p>
+<div class="rule"><p>把要数的东西<b>分成互不重叠的几类</b>，分别数，再相加。</p></div>
+<p class="why"><b>为什么能相加</b>：每样东西恰好属于一类，所以在总数里恰好被数一次。<b>关键</b>是各类之间不能重叠，也不能漏。比如有一门"生物统计"既算数学课又算生物课，4 + 3 就把它数了两次，实际只有 6 门课可选。</p>
+
+<h3>1.2 乘法原理：分步</h3>
+<p><b>什么时候用</b>：加法原理处理的是"这一类或那一类"。但很多事情是"<b>先做这个，再做那个</b>"，结果是两步的搭配，这时要用乘法。</p>
+<p><b>小例子</b>：3 件上衣 A、B、C，2 条裤子 1、2，搭一套衣服。</p>
+<div class="listing">A1　A2　B1　B2　C1　C2</div>
+<p>共 6 套 = 3 × 2。<b>理由</b>：每件上衣都能配 2 条裤子，3 件上衣就是 3 组、每组 2 套，2 + 2 + 2 = 3 × 2。</p>
+<div class="rule"><p>做一件事分两步，第一步有 p 种做法，<b>不管第一步怎么做</b>，第二步都有 q 种做法，那么一共 p × q 种。</p></div>
+
+<p><b>例：数因数。</b>先看小的：12 = 2² × 3 有几个正因数？每个因数都形如 2ᵃ × 3ᵇ，a 取 0、1、2（3 种），b 取 0、1（2 种），共 3 × 2 = 6 个：1, 2, 3, 4, 6, 12。</p>
+<p>再看讲义的（幻灯片 127）：数 3⁴ × 5² × 11⁷ × 13⁸ 有多少个正因数？</p>
+<ol class="steps">
+<li>每个因数都形如 3ᵃ × 5ᵇ × 11ᶜ × 13ᵈ（因数只能用原数里有的质因数，次数不能超过原数）。</li>
+<li>a 可以取 0,1,2,3,4，共 5 种；b 取 0,1,2，共 3 种；c 有 8 种；d 有 9 种。</li>
+<li>a 取什么都不影响 b 能取几种，所以直接相乘：5 × 3 × 8 × 9 = <b>1080</b> 个。</li>
+</ol>
+
+<p><b>例（幻灯片 133）</b>：1000 到 9999 之间，各位数字互不相同的奇数有多少个？</p>
+<ol class="steps">
+<li>个位必须是奇数（奇数看个位）：1, 3, 5, 7, 9，共 <b>5</b> 种。</li>
+<li>千位不能是 0（否则不是四位数），也不能和个位相同：<b>8</b> 种。</li>
+<li>百位：10 个数字去掉已经用过的 2 个，<b>8</b> 种。</li>
+<li>十位：去掉已用的 3 个，<b>7</b> 种。</li>
+<li>共 5 × 8 × 8 × 7 = <b>2240</b> 个。</li>
+</ol>
+
+<h3>"个数不变"和"选项不变"不是一回事</h3>
+<p>你问过：<b>"第一个选了 7 那第三个就没法选了"</b>。后面的选法明明受前面影响，为什么还能直接乘？</p>
+<p>注意乘法原理里"<b>不管第一步怎么做</b>"这几个字。它要求的是：第二步的选法<b>个数</b>和第一步选了什么无关。至于具体能选<b>哪些</b>，可以变。</p>
+<ul>
+<li>个位选 7 时，千位可选 {1,2,3,4,5,6,8,9}；个位选 3 时，千位可选 {1,2,4,5,6,7,8,9}。</li>
+<li>能选<b>哪些</b>数字变了，但能选的<b>个数</b>都是 8。乘法原理只要求个数不变，所以可以直接乘 8。</li>
+</ul>
+<p><b>反例：换个顺序就不能直接乘</b>。先填千位、再填个位：</p>
+<ul>
+<li>千位选 2（偶数）时，个位有 1,3,5,7,9 共 5 种；</li>
+<li>千位选 3（奇数）时，个位只有 1,5,7,9 共 4 种。</li>
+</ul>
+<p>个位的选法<b>个数</b>取决于千位选了什么，就不能写成"9 × 固定的数"，只能分情况相加：千位是偶数（2,4,6,8，共 4 种）时个位 5 种，得 4 × 5 × 8 × 7 = 1120；千位是奇数（5 种）时个位 4 种，得 5 × 4 × 8 × 7 = 1120；合起来还是 2240，只是麻烦多了。</p>
+<p>下面的演示可以自己点一点：先选第一步的数字，看第二步还剩哪些。</p>
+
+<div class="machine" id="dgBox">
+  <div class="head"><span class="title">演示：先填哪一位，结果不一样</span><span class="count" id="dgCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="dgOrder">顺序：</label>
+    <select id="dgOrder"><option value="u" selected>先个位，再千位</option><option value="t">先千位，再个位</option></select>
+  </div>
+  <div class="sublab" id="dgFirstLab"></div>
+  <div class="digits" id="dgFirst"></div>
+  <div class="sublab" id="dgSecondLab"></div>
+  <div class="digits" id="dgSecond"></div>
+  <div class="tally" id="dgTally"></div>
+  <div class="caption" id="dgCap"></div>
+</div>
+<p class="tip">图例：第一步里<b>黄色</b>是你选的数字（点别的数字可以换）；第二步里<b>绿框</b>是还能选的，<b>划掉</b>的是不能选的。最下面一行列出第一步每种选法对应的第二步个数。</p>
+<div class="rule"><p><b>技巧</b>：先处理<b>限制最多的位置</b>（这里是个位和千位），让后面每一步的选法个数都固定下来。</p></div>
+
+<h3>1.3 减法原理：数反面</h3>
+<p><b>什么时候用</b>：有时"想要的"情况花样很多，直接数很乱；但"不想要的"只有一种样子，很好数。</p>
+<p><b>小例子</b>：用数字 1、2、3 写两位的数字串（可以重复），有几个含有重复数字？全部有 3 × 3 = 9 个；没有重复的，第一位 3 种、第二位 2 种，共 6 个；所以有重复的是 9 − 6 = 3 个（11、22、33）。</p>
+<div class="rule"><p>想要的 = 全部 − 不想要的。</p></div>
+<p class="why"><b>为什么</b>：每个串要么"有重复"、要么"没重复"，两类不重叠也不漏，由加法原理 全部 = 想要的 + 不想要的，移项就是减法原理。</p>
+<p><b>例（幻灯片 128–129）</b>：6 位密码，每位从 10 个数字和 26 个小写字母中选，有多少个密码含有重复字符？</p>
+<ol class="steps">
+<li>全部：每位 36 种，36⁶ = 2,176,782,336。</li>
+<li>没有重复的：每用掉一个字符，下一位就少一种选择，36 × 35 × 34 × 33 × 32 × 31 = 1,402,410,240。</li>
+<li>有重复的：两者相减，774,372,096。</li>
+</ol>
+<p class="tip">"至少有一个重复"直接数很麻烦（可能重复 2 次、3 次……），数反面"完全不重复"就简单多了。</p>
+
+<h3>1.4 除法原理：每组一样多</h3>
+<p><b>什么时候用</b>：有时候直接数不好数，但有一种数法会把<b>每个东西都恰好数了同样多次</b>，那就先这样数，再除掉重复的次数。</p>
+<p><b>小例子</b>：笼子里的鸡不好数，但数出一共 24 条腿。每只鸡恰好 2 条腿，所以有 24 ÷ 2 = 12 只鸡。</p>
+<div class="rule"><p>一堆东西分成若干组，<b>每组个数相同</b>，那么组数 = 总数 ÷ 每组个数。</p></div>
+<p class="why"><b>为什么</b>：k 组、每组 m 个，由乘法原理总数 = k × m，所以 k = 总数 ÷ m。前提是<b>每组一样多</b>，如果有的鸡瘸了一条腿，就不能直接除了。</p>
+<p class="tip">这个原理看起来最简单，但后面的<b>圆排列</b>和<b>组合数</b>公式都是用它推出来的。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="perm">2　集合的排列（幻灯片 136–143）</h2>
+
+<h3>2.1 线排列 P(n, r)</h3>
+<p><b>为什么单独讲</b>：乘法原理里最常见的一种情形是：从一堆<b>互不相同</b>的东西里挑几个<b>排队</b>，用过的不能再用。它出现得太多，值得有个公式。</p>
+<p><b>小例子</b>：从 A、B、C、D 4 个人中选正班长和副班长。正班长 4 种选法；不管选了谁，副班长都剩 3 人可选。共 4 × 3 = 12 种：</p>
+<div class="listing">AB　AC　AD　BA　BC　BD　CA　CB　CD　DA　DB　DC</div>
+<p>（前一个字母是正班长。AB 和 BA 不一样，因为职位不同，这就是"有顺序"。）</p>
+<div class="rule">
+<p>从 n 个<b>不同</b>的元素里选 r 个<b>排成一行</b>，方法数为</p>
+<p class="formula">P(n, r) = n × (n−1) × … × (n−r+1) = n! / (n−r)!</p>
+</div>
+<p class="why"><b>为什么</b>：第一个位置 n 种，第二个位置 n−1 种（用掉了一个）……第 r 个位置时已用掉 r−1 个，剩 n−r+1 种。每一步的<b>个数</b>都不受前面选了谁影响，所以由乘法原理相乘。写成 n!/(n−r)! 是因为 n! 后面那段 (n−r)×…×1 正好被约掉。r = n 时 P(n, n) = n!。</p>
+
+<h3>2.2 不相邻问题：插空法</h3>
+<p><b>为什么需要新办法</b>：要求"某几个东西两两不相邻"时，直接一位一位填很难：一个元音放在哪里，会影响下一个元音还能放几个位置，<b>个数</b>变了，乘法原理用不上。</p>
+<p><b>小例子</b>：辅音 b、c、d 和元音 a、e 排成一行，a 和 e 不相邻，有几种？</p>
+<ol class="steps">
+<li>先排 3 个辅音：3! = 6 种，比如 b c d。</li>
+<li>辅音之间和两端留出空位：<span class="mono">_ b _ c _ d _</span>，共 <b>4 个空</b>。</li>
+<li>a、e 放进 4 个空中的 2 个，每空最多一个（这样两个元音之间至少夹着一个辅音，一定不相邻），a 和 e 不同，有先后之分：P(4, 2) = 12 种。</li>
+<li>共 6 × 12 = 72 种。（核对：全部 5! = 120，a、e 相邻的有 2 × 4! = 48，120 − 48 = 72。）</li>
+</ol>
+<figure style="margin:.8rem 0">
+<div class="tiles" style="justify-content:center;min-height:0">
+  <div class="tile slot"><span class="num">空</span><span class="lab">1</span></div>
+  <div class="tile"><span class="num">b</span></div>
+  <div class="tile slot"><span class="num">空</span><span class="lab">2</span></div>
+  <div class="tile"><span class="num">c</span></div>
+  <div class="tile slot"><span class="num">空</span><span class="lab">3</span></div>
+  <div class="tile"><span class="num">d</span></div>
+  <div class="tile slot"><span class="num">空</span><span class="lab">4</span></div>
+</div>
+<figcaption>3 个辅音留出 4 个空。元音只进虚线空，每空一个，就不会挨在一起</figcaption>
+</figure>
+<p><b>例（幻灯片 139）</b>：26 个字母排成一行，5 个元音 a, e, i, o, u 两两不相邻，有多少种排法？</p>
+<ol class="steps">
+<li>先排 21 个辅音：21! 种。</li>
+<li>21 个辅音之间和两端一共有 <b>22 个空</b>（n 个东西排一行，中间 n−1 个空加两端 2 个）。</li>
+<li>把 5 个元音放进 22 个空中的 5 个，每空最多一个，并且元音之间有顺序：P(22, 5) 种。</li>
+<li>先排辅音、再插元音，第二步的个数不受第一步影响：共 21! × P(22, 5) 种。</li>
+</ol>
+<div class="rule"><p><b>插空法</b>：要求"某些东西互不相邻"时，先排其他的，再把它们插进空里。</p></div>
+
+<h3>2.3 圆排列</h3>
+<p><b>为什么需要新公式</b>：排成一行时，最左边是"第一个"，位置有区别。围着圆桌坐就没有"第一个座位"了，只看<b>谁挨着谁</b>（转一圈算同一种）。所以按排成一行的方法数会<b>多数</b>，要想办法除掉。</p>
+<p><b>先看小例子</b>：A、B、C 三人。</p>
+<ul>
+<li>排成一行有 6 种：ABC, BCA, CAB, ACB, CBA, BAC。</li>
+<li>围成圆时，ABC、BCA、CAB 是同一种坐法（只是转了一下），ACB、CBA、BAC 也是同一种。</li>
+<li>每 <b>3</b> 种线排列对应同一种圆排列，由除法原理，圆排列有 6 ÷ 3 = <b>2</b> 种。</li>
+</ul>
+
+<div class="machine" id="ciBox">
+  <div class="head"><span class="title">演示：转桌子，坐法不变</span><span class="count" id="ciCount"></span></div>
+  <div class="circ"><svg id="ciSvg" viewBox="0 0 240 240" role="img" aria-label="圆桌座位示意图"></svg></div>
+  <div class="caption" id="ciCap"></div>
+  <div class="controls">
+    <label for="ciN">人数：</label>
+    <select id="ciN"><option>3</option><option selected>4</option></select>
+    <button id="ciRot" class="primary">转一格</button>
+    <button id="ciNext">换一种坐法</button>
+    <button id="ciReset">重置</button>
+  </div>
+  <div class="history" id="ciHist"></div>
+</div>
+<p class="tip">图例：红点是"从这里开始读"的起点，沿箭头方向（顺时针）读出一行。<b>黄色</b>的是 A。下面每一行是同一种坐法转出来的全部读法。</p>
+
+<div class="rule">
+<p><b>一般公式</b>：从 n 个里选 r 个排成圆，</p>
+<p class="formula">圆排列数 = P(n, r) / r</p>
+<p>特别地，n 个全部排成圆有 <b>(n−1)!</b> 种。</p>
+</div>
+<p class="why"><b>为什么除以 r</b>：一种圆排列，从圆上 r 个位置中的任意一个开始读，能读出 r 种不同的线排列；反过来每个线排列首尾一接，只对应一种圆排列。所以 P(n, r) 个线排列每 r 个一组，由除法原理得 P(n, r)/r。r = n 时是 n!/n = (n−1)!。另一种理解：先让 A 坐下当参照，其余 n−1 人按"在 A 右边第几个"排成一行，(n−1)! 种。</p>
+
+<p><b>例（幻灯片 142）</b>：10 个人围圆桌坐，其中两人不愿相邻，有多少种坐法？用减法原理数反面：</p>
+<ol class="steps">
+<li>全部：10 人的圆排列 9!。</li>
+<li>两人相邻：把他俩"粘"成一个整体，变成 9 个单位的圆排列 8! 种；两人内部可以左右互换，× 2。</li>
+<li>答案：9! − 2 × 8! = <b>7 × 8!</b>（因为 9! = 9 × 8!）。</li>
+</ol>
+<p><b>项链（幻灯片 143）</b>：20 颗颜色各不相同的珠子串成项链，有多少种？项链不仅能转，还能<b>翻过来</b>。翻面会把顺时针读变成逆时针读，每条项链对应正反两种圆排列，所以在圆排列 19! 的基础上再除以 2：<b>19!/2</b>。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="comb">3　集合的组合（幻灯片 144–151）</h2>
+<p><b>为什么需要</b>：前面都是"排队"，顺序不同算不同。但很多时候只关心<b>选了谁</b>：选 2 个人去开会，选"A 和 B"与选"B 和 A"是同一件事。这时 P(n, r) 会多数。</p>
+<p>从 n 个不同元素里选 r 个，<b>不管顺序</b>，方法数记作 C(n, r) 或 (n 上 r 下)。</p>
+
+<h3>用除法原理推出公式</h3>
+<p><b>先看小例子</b>：从 {a, b, c} 中选 2 个。</p>
+<ul>
+<li>排列（有序）：ab, ba, ac, ca, bc, cb，共 6 种 = P(3,2)。</li>
+<li>组合（无序）：{a,b}, {a,c}, {b,c}，共 3 种。</li>
+<li>每个组合恰好对应 2! = 2 种排列（ab 和 ba 都对应 {a,b}），所以 3 = 6 ÷ 2。</li>
+</ul>
+<div class="rule">
+<p><b>一般公式</b>：</p>
+<p class="formula">C(n, r) = P(n, r) / r! = n! / (r! (n−r)!)</p>
+</div>
+<p class="why"><b>为什么除以 r!</b>：选定了哪 r 个，把它们排成一行有 r! 种顺序。所以 P(n, r) 个排列按"用的是哪几个元素"分组，每组恰好 r! 个，组数就是组合数。第 6 节的演示可以看到这些分组。</p>
+<p><b>例（幻灯片 146）</b>：平面上 25 个点，任意三点不共线。</p>
+<ul>
+<li>能连出多少条直线？每条直线由 2 个点决定，而且"点 1 连点 2"和"点 2 连点 1"是同一条，无序：C(25, 2) = <b>300</b>。</li>
+<li>能组成多少个三角形？三点不共线，任选 3 点都是一个三角形，同样无序：C(25, 3) = <b>2300</b>。</li>
+</ul>
+
+<h3>两个基本性质</h3>
+<p><b>性质 1：C(n, r) = C(n, n−r)</b>。小例子：从 4 本书里选 1 本带走，等于选 3 本留下，C(4,1) = C(4,3) = 4。<b>理由</b>：选出 r 个，等于决定哪 n−r 个不选，两种说法一一对应。</p>
+<p><b>性质 2：C(n,0) + C(n,1) + … + C(n,n) = 2ⁿ</b>（幻灯片 149–150）。小例子：{a,b,c} 的全部子集：</p>
+<div class="listing">∅ ｜ {a} {b} {c} ｜ {a,b} {a,c} {b,c} ｜ {a,b,c}</div>
+<p>按大小分是 1 + 3 + 3 + 1 = 8；另一方面，每个元素"选或不选"两种情况，乘法原理得 2³ = 8。<b>理由</b>：左边按子集大小分类数（加法原理），右边按每个元素逐个决定（乘法原理），数的是同一堆子集，所以相等。<b>同一件事用两种方法数</b>，这就是第2课补充里说的"双重计数"。</p>
+
+<!-- ============ 4 ============ -->
+<h2 id="multi">4　多重集的排列（幻灯片 152–162）</h2>
+<p><b>为什么需要</b>：前面的元素都互不相同。但像单词 MISSISSIPPI、数字 1,1,1,3,8 这样，有些元素<b>一模一样</b>。两个相同的 1 互换位置看不出区别，用 n! 去数就会多数。</p>
+<p><b>多重集</b>：允许元素重复的"集合"。例如 {3·a, 1·b, 2·c} 表示 3 个 a、1 个 b、2 个 c。数字 3、1、2 叫<b>重复数</b>。</p>
+
+<h3>4.1 重复数无限：kʳ</h3>
+<p><b>先看最简单的情况</b>：每种都用不完。</p>
+<p><b>小例子</b>：用 a、b 写长度 3 的串（随便重复），每一位都有 2 种选择：</p>
+<div class="listing">aaa　aab　aba　abb　baa　bab　bba　bbb</div>
+<p>共 2³ = 8 个。</p>
+<div class="rule"><p>每种元素有无限多个（或者至少有 r 个），从 k 种里排出长度 r 的序列，共 <b>kʳ</b> 种。</p></div>
+<p class="why"><b>为什么</b>：每个位置都有 k 种选择，而且用过的还能再用，后面的选择完全不受前面影响，乘法原理得 k × k × … × k。（和 P(n, r) 的区别就在"用过还能再用"。）"至少有 r 个"也够，因为长度 r 的串里一种元素最多也只用 r 次。</p>
+<p><b>例（幻灯片 153）</b>：至多 4 位的三进制数，前面补 0 看作 0、1、2 组成的长度 4 的串，共 3⁴ = <b>81</b> 个。</p>
+
+<h3>4.2 重复数有限：全排列公式</h3>
+<p><b>为什么不能用 kʳ</b>：如果 1 只有 3 个，就不能每一位都随便选 1 了，后面的选择受前面用了几个的限制。</p>
+<p><b>先看小例子（幻灯片 135）</b>：用数字 1, 1, 1, 3, 8 能组成多少个不同的五位数？</p>
+<ol class="steps">
+<li>先决定 3 放在哪：5 种；再决定 8 放在哪：4 种；剩下 3 个位置都放 1，只有 1 种放法。</li>
+<li>共 5 × 4 = <b>20</b> 种。</li>
+</ol>
+<p><b>换一种想法</b>：先把三个 1 当成不同的 1ₐ, 1ᵦ, 1꜀，5 个不同的数字排列有 5! = 120 种。但三个 1 之间互换顺序得到的是同一个数，每个数被数了 3! = 6 次（比如 1ₐ1ᵦ1꜀38、1ᵦ1ₐ1꜀38……都是 11138）。由除法原理，答案是 120 ÷ 6 = <b>20</b>。</p>
+<div class="rule">
+<p><b>一般公式</b>：多重集有 k 种元素，重复数为 n₁, n₂, …, nₖ，总数 n = n₁+…+nₖ，全排列数为</p>
+<p class="formula">n! / (n₁! n₂! … nₖ!)</p>
+</div>
+<p class="why"><b>为什么</b>：把相同的元素先贴上编号变成 n 个不同元素，有 n! 种排法。第 i 种元素的 nᵢ 个编号可以随便互换，看起来不变，所以每个真正的排列被数了 n₁! × n₂! × … × nₖ! 次（乘法原理），除掉即可。</p>
+<p>例：MISSISSIPPI 有 1 个 M、4 个 I、4 个 S、2 个 P，排列数为 11! / (1! 4! 4! 2!) = 34650。</p>
+
+<h3>4.3 同一个公式的另一种用法：分到有标号的盒子</h3>
+<p><b>为什么讲</b>：很多题不是"排字母"，而是"分东西"，比如把牌分给几个人。换个角度看，它其实就是 4.2。</p>
+<p><b>小例子（幻灯片 156）</b>：{a, b, c, d} 分成两组，每组 2 个。</p>
+<ul>
+<li>盒子有标号（红盒、蓝盒）：给 a、b、c、d 依次贴上"红"或"蓝"标签，比如 a红 b蓝 c红 d蓝 记作"红蓝红蓝"。分法和这种标签串一一对应，而标签串就是多重集 {2·红, 2·蓝} 的排列：4!/(2!2!) = <b>6</b> 种。</li>
+<li>盒子无标号：把红蓝互换得到的是同一种分法，每种分法被数了 2! 次，6 ÷ 2! = <b>3</b> 种：{a,b}{c,d}、{a,c}{b,d}、{a,d}{b,c}。</li>
+</ul>
+<div class="rule"><p>把 n 个<b>不同</b>的物体放进 k 个<b>有标号</b>的盒子，第 i 个盒子恰好放 nᵢ 个，方法数也是 <b>n! / (n₁! … nₖ!)</b>。如果盒子<b>没有标号</b>而且每盒个数相同，还要再除以 k!（盒子之间互换算同一种）。</p></div>
+<p class="why"><b>为什么</b>：把物体排成一行，给每个物体贴一个盒子标签，标签序列就是一个多重集排列（第 i 种标签用 nᵢ 次）。"每盒个数相同"这个条件很重要：只有这样，盒子互换后每组才都恰好是 k! 个，才能用除法原理。</p>
+<p class="tip">你做过的 #126 桥牌，就是把 52 张牌分给 4 个<b>有区别</b>的玩家（有标号的盒子），每人 13 张。</p>
+
+<h3>4.4 非攻击车（幻灯片 158–161）</h3>
+<p><b>为什么放在这里</b>：这是一个看起来像棋盘题、其实是排列的例子，三问分别用到 n!、两步相乘和多重集排列。</p>
+<p><b>小例子</b>：3×3 棋盘放 3 个相同的车，任意两个不同行也不同列。每行恰好一个车（3 行 3 个车，又不能同行），写下第 1、2、3 行的车在第几列，比如 2,3,1。三个列号必须互不相同，所以就是 1,2,3 的一个排列，3! = 6 种。</p>
+<p>8×8 棋盘放 8 个互不攻击的车：</p>
+<ul>
+<li>每行恰好一个车，第 i 行的车在第 jᵢ 列，j₁, …, j₈ 必须是 1–8 的一个排列。</li>
+<li>车<b>相同</b>时：<b>8!</b> 种。</li>
+<li>车有 8 种不同颜色：先定位置 8! 种，再把 8 种颜色排到这 8 个位置上 8! 种，共 <b>(8!)²</b>。</li>
+<li>1 红、3 蓝、4 黄（同色相同）：位置 8! × 颜色排列 8!/(1!3!4!) = <b>(8!)² / (1!3!4!)</b>。颜色排列是多重集 {1·红, 3·蓝, 4·黄} 的全排列。</li>
+</ul>
+
+<h3>4.5 多重集的 r-排列（重复数有限时）</h3>
+<p><b>为什么麻烦</b>：4.2 要求所有元素都用上。如果只取一部分，比如从 {3·a, 2·b, 4·c} 取 8 个，每种用了几个不确定，没法用一个公式直接算。</p>
+<p><b>小例子</b>：从 {2·a, 1·b} 取 2 个排成一行。按用了什么分类：</p>
+<ul>
+<li>用 2 个 a：只有 aa，2!/2! = 1 种；</li>
+<li>用 1 个 a、1 个 b：ab、ba，2!/(1!1!) = 2 种；</li>
+<li>共 3 种。（2 个 b 不行，b 只有 1 个。）</li>
+</ul>
+<div class="rule"><p>没有统一公式，要<b>按每种元素用了几个分类</b>，每类用全排列公式，再相加。</p></div>
+<p class="why"><b>为什么能这样</b>：一旦定下每种用几个，就变成了一个固定的多重集的全排列（4.2）；不同的"用量"得到的排列一定不同，各类不重叠，所以加法原理。</p>
+<p><b>例（幻灯片 162）</b>：S = {3·a, 2·b, 4·c} 共 9 个，求 8-排列数。9 个里少用 1 个，分三类：</p>
+<ul>
+<li>少一个 a，即 {2·a, 2·b, 4·c}：8!/(2!2!4!) = 420</li>
+<li>少一个 b，即 {3·a, 1·b, 4·c}：8!/(3!1!4!) = 280</li>
+<li>少一个 c，即 {3·a, 2·b, 3·c}：8!/(3!2!3!) = 560</li>
+<li>共 420 + 280 + 560 = <b>1260</b>。</li>
+</ul>
+
+<!-- ============ 5 ============ -->
+<h2 id="bars">5　多重集的组合与隔板法（幻灯片 163–169）</h2>
+<p><b>为什么需要</b>：第 4 节是"排"，顺序有关。现在问"<b>选</b>"：从几种东西里可以重复地选，<b>不管顺序</b>。比如买一盒甜甜圈，只关心每种买了几个，不关心放进盒子的先后。kʳ 会多数（它把 ab 和 ba 算成两种），C(n, r) 又不允许重复，都不对。</p>
+
+<h3>5.1 核心公式</h3>
+<p><b>小例子</b>：从 {a, b, c} 中可重复地选 2 个（k=3 种，选 r=2 个）：</p>
+<div class="listing">aa　bb　cc　ab　ac　bc</div>
+<p>共 6 种。怎么不用列就算出 6？关键是换一种写法：</p>
+<ol class="steps">
+<li>选出的结果可以写成"第 1 种选 x₁ 个，第 2 种选 x₂ 个，……"，其中 x₁ + x₂ + … + xₖ = r，每个 xᵢ ≥ 0。比如 ac 就是 x₁=1, x₂=0, x₃=1。</li>
+<li>所以<b>选法数 = 方程 x₁ + … + xₖ = r 的非负整数解个数</b>。</li>
+<li>把 r 个球（★）和 k−1 块隔板（|）排成一行（共 r+k−1 个位置），隔板把球分成 k 段，每段的球数就是 x₁, …, xₖ。ac 就是 <span class="mono">★||★</span>：第一段 1 个、第二段 0 个、第三段 1 个。</li>
+<li>反过来，任意一条这样的串都对应唯一一组解。所以只要数串：在 r+k−1 个位置里选哪 k−1 个放隔板，C(r+k−1, k−1) 种。</li>
+</ol>
+<div class="rule">
+<p>k 种元素、每种无限多个，从中选 r 个（不管顺序），方法数为</p>
+<p class="formula">C(r + k − 1, r) = C(r + k − 1, k − 1)</p>
+</div>
+<p>小例子核对：C(2+3−1, 2) = C(4, 2) = <b>6</b>。✓ 这和你在 #141 里学的隔板法一样（讲义的证明也是这个）。</p>
+
+<div class="machine" id="sbBox">
+  <div class="head"><span class="title">演示：星星和隔板</span><span class="count" id="sbCount"></span></div>
+  <div class="tiles tight" id="sbTiles"></div>
+  <div class="caption" id="sbCap"></div>
+  <div class="controls">
+    <label for="sbK">种类 k =</label>
+    <select id="sbK"><option>2</option><option selected>3</option><option>4</option></select>
+    <label for="sbR">选 r =</label>
+    <select id="sbR"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option></select>
+  </div>
+  <div class="controls">
+    <button id="sbPrev">上一步</button>
+    <button id="sbNext" class="primary">下一步</button>
+    <button id="sbAll">跑到底</button>
+    <button id="sbReset">重置</button>
+  </div>
+  <div class="history" id="sbHist"></div>
+</div>
+<p class="tip">图例：方块下面的小数字是位置编号，绿色字母是这颗星属于哪一种。<b>黄色</b>是隔板。把 r 调成 2，就是上面 {a,b,c} 选 2 个的 6 种。</p>
+
+<p><b>例（幻灯片 165）</b>：甜甜圈店有 8 种甜甜圈，一盒装 12 个，有多少种装法？只关心每种几个，可重复、无顺序，k = 8，r = 12：C(12+8−1, 12) = C(19, 12) = <b>50388</b> 种。</p>
+
+<h3>5.2 有下界：换元</h3>
+<p><b>为什么要换元</b>：隔板法要求 xᵢ ≥ 0（段可以是空的）。如果要求"每种至少 1 个"，有空段的串就不合格，不能直接用。</p>
+<p><b>小例子</b>：x₁ + x₂ + x₃ = 5，每个 xᵢ ≥ 1。先给每个变量发 1 个，还剩 5 − 3 = 2 个随便分，变成 y₁ + y₂ + y₃ = 2，yᵢ ≥ 0，C(2+3−1, 2) = C(4, 2) = 6 种。列出来核对：(1,1,3) (1,3,1) (3,1,1) (1,2,2) (2,1,2) (2,2,1)，正好 6 个。</p>
+<p><b>例（幻灯片 166–167）</b>：从 {10·a, 10·b, 10·c, 10·d} 中选 10 个，每种至少 1 个，有多少种？</p>
+<ol class="steps">
+<li>设 a, b, c, d 各选 x₁, x₂, x₃, x₄ 个：x₁+x₂+x₃+x₄ = 10，每个 xᵢ ≥ 1。</li>
+<li>重复数 10 已经不小于 10（一共才选 10 个，某种最多也只用 10 个），相当于无限，可以不管。</li>
+<li>令 yᵢ = xᵢ − 1（先给每种发 1 个），得 y₁+y₂+y₃+y₄ = 6，yᵢ ≥ 0。xᵢ 和 yᵢ 一一对应，所以解数不变。</li>
+<li>解数：C(6+4−1, 6) = C(9, 6) = <b>84</b>。</li>
+</ol>
+<p class="tip">更一般的下界（比如 x₁ ≥ 3、x₄ ≥ 5）也是一样：先把下界"预先发掉"，剩下的再用隔板法。这就是你在 #141 里做的。</p>
+
+<h3>5.3 有上界：等第6章</h3>
+<p><b>为什么换元不行</b>：下界可以"先发掉"，上界没法先收回来。</p>
+<p><b>小例子</b>：x₁ + x₂ = 3，要求 x₁ ≤ 1。隔板法给出 C(3+2−1, 1) = 4 种：(0,3) (1,2) (2,1) (3,0)，但后两个 x₁ 超过了 1，实际只有 2 种。隔板法<b>多数</b>了。</p>
+<p>如果每种元素的个数有上限（比如 a 最多 3 个），隔板法会多数，要用第6章的<b>容斥原理</b>来减掉超出上限的情况（幻灯片 169）。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="four">6　拿到一道题，先问两个问题</h2>
+<p><b>为什么要先问</b>：这一课的五个公式长得很像，用错一个答案就全错。区分它们只需要两个问题：</p>
+<ol class="steps">
+<li><b>有没有顺序？</b>换个先后算不算新的一种（ab 和 ba 是不是两种）？</li>
+<li><b>能不能重复？</b>同一个元素能不能选两次（aa 算不算）？</li>
+</ol>
+<p>以"从 {a, b, c} 中取 2 个"为例，四种情况的答案都不一样。下面一种一种看。</p>
+
+<div class="case">
+<h4><span class="tag">有顺序</span><span class="tag">不能重复</span></h4>
+<p>第一个位置 3 种；用掉一个，第二个位置剩 2 种。P(3,2) = 3 × 2 = <b>6</b> 种：</p>
+<div class="listing">ab　ba　ac　ca　bc　cb</div>
+<p class="tip">像选正副班长：职位不同所以有顺序，一个人不能兼两职所以不能重复。</p>
+</div>
+
+<div class="case">
+<h4><span class="tag">无顺序</span><span class="tag">不能重复</span></h4>
+<p>把上一种里"字母相同、只是顺序不同"的合并：ab 和 ba 合成 {a,b}……每组 2! = 2 个，6 ÷ 2 = C(3,2) = <b>3</b> 种：</p>
+<div class="listing">{a,b}　{a,c}　{b,c}</div>
+<p class="tip">像选 2 个人去开会：只看选了谁。</p>
+</div>
+
+<div class="case">
+<h4><span class="tag">有顺序</span><span class="tag">能重复</span></h4>
+<p>每个位置都可以是 a、b、c 中任何一个，用过的还能再用，3 × 3 = 3² = <b>9</b> 种：</p>
+<div class="listing">aa　ab　ac　ba　bb　bc　ca　cb　cc</div>
+<p class="tip">像两位密码，每位从 3 个字符里选。</p>
+</div>
+
+<div class="case">
+<h4><span class="tag">无顺序</span><span class="tag">能重复</span></h4>
+<p>只看每种选了几个：x₁ + x₂ + x₃ = 2 的非负整数解，隔板法 C(2+3−1, 2) = C(4,2) = <b>6</b> 种：</p>
+<div class="listing">{a,a}　{b,b}　{c,c}　{a,b}　{a,c}　{b,c}</div>
+<p class="tip">像买 2 个甜甜圈，3 种口味，可以买两个一样的。<b>注意</b>：这里不能用"9 ÷ 2!"来算。aa 只有一种顺序，ab 有两种，每组个数不一样多，除法原理用不上，所以才需要隔板法。</p>
+</div>
+
+<p>下面的演示可以换成 4 个元素或别的 r，自己看看每种情况列出来是什么样。</p>
+<div class="machine" id="enBox">
+  <div class="head"><span class="title">演示：四种情况全部列出来</span><span class="count" id="enCount"></span></div>
+  <div class="chips" id="enOut"></div>
+  <div class="caption" id="enCap"></div>
+  <div class="controls">
+    <label for="enOrd">顺序：</label>
+    <select id="enOrd"><option value="1" selected>有顺序</option><option value="0">无顺序</option></select>
+    <label for="enRep">重复：</label>
+    <select id="enRep"><option value="0" selected>不能重复</option><option value="1">能重复</option></select>
+  </div>
+  <div class="controls">
+    <label for="enN">从</label>
+    <select id="enN"><option value="3" selected>{a,b,c}</option><option value="4">{a,b,c,d}</option></select>
+    <label for="enR">取 r =</label>
+    <select id="enR"><option>1</option><option selected>2</option><option>3</option></select>
+  </div>
+</div>
+<p class="tip">"有顺序、不能重复"时，虚线框把用了同一组字母的排列圈在一起，每框 r! 个，框的个数就是组合数，这就是第 3 节的除法原理。"无顺序、能重复"时每个结果下面写着它的星隔串。</p>
+
+<div class="rule"><p>做题时先写一句话判断："这是<b>有序/无序</b>，<b>可重复/不可重复</b>"，再选公式。如果是有序且重复数有限（比如字母 ADDRESSES 的排列），用第 4 节的 n!/(n₁!…nₖ!)。</p></div>
+
+<!-- ============ practice ============ -->
+<h2 id="practice">7　练习（Exercises.pdf 题号）</h2>
+<p class="tip">先自己做，再点开答案。答案都用程序核对过（能枚举的直接枚举，人数太多的用小规模的同类题验证公式）。</p>
+
+<div class="q"><span class="src">#106</span>
+<p>一手扑克牌 5 张，从 52 张牌中发牌，有多少种发法（考虑发牌顺序）？有多少种不同的手牌（不考虑顺序）？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>发法（有序）：P(52, 5) = 52×51×50×49×48 = <b>311,875,200</b>。</p>
+<p>手牌（无序）：C(52, 5) = <b>2,598,960</b>。（前者是后者的 5! = 120 倍，因为每手牌有 5! 种发出来的顺序。）</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#111</span>
+<p>6 男 6 女围圆桌坐，男女相间，有多少种坐法？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>先让 6 位男士围坐：(6−1)! = 5! 种。他们之间有 6 个空位，6 位女士坐进去，这时座位已经被男士"固定"了，不再需要除以旋转：6! 种。</p>
+<p>共 5! × 6! = <b>86,400</b> 种。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#112</span>
+<p>15 人围圆桌坐，B 不愿坐在 A 旁边，有多少种坐法？如果 B 只是不愿坐在 A 的<b>右边</b>呢？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>全部：14!。</p>
+<p>B 在 A 旁边：把 A、B 粘成一个整体，14 个单位的圆排列 13!，AB 内部两种顺序 × 2，共 2 × 13!。</p>
+<p>B 不在 A 旁边：14! − 2 × 13! = <b>12 × 13!</b>。</p>
+<p>B 只是不坐 A 右边：B 坐在 A 右边的情况只有 13! 种（粘成"A 右边是 B"这一种顺序），答案 14! − 13! = <b>13 × 13!</b>。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#113</span>
+<p>俱乐部有 10 男 12 女，选 5 人委员会，至少 2 名女性，有多少种选法？如果另外还有一位特定男士和一位特定女士不愿同时入选呢？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>用减法原理：全部 C(22,5) = 26334，减去 0 女 C(10,5) = 252，减去 1 女 12 × C(10,4) = 2520，得 <b>23,562</b>。</p>
+<p>第二问：再减去"那位男士和那位女士都入选、且至少 2 女"的情况。他俩已入选，再从剩下 20 人（9 男 11 女）中选 3 人，至少再有 1 女：C(20,3) − C(9,3) = 1140 − 84 = 1056。答案 23562 − 1056 = <b>22,506</b>。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#114</span>
+<p>从 {1, 2, …, 20} 中选 3 个数，任意两个不相邻（不连续），有多少种选法？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>设选出的数 a &lt; b &lt; c，要求 b ≥ a+2、c ≥ b+2。令 b' = b−1、c' = c−2，则 a &lt; b' &lt; c' 且都在 1…18 之间，是 {1,…,18} 的任意 3-组合；反过来也成立（一一对应）。</p>
+<p>答案 C(18, 3) = <b>816</b>。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#124</span>
+<p>单词 ADDRESSES 的字母有多少种排列？这 9 个字母的 8-排列有多少种？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>ADDRESSES：A 1 个、D 2 个、R 1 个、E 2 个、S 3 个，共 9 个。</p>
+<p>全排列：9! / (1! 2! 1! 2! 3!) = <b>15,120</b>。</p>
+<p>8-排列：每个 8-排列后面<b>补上缺的那个字母</b>，就得到一个 9-排列；反过来，每个 9-排列去掉最后一个字母就得到一个 8-排列。这是一一对应，所以 8-排列也是 <b>15,120</b> 种。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#135</span>
+<p>求多重集 {3·a, 4·b, 5·c} 的 11-排列数。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>12 个元素里少用 1 个，按少哪一种分三类：</p>
+<ul>
+<li>{2·a, 4·b, 5·c}：11!/(2!4!5!) = 6930</li>
+<li>{3·a, 3·b, 5·c}：11!/(3!3!5!) = 9240</li>
+<li>{3·a, 4·b, 4·c}：11!/(3!4!4!) = 11550</li>
+<li>共 <b>27,720</b>。</li>
+</ul>
+<p>用第 6 题（#124）的"补上最后一个"技巧也可以直接得到 12!/(3!4!5!) = 27720。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#140</span>
+<p>面包店卖 6 种点心，每种至少有一打。买一打（12 个）有多少种选法？如果每种至少买一个呢？</p>
+<details><summary>看答案</summary><div class="ans">
+<p>6 种点心各至少 12 个，相当于无限：C(12+6−1, 12) = C(17, 5) = <b>6188</b>。</p>
+<p>每种至少一个：先每种发 1 个，剩下 6 个随便选：C(6+6−1, 6) = C(11, 5) = <b>462</b>。</p>
+</div></details>
+</div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const sub=j=>String(j).split('').map(c=>'₀₁₂₃₄₅₆₇₈₉'[+c]).join('');
+  const fact=n=>n<=1?1:n*fact(n-1);
+  function C(n,k){if(k<0||n<k) return 0; let r=1; for(let i=1;i<=k;i++) r=r*(n-k+i)/i; return Math.round(r);}
+  function P(n,r){let x=1; for(let i=0;i<r;i++) x*=n-i; return x;}
+
+  /* ---------- 1.2 digit order demo ---------- */
+  const dg={order:'u',first:7};
+  const ODD=[1,3,5,7,9], NZ=[1,2,3,4,5,6,7,8,9];
+  function dgSecond(order,f){return order==='u'?NZ.filter(d=>d!==f):ODD.filter(d=>d!==f);}
+  function dgRender(){
+    const u=dg.order==='u', firstOpts=u?ODD:NZ;
+    if(!firstOpts.includes(dg.first)) dg.first=u?7:2;
+    $('dgFirstLab').textContent=u?'第一步：个位（必须是奇数），点一个数字':'第一步：千位（不能是 0），点一个数字';
+    $('dgFirst').innerHTML=firstOpts.map(d=>`<button class="dg ${d===dg.first?'sel':''}" data-d="${d}" aria-pressed="${d===dg.first}">${d}</button>`).join('');
+    const ok=dgSecond(dg.order,dg.first);
+    const pool=[0,1,2,3,4,5,6,7,8,9];
+    $('dgSecondLab').textContent=u?`第二步：千位，还能选 ${ok.length} 个`:`第二步：个位，还能选 ${ok.length} 个`;
+    $('dgSecond').innerHTML=pool.map(d=>`<span class="dg ${ok.includes(d)?'ok':'off'}">${d}</span>`).join('');
+    $('dgCount').textContent=`第二步 ${ok.length} 种`;
+    $('dgTally').innerHTML=(u?'个位 → 千位个数：':'千位 → 个位个数：')+firstOpts.map(d=>`<span class="${d===dg.first?'now':''}">${d}→${dgSecond(dg.order,d).length}</span>`).join('');
+    let cap;
+    if(u){
+      const banned=[0,dg.first].join(' 和 ');
+      cap=`个位选了 ${dg.first}。千位不能是 0（否则不是四位数），也不能是 ${dg.first}（个位用掉了），去掉 ${banned}，剩下 {${ok.join(',')}}，共 <span class="hl">8 种</span>。<br>换别的个位试试：能选的<b>数字</b>会变，但<b>个数</b>永远是 8，因为被去掉的总是"0 和个位那个奇数"这 2 个，而个位不可能是 0。所以可以直接乘 8。`;
+    } else if(ODD.includes(dg.first)){
+      cap=`千位选了 ${dg.first}（奇数）。个位要从 1,3,5,7,9 里选，${dg.first} 正好也是候选之一，被千位用掉了，只剩 {${ok.join(',')}}，<span class="hl">4 种</span>。<br>再点一个偶数看看，会变成 5 种。个数随千位变，所以不能写成 9 × 固定的数，只能按千位奇偶分两类相加。`;
+    } else {
+      cap=`千位选了 ${dg.first}（偶数）。个位要从 1,3,5,7,9 里选，${dg.first} 不在其中，一个都没被占，<span class="hl">5 种</span>。<br>再点一个奇数看看，会变成 4 种。个数随千位变，所以不能写成 9 × 固定的数，只能按千位奇偶分两类相加。`;
+    }
+    $('dgCap').innerHTML=cap;
+  }
+  $('dgFirst').addEventListener('click',e=>{const b=e.target.closest('button[data-d]'); if(!b) return; dg.first=+b.dataset.d; dgRender();});
+  $('dgOrder').addEventListener('change',()=>{dg.order=$('dgOrder').value; dg.first=dg.order==='u'?7:2; dgRender();});
+  dgRender();
+
+  /* ---------- 2.3 circular permutations ---------- */
+  const SVGNS='http://www.w3.org/2000/svg';
+  function permsOf(arr){if(arr.length<=1) return [arr.slice()]; const out=[]; arr.forEach((x,i)=>{permsOf(arr.slice(0,i).concat(arr.slice(i+1))).forEach(p=>out.push([x,...p]));}); return out;}
+  const ci={n:4,arrs:[],a:0,rot:0,deg:0};
+  const CX=120,CY=120,R=78;
+  const seatXY=(i,n)=>{const t=(-90+360*i/n)*Math.PI/180; return [CX+R*Math.cos(t),CY+R*Math.sin(t)];};
+  function ciBuild(){
+    const n=ci.n, svg=$('ciSvg');
+    let h=`<circle class="tbl" cx="${CX}" cy="${CY}" r="50"/>`;
+    // clockwise arrow arc inside table
+    const a0=-60*Math.PI/180, a1=40*Math.PI/180, rr=32;
+    const p0=[CX+rr*Math.cos(a0),CY+rr*Math.sin(a0)], p1=[CX+rr*Math.cos(a1),CY+rr*Math.sin(a1)];
+    h+=`<path class="dir" d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)} A${rr} ${rr} 0 0 1 ${p1[0].toFixed(1)} ${p1[1].toFixed(1)}"/>`;
+    const tx=-Math.sin(a1), ty=Math.cos(a1); // tangent direction (clockwise)
+    const nx=Math.cos(a1), ny=Math.sin(a1);
+    const tip=[p1[0]+tx*7,p1[1]+ty*7], b1=[p1[0]+nx*4,p1[1]+ny*4], b2=[p1[0]-nx*4,p1[1]-ny*4];
+    h+=`<path class="dirhead" d="M${tip[0].toFixed(1)} ${tip[1].toFixed(1)} L${b1[0].toFixed(1)} ${b1[1].toFixed(1)} L${b2[0].toFixed(1)} ${b2[1].toFixed(1)} Z"/>`;
+    h+=`<text x="${CX}" y="${CY+5}" text-anchor="middle" style="font-size:12px;fill:var(--muted);font-family:var(--sans)">顺时针读</text>`;
+    for(let i=0;i<n;i++){const [x,y]=seatXY(i,n); h+=`<circle class="seat" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="21"/>`;}
+    h+=`<circle class="start" cx="${CX}" cy="${CY-R-27}" r="4"/><text class="startlab" x="${CX+9}" y="${CY-R-23}">起点</text>`;
+    h+=`<g class="ppl" id="ciPpl">`;
+    for(let i=0;i<n;i++){const [x,y]=seatXY(i,n); h+=`<circle class="person" id="ciP${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="16"/><text id="ciT${i}" x="${x.toFixed(1)}" y="${(y+5).toFixed(1)}" text-anchor="middle"></text>`;}
+    h+=`</g>`;
+    svg.innerHTML=h;
+  }
+  function reading(arr,rot){const n=arr.length; return [...Array(n)].map((_,j)=>arr[((j-rot)%n+n)%n]).join('');}
+  function ciRender(){
+    const n=ci.n, arr=ci.arrs[ci.a];
+    for(let i=0;i<n;i++){$('ciT'+i).textContent=arr[i]; $('ciP'+i).setAttribute('class','person'+(arr[i]==='A'?' first':''));}
+    const g=$('ciPpl'); g.style.transformOrigin=`${CX}px ${CY}px`; g.style.transform=`rotate(${ci.deg}deg)`;
+    for(let i=0;i<n;i++) $('ciT'+i).style.transform=`rotate(${-ci.deg}deg)`;
+    const r=ci.rot%n, now=reading(arr,r);
+    const all=[...Array(n)].map((_,s)=>reading(arr,s));
+    $('ciCount').textContent=`坐法 ${ci.a+1} / ${ci.arrs.length}`;
+    const nb=arr.map((p,i)=>`${p} 的两边是 ${arr[(i+n-1)%n]}、${arr[(i+1)%n]}`).slice(0,2).join('，');
+    $('ciCap').innerHTML=(ci.rot===0?'从起点顺时针读：':`转了 ${ci.rot} 格，从起点顺时针读：`)+`<span class="hl">${now}</span>。`+
+      (ci.rot===0?'点"转一格"，读出来的一行会变，但每个人两边坐的还是原来那两个人（'+nb+'），所以仍是同一种坐法。':`读法变了，但 ${nb}，谁挨着谁一点没变，所以还是同一种坐法。`)+
+      `<br>这一种坐法转一圈能读出 ${n} 个不同的线排列（下面高亮的一行）。${n} 个人的 ${n}! = ${fact(n)} 个线排列正好分成 ${ci.arrs.length} 组、每组 ${n} 个，由除法原理，圆排列有 ${fact(n)} ÷ ${n} = ${ci.arrs.length} = (${n}−1)! 种。`;
+    $('ciHist').innerHTML=ci.arrs.map((ar,k)=>{const rs=[...Array(n)].map((_,s)=>reading(ar,s)); return `<div class="${k===ci.a?'now':''}">坐法 ${k+1}：${rs.map(x=>k===ci.a&&x===now?`<b>${x}</b>`:x).join(' = ')}</div>`;}).join('');
+  }
+  function ciInit(){ci.n=+$('ciN').value; const L='ABCD'.slice(0,ci.n).split(''); ci.arrs=permsOf(L.slice(1)).map(p=>['A',...p]); ci.a=0; ci.rot=0; ci.deg=0; ciBuild(); ciRender();}
+  $('ciN').addEventListener('change',ciInit);
+  $('ciRot').addEventListener('click',()=>{ci.rot++; ci.deg+=360/ci.n; ciRender();});
+  $('ciNext').addEventListener('click',()=>{ci.a=(ci.a+1)%ci.arrs.length; ciRender();});
+  $('ciReset').addEventListener('click',()=>{ci.a=0; ci.rot=0; ci.deg=0; ciRender();});
+  ciInit();
+
+  /* ---------- 5. stars and bars ---------- */
+  const LET='abcd';
+  function combos(L,m){const out=[]; const cur=[]; (function rec(s){if(cur.length===m){out.push(cur.slice());return;} for(let i=s;i<L;i++){cur.push(i);rec(i+1);cur.pop();}})(0); return out;}
+  const sb={k:3,r:4,L:6,list:[],i:0};
+  function sbDecode(bars){const xs=[]; let prev=-1; bars.concat([sb.L]).forEach(b=>{xs.push(b-prev-1); prev=b;}); return xs;}
+  function sbStr(bars){let s=''; for(let p=0;p<sb.L;p++) s+=bars.includes(p)?'|':'★'; return s;}
+  function sbRender(){
+    const bars=sb.list[sb.i], xs=sbDecode(bars);
+    let seg=0, h='';
+    for(let p=0;p<sb.L;p++){
+      if(bars.includes(p)){h+=`<div class="tile bar"><span class="seg">&nbsp;</span><span class="num">|</span><span class="lab">${p+1}</span></div>`; seg++;}
+      else h+=`<div class="tile star ${seg%2?'alt':''}"><span class="seg">${LET[seg]}</span><span class="num">★</span><span class="lab">${p+1}</span></div>`;
+    }
+    $('sbTiles').innerHTML=h;
+    const tot=sb.list.length;
+    $('sbCount').textContent=`第 ${sb.i+1} / ${tot} 种`;
+    const eq=xs.map((_,i)=>'x'+sub(i+1)).join(' + ')+' = '+xs.join(' + ')+' = '+sb.r;
+    const pick=xs.map((x,i)=>`${LET[i]} 选 ${x} 个`).join('，');
+    const ms=xs.flatMap((x,i)=>Array(x).fill(LET[i]));
+    $('sbCap').innerHTML=`<span class="mono">${eq}</span>：${pick}，也就是选出 {${ms.join(',')}}。隔板在第 ${bars.map(b=>b+1).join('、')} 个位置。<br>`+
+      `为什么一一对应：每段的星数就是 xᵢ，读得出唯一一组解；反过来任给一组解，按"x₁ 颗星、隔板、x₂ 颗星……"也只画得出这一条串。所以选法数 = 在 ${sb.L} 个位置里挑 ${sb.k-1} 个放隔板 = <span class="hl">C(${sb.L}, ${sb.k-1}) = ${tot}</span>`+(sb.i===tot-1?'。已经列完了。':'。');
+    $('sbHist').innerHTML=sb.list.slice(0,sb.i+1).map((b,k)=>`<span class="${k===sb.i?'now':''}">${sbStr(b)}</span>`).join(' · ');
+    $('sbPrev').disabled=sb.i===0; $('sbNext').disabled=sb.i===tot-1; $('sbAll').disabled=sb.i===tot-1;
+  }
+  function sbInit(){sb.k=+$('sbK').value; sb.r=+$('sbR').value; sb.L=sb.r+sb.k-1; sb.list=combos(sb.L,sb.k-1); sb.i=0; sbRender();}
+  $('sbK').addEventListener('change',sbInit); $('sbR').addEventListener('change',sbInit);
+  $('sbNext').addEventListener('click',()=>{if(sb.i<sb.list.length-1){sb.i++;sbRender();}});
+  $('sbPrev').addEventListener('click',()=>{if(sb.i>0){sb.i--;sbRender();}});
+  $('sbAll').addEventListener('click',()=>{sb.i=sb.list.length-1;sbRender();});
+  $('sbReset').addEventListener('click',()=>{sb.i=0;sbRender();});
+  sbInit();
+
+  /* ---------- 6. four-case enumerator ---------- */
+  function enGen(S,r,ord,rep){
+    const out=[];
+    (function rec(cur,start){
+      if(cur.length===r){out.push(cur.map(i=>S[i]));return;}
+      for(let i=ord?0:start;i<S.length;i++){
+        if(!rep&&cur.includes(i)) continue;
+        rec(cur.concat(i),rep?i:i+1);
+      }
+    })([],0);
+    return out;
+  }
+  function enRender(){
+    const ord=$('enOrd').value==='1', rep=$('enRep').value==='1', n=+$('enN').value, r=+$('enR').value;
+    const S=LET.slice(0,n).split('');
+    const items=enGen(S,r,ord,rep);
+    let html='', cap='';
+    const setStr=a=>'{'+a.join(',')+'}';
+    if(ord&&!rep){
+      const groups=new Map();
+      items.forEach(a=>{const key=a.slice().sort().join(''); if(!groups.has(key)) groups.set(key,[]); groups.get(key).push(a);});
+      html=[...groups].map(([key,g])=>`<div class="grp"><span class="glab">${setStr(key.split(''))}</span>${g.map(a=>`<span class="chip">${a.join('')}</span>`).join('')}</div>`).join('');
+      cap=`第 1 个位置 ${n} 种，之后每个位置都比前一个少 1 种（用过的不能再用），P(${n},${r}) = ${[...Array(r)].map((_,i)=>n-i).join(' × ')} = <span class="hl">${items.length}</span>。<br>虚线框按"用了哪几个字母"分组：共 ${groups.size} 框，每框 ${r}! = ${fact(r)} 个，所以 ${items.length} ÷ ${fact(r)} = ${groups.size} = C(${n},${r})。切到"无顺序"就只剩每框一个代表。`;
+    } else if(!ord&&!rep){
+      html=items.map(a=>`<span class="chip">${setStr(a)}</span>`).join('');
+      cap=`只看选了哪 ${r} 个，不管先后。每个组合对应 ${r}! = ${fact(r)} 个排列，C(${n},${r}) = P(${n},${r}) ÷ ${r}! = ${P(n,r)} ÷ ${fact(r)} = <span class="hl">${items.length}</span>。`;
+    } else if(ord&&rep){
+      html=items.map(a=>`<span class="chip">${a.join('')}</span>`).join('');
+      cap=`每个位置都可以是 ${S.join('、')} 中任何一个，用过的还能再用，后面的选择不受前面影响：${n}<sup>${r}</sup> = ${Array(r).fill(n).join(' × ')} = <span class="hl">${items.length}</span>。`;
+    } else {
+      html=items.map(a=>{const xs=S.map(s=>a.filter(c=>c===s).length); const code=xs.map(x=>'★'.repeat(x)).join('|'); return `<span class="chip">${setStr(a)}<small>${code}</small></span>`;}).join('');
+      cap=`只看每种选了几个：x₁ + … + x${sub(n)} = ${r}，xᵢ ≥ 0。${r} 颗星和 ${n-1} 块隔板排一行，共 ${r+n-1} 个位置，挑 ${n-1} 个放隔板：C(${r+n-1},${n-1}) = <span class="hl">${items.length}</span>。<br>这里不能用 ${n}<sup>${r}</sup> ÷ ${r}!：像 {a,a} 这样有重复字母的，排出来的顺序少，每组不一样多，除法原理用不上。`;
+    }
+    $('enOut').innerHTML=html;
+    $('enCount').textContent=`${ord?'有顺序':'无顺序'}、${rep?'能重复':'不能重复'}：共 ${items.length} 种`;
+    $('enCap').innerHTML=cap;
+  }
+  ['enOrd','enRep','enN','enR'].forEach(id=>$(id).addEventListener('change',enRender));
+  enRender();
+})();
+</script>
