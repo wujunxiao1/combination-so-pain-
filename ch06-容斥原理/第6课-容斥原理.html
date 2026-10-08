@@ -1,0 +1,1164 @@
+<title>第6课 容斥原理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; each idea starts with "why", then a small example, then the rule. Demos are "machine" panels with the reason for each step under them. */
+:root{
+  --paper:#f5f6f3; --surface:#ffffff; --ink:#1c2422; --muted:#5d6a66; --line:#d7ddd9;
+  --accent:#1f6f5c; --accent-soft:#e1efe9; --mark:#f3cf5b; --mark-ink:#3b2f00; --warn:#b4472f;
+  --g1:#1f6f5c; --g2:#2f6db5; --g3:#b4472f; --g4:#7d4fb0; --g5:#8a6400;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068;
+  --g1:#62c3a6; --g2:#78aeea; --g3:#e48068; --g4:#b99ae6; --g5:#e2bd4f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068;
+  --g1:#62c3a6; --g2:#78aeea; --g3:#e48068; --g4:#b99ae6; --g5:#e2bd4f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75}
+.wrap{max-width:46rem;margin:0 auto;padding-inline:16px;padding-block:2rem 4rem}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35}
+h1{font-size:1.9rem;margin:0 0 .4rem}
+h2{font-size:1.45rem;margin:3rem 0 .8rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.12rem;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+ul{padding-left:1.3rem}
+.lede{color:var(--muted)}
+.meta{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+code,.mono{font-family:var(--mono);font-size:.95em}
+b,strong{font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.2rem 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;padding:.2rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:.9rem;background:var(--surface)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rule{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0}
+.rule p{margin:.2rem 0}
+ol.steps{padding-left:1.4rem;margin:.6rem 0}
+ol.steps li{margin:.25rem 0}
+.tip{font-size:.95rem;color:var(--muted)}
+.tip b{color:var(--ink)}
+.calc{font-family:var(--mono);font-size:.92rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.5rem .8rem;margin:.6rem 0;overflow-x:auto;line-height:1.9}
+.calc .ind{padding-left:1.2em}
+.calc .sumln{color:var(--muted)}
+/* machine panel */
+.machine{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.2rem 0}
+.machine .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.machine .title{font-weight:700;font-size:.95rem}
+.machine .count{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.machine .calc{background:var(--paper)}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+button,select,input{font:inherit}
+button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font-size:.9rem}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,.toc a:focus-visible,summary:focus-visible,svg .pt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text]{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.25rem .5rem;font-size:.9rem;max-width:100%}
+input[type=text]{font-family:var(--mono);width:7rem}
+input.short{width:3.6rem}
+.caption{margin-top:.7rem;padding:.6rem .8rem;background:var(--paper);border-radius:6px;font-size:.95rem;min-height:3.2em}
+.caption .hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:3px}
+.caption + .caption{margin-top:.4rem}
+.history{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:.6rem;line-height:1.6;word-break:break-all}
+.history .now{color:var(--ink);font-weight:600;text-decoration:underline}
+.history .dg{color:var(--accent);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.88rem;color:var(--muted);margin-top:.4rem}
+.legend .sw{display:inline-block;width:.8rem;height:.8rem;border-radius:50%;vertical-align:-.1rem;margin-right:.25rem;border:2px solid currentColor}
+.regbtns{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.regbtns button{font-size:.8rem;padding:.15rem .5rem}
+/* rook board */
+.board{display:grid;gap:3px;margin:0 auto}
+.board .hd{font-family:var(--mono);font-size:.8rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.bd{aspect-ratio:1/1;padding:0;border-radius:5px;font-size:1rem;background:var(--surface);border:1px solid var(--line);color:var(--ink);min-width:0;line-height:1}
+.bd.x{background:var(--paper);color:var(--warn);font-weight:700}
+.bd.rook{background:var(--mark);color:var(--mark-ink);border:1px solid var(--mark);font-weight:700}
+.bd.x.rook{border:2px solid var(--warn)}
+.bd.ok{background:var(--accent);color:var(--surface);border-color:var(--accent);font-weight:700}
+/* figures */
+.figs{display:flex;flex-wrap:wrap;gap:1rem;margin:.8rem 0}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem;flex:1 1 15rem;min-width:0}
+figure svg,.machine svg{width:100%;height:auto;display:block;margin:0 auto}
+figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.3rem}
+svg .edge{stroke:var(--muted);stroke-width:1.5}
+svg .node{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+svg .dot{fill:var(--accent)}
+svg text{fill:var(--ink);font-family:var(--mono);font-size:13px}
+svg text.val{font-size:12px;fill:var(--muted)}
+svg text.in{font-size:12px;text-anchor:middle;dominant-baseline:central}
+svg text.mid{text-anchor:middle}
+svg .hot{fill:var(--mark);stroke:var(--mark-ink);stroke-width:1}
+svg text.onhot{fill:var(--mark-ink)}
+svg .gridc{fill:var(--surface);stroke:var(--line);stroke-width:1}
+svg .xm{fill:var(--warn);font-size:15px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+svg .xm2{fill:var(--g2);font-size:15px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+svg .blk1{fill:none;stroke:var(--g3);stroke-width:2.5;stroke-dasharray:5 3}
+svg .blk2{fill:none;stroke:var(--g2);stroke-width:2.5;stroke-dasharray:5 3}
+svg .rk{fill:var(--accent)}
+svg text.rkt{fill:var(--surface);font-size:12px;text-anchor:middle;dominant-baseline:central;font-family:var(--sans);font-weight:700}
+/* venn */
+svg .vS{fill:none;stroke:var(--muted);stroke-width:1.5}
+svg .vbg{fill:var(--surface)}
+svg .vshade{fill:var(--accent-soft)}
+svg .vpick{fill:var(--mark);opacity:.6}
+svg .vset{fill:none;stroke-width:2.5}
+svg .s1{stroke:var(--g1)} svg .s2{stroke:var(--g2)} svg .s3{stroke:var(--g3)}
+svg text.f1{fill:var(--g1);font-weight:600} svg text.f2{fill:var(--g2);font-weight:600} svg text.f3{fill:var(--g3);font-weight:600}
+svg text.big{font-size:18px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+svg text.big.neg{fill:var(--warn)}
+svg text.big.zero{fill:var(--muted)}
+svg text.sm{font-size:10.5px;fill:var(--muted);text-anchor:middle;dominant-baseline:central}
+#vnSvg{cursor:pointer}
+/* simplex */
+svg .pt{cursor:pointer}
+svg .pt circle{stroke-width:1.5}
+svg .pt.c1 circle{fill:var(--accent);stroke:var(--accent)}
+svg .pt.c1 text{fill:var(--surface);font-weight:600}
+svg .pt.c0 circle{fill:var(--surface);fill-opacity:0;stroke:var(--muted)}
+svg .pt.c0 text{fill:var(--muted)}
+svg .pt.cn circle{fill:var(--surface);stroke:var(--warn);stroke-width:2}
+svg .pt.cn text{fill:var(--warn);font-weight:600}
+svg .pt.tm circle{stroke:var(--mark);stroke-width:4}
+svg .pt.pk circle{stroke:var(--ink);stroke-width:3}
+svg .cut1{stroke:var(--g1);stroke-width:2;stroke-dasharray:5 4}
+svg .cut2{stroke:var(--g2);stroke-width:2;stroke-dasharray:5 4}
+svg .cut3{stroke:var(--g3);stroke-width:2;stroke-dasharray:5 4}
+svg text.pv{text-anchor:middle;dominant-baseline:central}
+svg .reg1{fill:var(--g1);fill-opacity:.16} svg .reg2{fill:var(--g2);fill-opacity:.16} svg .reg3{fill:var(--g3);fill-opacity:.16}
+#drHist span{white-space:nowrap}
+/* derangement */
+svg .mv{stroke:var(--accent);stroke-width:2.2}
+svg .fx{stroke:var(--warn);stroke-width:3.5}
+svg .pp circle{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+svg .pp.own circle{stroke:var(--warn);stroke-width:3}
+/* tables */
+.scroll{overflow-x:auto;margin:.8rem 0}
+table{border-collapse:collapse;font-size:.93rem;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:.35rem .7rem;text-align:left;white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:.85rem}
+td.mono{font-family:var(--mono)}
+td .hl,span.hl{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+/* practice */
+.q{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600}
+.q .orig{font-size:.85rem;color:var(--muted)}
+details{margin-top:.5rem}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+details[open] summary{margin-bottom:.3rem}
+.ans{font-size:.95rem}
+@media (max-width:480px){h1{font-size:1.55rem}.calc{font-size:.85rem}}
+</style>
+
+<div class="wrap">
+<p class="meta">组合数学 · 讲义 06 · 幻灯片第 242–288 页 · Brualdi 第6章</p>
+<h1>第6课　容斥原理</h1>
+<p class="lede">第5课最后见过一个交错和：C(n,0) − C(n,1) + C(n,2) − … = 0。这一课它变成一件计数工具。要数"一个条件都不满足"的东西时，先数全部，减掉满足某个条件的，再把被多减的加回来，再把多加的减掉……这样一加一减，每个东西最后恰好被算一次。用它可以数带上界的方程整数解、"人人都拿错帽子"的错排、有禁止位置的排列（车多项式）。最后简单看一眼 Möbius 反演：容斥原理其实是偏序集上一个更一般的现象。每个公式旁边都写了"为什么"，演示里每一步都有说明。</p>
+<ul class="toc">
+  <li><a href="#sub">1 从减法原理说起</a></li>
+  <li><a href="#ie">2 容斥原理</a></li>
+  <li><a href="#ex">3 例题</a></li>
+  <li><a href="#rep">4 带上界的组合</a></li>
+  <li><a href="#der">5 错排</a></li>
+  <li><a href="#rook">6 禁位排列</a></li>
+  <li><a href="#qn">7 另一个禁位问题</a></li>
+  <li><a href="#mob">8 Möbius 反演</a></li>
+  <li><a href="#practice">练习</a></li>
+</ul>
+
+<!-- ============ 1 ============ -->
+<h2 id="sub">1　从减法原理说起（幻灯片 242–245）</h2>
+
+<h3>有时候"反着数"更容易</h3>
+<p>讲义第一个例子（幻灯片 242–243）：{1, 2, …, n} 的排列里，<b>1 不在第一位</b>的有多少个？</p>
+<p>先拿 n = 3 试：全部 6 个排列 123、132、213、231、312、321 里，1 不在第一位的是 213、231、312、321，共 4 个。两种数法：</p>
+<ol class="steps">
+<li><b>正着数</b>：按第一位放谁分类。第一位可以是 2, 3, …, n 中的任何一个（n−1 种），定下来以后其余 n−1 个数随便排，(n−1)! 种。加法原理：(n−1)·(n−1)!。n = 3 时 2 × 2 = 4。</li>
+<li><b>反着数</b>：1 在第一位的排列，就是后面 n−1 个数随便排，(n−1)! 个。全部 n! 个减掉它们：n! − (n−1)!。n = 3 时 6 − 2 = 4。</li>
+</ol>
+<p>两种结果一样（n! − (n−1)! = n·(n−1)! − (n−1)! = (n−1)·(n−1)!），但第二种几乎不用想。再看一个（幻灯片 243）：1 到 600 中<b>不能</b>被 6 整除的数有多少？6 的倍数是 6, 12, …, 600，共 600/6 = 100 个，所以答案是 600 − 100 = 500。</p>
+<div class="rule">
+<p><b>减法原理</b>（第3课，幻灯片 244）：A 是 S 的子集，Ā = S − A 是 A 的<b>补集</b>（S 里不在 A 中的元素），则</p>
+<p class="mono">|Ā| = |S| − |A|</p>
+</div>
+<p>讲义说这是容斥原理最简单的情形。"性质"是这一课的说法：S 里每个元素可能有、也可能没有某个性质 P，A 是有性质 P 的那些元素。我们要数的通常是<b>没有</b>某些性质的元素。</p>
+
+<h3>两个性质：直接减两次会出错</h3>
+<p>问题：1 到 20 中，<b>既不能被 2 整除、也不能被 3 整除</b>的数有几个？</p>
+<p>直接列出来：1, 5, 7, 11, 13, 17, 19，共 <b>7</b> 个。</p>
+<p>用减法试试：2 的倍数有 ⌊20/2⌋ = 10 个，3 的倍数有 ⌊20/3⌋ = 6 个（⌊ ⌋ 是向下取整），20 − 10 − 6 = 4。<b>不对</b>，少了 3 个。</p>
+<p>原因：6、12、18 <b>既是 2 的倍数又是 3 的倍数</b>，减 2 的倍数时减了一次，减 3 的倍数时又减了一次，被减了两次。它们本来只该减一次，所以要加回来：20 − 10 − 6 + 3 = 7。对了。</p>
+<div class="rule">
+<p><b>两个性质的容斥</b>（幻灯片 244–245）：A₁、A₂ 分别是有性质 P₁、P₂ 的元素，则两个性质都没有的元素个数是</p>
+<p class="mono">|Ā₁ ∩ Ā₂| = |S| − |A₁| − |A₂| + |A₁ ∩ A₂|</p>
+</div>
+<p><b>为什么对</b>：右边是一串"加 1、减 1"。把 S 里的元素按有哪些性质分成四类，看每类元素在右边被算了几次（幻灯片 245）：</p>
+<ol class="steps">
+<li><b>两个性质都没有</b>（例：7）：只在 |S| 里算一次，1 − 0 − 0 + 0 = <b>1</b>。</li>
+<li><b>只有 P₁</b>（例：4，是 2 的倍数、不是 3 的倍数）：在 |S| 里 +1，在 |A₁| 里 −1，1 − 1 − 0 + 0 = <b>0</b>。</li>
+<li><b>只有 P₂</b>（例：9）：1 − 0 − 1 + 0 = <b>0</b>。</li>
+<li><b>两个都有</b>（例：12）：|S| 里 +1，|A₁| 里 −1，|A₂| 里 −1，|A₁∩A₂| 里 +1，1 − 1 − 1 + 1 = <b>0</b>。</li>
+</ol>
+<p>所以右边恰好把"两个性质都没有"的元素各数了一次，别的都是 0 次。下面的演示可以一项一项地看这个过程。</p>
+
+<div class="machine" id="vnBox">
+  <div class="head"><span class="title">演示：Venn 图里每块被算了几次</span><span class="count" id="vnCount"></span></div>
+  <svg id="vnSvg" viewBox="0 0 360 300" role="img" aria-label="Venn 图，每个区域标着它目前被算了几次" style="max-width:460px"></svg>
+  <div class="legend" id="vnLegend"></div>
+  <div class="regbtns" id="vnRegs" aria-label="选一个区域"></div>
+  <div class="caption" id="vnCap"></div>
+  <div class="caption" id="vnPickCap" hidden></div>
+  <div class="controls">
+    <label for="vnMode">集合：</label>
+    <select id="vnMode">
+      <option value="2">两个（1–20；2、3 的倍数）</option>
+      <option value="3">三个（1–30；2、3、5 的倍数）</option>
+    </select>
+    <button id="vnPrev">上一步</button>
+    <button id="vnNext" class="primary">下一步</button>
+    <button id="vnReset">重置</button>
+  </div>
+</div>
+<p class="tip">图例：每块区域里<b>大的数字</b>是"到这一步为止它被算了几次"（红色是负数），小字是这块里有几个数。浅绿色是这一步加上或减去的那一项。点图里的一块区域（或下面的小按钮），黄色标出它，下面写出它在整个式子里的账：+1 − … 。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="ie">2　容斥原理（幻灯片 246–250）</h2>
+
+<h3>三个性质：多减了就加回，多加了就再减</h3>
+<p>问题：1 到 30 中，不能被 2、3、5 中任何一个整除的数有几个？列出来是 1, 7, 11, 13, 17, 19, 23, 29，共 <b>8</b> 个。用上一节的想法一步步来：</p>
+<ol class="steps">
+<li>全部：|S| = 30。</li>
+<li>减掉 2、3、5 的倍数：⌊30/2⌋ = 15，⌊30/3⌋ = 10，⌊30/5⌋ = 6。30 − 31 = −1，减多了。</li>
+<li>同时是两个数的倍数的，被减了两次，加回一次。"既是 2 的倍数又是 3 的倍数"就是"是 6 的倍数"（6 是 2 和 3 的最小公倍数），有 ⌊30/6⌋ = 5 个；同理 10 的倍数 3 个，15 的倍数 2 个。−1 + 10 = 9。</li>
+<li>还多了 1 个：30 本身是 2、3、5 三个数的倍数。它在 |S| 里 +1，第 2 步被减 3 次，第 3 步被加回 3 次（它属于三个"两两交"），净 1 − 3 + 3 = 1，应该是 0。所以再减掉三个都满足的：⌊30/30⌋ = 1。9 − 1 = <b>8</b>。</li>
+</ol>
+<p class="mono">30 − (15 + 10 + 6) + (5 + 3 + 2) − 1 = 8</p>
+<p>上面的演示选"三个"就是这个例子。</p>
+
+<h3>一般的公式 (6.1)</h3>
+<div class="rule">
+<p><b>容斥原理</b>（幻灯片 246–247）：S 是有限集，P₁, …, Pₘ 是 m 个性质，Aᵢ 是 S 中有性质 Pᵢ 的元素。一个性质都没有的元素个数是</p>
+<p class="mono">|Ā₁ ∩ Ā₂ ∩ … ∩ Āₘ| = |S| − Σ|Aᵢ| + Σ|Aᵢ ∩ Aⱼ| − Σ|Aᵢ ∩ Aⱼ ∩ Aₖ| + … + (−1)ᵐ|A₁ ∩ … ∩ Aₘ|</p>
+<p>第一个 Σ 对所有 1 元组合 {i} 求和，第二个对所有 2 元组合 {i, j}，依此类推。交 k 个集合的项，符号是 (−1)ᵏ。</p>
+</div>
+<p><b>一共几项</b>（幻灯片 247）：交 k 个集合的项有 C(m,k) 个（从 m 个性质里选 k 个），所以总项数 C(m,0) + C(m,1) + … + C(m,m) = 2ᵐ，这是第5课的行和 (5.3)。m = 3 时是 1 + 3 + 3 + 1 = 8 项，正是上面的例子。</p>
+
+<h3>为什么每个元素恰好算一次（幻灯片 248–249）</h3>
+<p>和两个性质时一样，看一个元素在右边被算了几次。设元素 y <b>恰好有 t 个性质</b>。</p>
+<ol class="steps">
+<li><b>|S|</b>：y 在 S 里，算 1 次 = C(t,0)。</li>
+<li><b>Σ|Aᵢ|</b>：y 恰好属于 t 个 Aᵢ，在这个和里出现 t 次 = C(t,1)。</li>
+<li><b>Σ|Aᵢ∩Aⱼ|</b>：y 属于 Aᵢ∩Aⱼ，当且仅当 i、j 都是它有的性质。从它的 t 个性质里选 2 个，所以出现 C(t,2) 次。</li>
+<li>依此类推，交 k 个的和里它出现 C(t,k) 次；k &gt; t 时 C(t,k) = 0，它不出现。</li>
+</ol>
+<p>带上符号，y 被算的总次数是</p>
+<div class="calc">C(t,0) − C(t,1) + C(t,2) − … + (−1)ᵗC(t,t) = (1 − 1)ᵗ</div>
+<p>这就是<b>第5课的交错和 (5.4)</b>（在 (1+x)ᵗ = Σ C(t,k)xᵏ 里代 x = −1）。t ≥ 1 时它等于 0；t = 0（一个性质都没有）时只有第一项，等于 1。所以右边<b>恰好数了一个性质都没有的元素</b>，每个一次。</p>
+<p>用 1 到 30 的例子核对三个元素：</p>
+<ul>
+<li>7：t = 0，只在 |S| 里出现，算 1 次。</li>
+<li>6：是 2、3 的倍数，t = 2：1 − 2 + 1 = 0。</li>
+<li>30：是 2、3、5 的倍数，t = 3：1 − 3 + 3 − 1 = 0。</li>
+</ul>
+<p class="tip">在演示里选"三个"，点中心那块（30 所在），它的账就是 1 − 3 + 3 − 1。</p>
+
+<h3>反过来：至少有一个性质 (6.2)</h3>
+<p>有时要数"至少有一个性质"的元素，也就是 A₁ ∪ … ∪ Aₘ。它等于 |S| 减去"一个都没有"的，把 (6.1) 代进去，|S| 抵消，所有符号反过来：</p>
+<div class="rule"><p><b>推论</b>（幻灯片 250）：</p><p class="mono">|A₁ ∪ A₂ ∪ … ∪ Aₘ| = Σ|Aᵢ| − Σ|Aᵢ ∩ Aⱼ| + Σ|Aᵢ ∩ Aⱼ ∩ Aₖ| − … + (−1)ᵐ⁺¹|A₁ ∩ … ∩ Aₘ|</p></div>
+<p>例：1 到 30 中至少能被 2、3、5 之一整除的数：31 − 10 + 1 = 22 = 30 − 8。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="ex">3　例题：整除、单词、数字（幻灯片 250–257）</h2>
+
+<h3>1 到 1000 中不能被 5、6、8 整除的数（幻灯片 250–252）</h3>
+<p>做法和上面完全一样，要注意两件事：</p>
+<ol class="steps">
+<li><b>a 的倍数有几个</b>：1 到 N 中 a 的倍数是 a, 2a, …, ka，其中 ka ≤ N，所以 k = ⌊N/a⌋。例：⌊1000/6⌋ = 166，因为 166 × 6 = 996 ≤ 1000，167 × 6 = 1002 &gt; 1000。</li>
+<li><b>"同时是 a 和 b 的倍数" = "是 lcm(a,b) 的倍数"</b>，lcm 是最小公倍数。6 和 8 的公倍数是 24, 48, 72, …，最小的是 24，不是 6 × 8 = 48。如果用 48，就会把 24、72 这些漏掉。只有 a、b 没有公因子时，lcm 才等于 a × b（例如 lcm(5,6) = 30）。</li>
+</ol>
+<div class="calc">|A₁| = ⌊1000/5⌋ = 200，|A₂| = ⌊1000/6⌋ = 166，|A₃| = ⌊1000/8⌋ = 125<br>|A₁∩A₂| = ⌊1000/30⌋ = 33，|A₁∩A₃| = ⌊1000/40⌋ = 25，|A₂∩A₃| = ⌊1000/24⌋ = 41<br>|A₁∩A₂∩A₃| = ⌊1000/120⌋ = 8<br>1000 − (200 + 166 + 125) + (33 + 25 + 41) − 8 = <b>600</b></div>
+<p>下面的计算器可以换成任意的 N 和除数，每一层都写出来，最后和"从 1 到 N 一个个检查"的结果对比。</p>
+
+<div class="machine" id="dvBox">
+  <div class="head"><span class="title">计算器：1 到 N 中不被 a、b、c 中任何一个整除的数</span><span class="count" id="dvCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="dvN">N =</label><input type="text" id="dvN" value="1000" inputmode="numeric" autocomplete="off" style="width:6.5rem">
+    <label for="dvA">a =</label><input type="text" id="dvA" class="short" value="5" inputmode="numeric" autocomplete="off">
+    <label for="dvB">b =</label><input type="text" id="dvB" class="short" value="6" inputmode="numeric" autocomplete="off">
+    <label for="dvC">c =</label><input type="text" id="dvC" class="short" value="8" inputmode="numeric" autocomplete="off">
+    <button id="dvGo">用这些数重来</button>
+  </div>
+  <div class="controls">
+    <span class="tip">例子：</span>
+    <button class="dvP" data-v="1000,5,6,8">幻灯片 252</button>
+    <button class="dvP" data-v="30,2,3,5">1–30</button>
+    <button class="dvP" data-v="10000,4,5,6">#265</button>
+    <button class="dvP" data-v="100,2,4,">只有 2、4</button>
+  </div>
+  <div class="calc" id="dvCalc"></div>
+  <div class="caption" id="dvCap"></div>
+  <div class="controls">
+    <button id="dvPrev">上一步</button>
+    <button id="dvNext" class="primary">下一步</button>
+  </div>
+</div>
+<p class="tip">c 可以留空，只算两个除数。N 最大 1 000 000。试试"只有 2、4"：4 的倍数全都是 2 的倍数，lcm(2,4) = 4，加回的项和减掉的 |A₂| 一样大，结果等于只排除 2 的倍数。</p>
+
+<h3>MATH、IS、FUN 都不出现（幻灯片 253–254）</h3>
+<p>把 M, A, T, H, I, S, F, U, N 九个字母排成一行，要求 MATH、IS、FUN 这三个"词"都不作为<b>连续的字母</b>出现。例如 MATHISFUN 不行，INUMATHSF（含 MATH）、ISMATHFUN 也不行。</p>
+<p>S 是全部 9! = 362 880 个排列，Pᵢ 是"含第 i 个词"。关键是怎么数 |A₁|（含 MATH 的排列）：</p>
+<ol class="steps">
+<li>MATH 四个字母必须按这个顺序挨在一起，就把它们<b>粘成一块</b>，当成一个符号。</li>
+<li>现在要排的是 6 个符号：[MATH], I, S, F, U, N，6! = 720 种。每种排法展开就是一个含 MATH 的排列，反过来每个含 MATH 的排列也只对应一种排法，所以 |A₁| = 720。</li>
+<li>同理，含 IS：8 个符号，|A₂| = 8! = 40 320；含 FUN：7 个符号，|A₃| = 7! = 5040。</li>
+<li>两两同时含：MATH 和 IS 一起粘，剩 [MATH], [IS], F, U, N 五块，5! = 120；MATH 和 FUN：[MATH], [FUN], I, S，4! = 24；IS 和 FUN：[IS], [FUN], M, A, T, H，6! = 720。</li>
+<li>三个都含：[MATH], [IS], [FUN]，3! = 6。</li>
+</ol>
+<div class="calc">362 880 − (720 + 40 320 + 5040) + (120 + 24 + 720) − 6 = <b>317 658</b></div>
+<p class="tip">这里粘块不会冲突，因为三个词没有公共字母。答案用程序把 9! 个排列逐个检查过。</p>
+
+<h3>特殊情形：交集大小只和"交了几个"有关 (6.3)（幻灯片 255–257）</h3>
+<p>先看一个很小的问题：两位数串 00 到 99 中，<b>同时含数字 2 和 5</b> 的有几个？显然只有 25、52 两个。用容斥怎么算？</p>
+<p>我们要的是"有 2 并且有 5"，容斥数的是"一个性质都没有"，所以把性质取成反面：P₁ = "<b>不含</b> 2"，P₂ = "<b>不含</b> 5"。两个性质都没有，就是 2 和 5 都含。</p>
+<ol class="steps">
+<li>|S| = 10² = 100（每一位 10 种）。</li>
+<li>|A₁|：不含 2，每一位只能从 9 个数字里选，9² = 81。|A₂| 也是 81。</li>
+<li>|A₁∩A₂|：既不含 2 也不含 5，每一位 8 种，8² = 64。</li>
+<li>100 − 2 × 81 + 64 = 2。✓</li>
+</ol>
+<p>这里每个 |Aᵢ| 都一样大，每个两两交也一样大。一般地，如果<b>交 k 个集合的大小只和 k 有关</b>，记为 αₖ，那么第 k 个 Σ 是 C(m,k) 个相同的数相加：</p>
+<div class="rule"><p class="mono">(6.3)　|Ā₁ ∩ … ∩ Āₘ| = α₀ − C(m,1)α₁ + C(m,2)α₂ − … + (−1)ᵏC(m,k)αₖ + … + (−1)ᵐαₘ</p></div>
+<p><b>讲义的例子</b>（幻灯片 256–257）：0 到 99 999 中，各位数字里 2、5、8 都出现的整数有几个？</p>
+<ol class="steps">
+<li>把每个数补成 5 位数字串（42 写成 00042），就是长度 5、每位 0–9 的串，共 α₀ = 10⁵ 个。补 0 不影响"含不含 2、5、8"。</li>
+<li>Pᵢ 取反面：P₁ = 不含 2，P₂ = 不含 5，P₃ = 不含 8。</li>
+<li>不含某一个指定数字：每位 9 种，α₁ = 9⁵；不含某两个：α₂ = 8⁵；三个都不含：α₃ = 7⁵。</li>
+</ol>
+<div class="calc">10⁵ − 3 × 9⁵ + 3 × 8⁵ − 7⁵ = 100 000 − 177 147 + 98 304 − 16 807 = <b>4350</b></div>
+<p class="tip">讲义只写到算式，4350 是用程序逐个检查 10 万个数核对过的。</p>
+
+<!-- ============ 4 ============ -->
+<h2 id="rep">4　带上界的重复组合（幻灯片 258–264）</h2>
+
+<h3>隔板法管不了"最多几个"</h3>
+<p>第3课的隔板法：k 种物品，每种<b>要多少有多少</b>，取 r 个的方法数是 C(r+k−1, r)，也就是 x₁ + … + xₖ = r 的非负整数解的个数。讲义第 258 页说，多重集的 r-组合只有两种"极端情况"会算：每种只有 1 个（就是普通集合，C(n,r)），或者每种都至少有 r 个（相当于无限，隔板法）。<b>每种有个上限、又不够 r 个</b>的时候怎么办？</p>
+<p>小例子：苹果、香蕉、橘子各 <b>2</b> 个，从中拿 4 个水果，有几种拿法？</p>
+<ol class="steps">
+<li><b>先不管上限</b>：x₁ + x₂ + x₃ = 4 的非负整数解，隔板法 C(4+2, 2) = 15。</li>
+<li><b>不合法的</b>：某种水果拿了 3 个或更多。设 A₁ = "苹果 ≥ 3"。先拿走 3 个苹果，剩下 1 个水果随便拿（苹果也行），1 个水果分给 3 种：C(1+2, 2) = 3 种。所以 |A₁| = 3，同理 |A₂| = |A₃| = 3。</li>
+<li><b>两种同时超</b>：至少 3 + 3 = 6 个 &gt; 4，不可能，交集都是 0。</li>
+<li>15 − 3 × 3 + 0 = <b>6</b>。列出来核对：(2,2,0), (2,0,2), (0,2,2), (2,1,1), (1,2,1), (1,1,2)。</li>
+</ol>
+<p><b>为什么 |A₁| 可以这样算</b>（幻灯片 260）：A₁ 里的每个解都有 x₁ ≥ 3，从 x₁ 里拿掉 3，就得到 x₁′ + x₂ + x₃ = 1 的一个非负整数解；反过来，任取 x₁′ + x₂ + x₃ = 1 的解，给 x₁′ 加回 3 就回到 A₁。这是一一对应，所以 |A₁| = "和为 1 的解的个数"。这和第3课处理<b>下界</b>的换元是同一个技巧，只是这里用来数"超了上界的"。</p>
+<div class="rule">
+<p><b>方法</b>（幻灯片 258–262）：数 x₁ + … + xₖ = r、0 ≤ xᵢ ≤ nᵢ 的整数解（= 多重集 {n₁·a₁, …, nₖ·aₖ} 的 r-组合）：</p>
+<ol class="steps">
+<li>S = 不管上界的全部非负整数解，|S| = C(r+k−1, k−1)。</li>
+<li>Pᵢ = "xᵢ ≥ nᵢ + 1"（超了上界）。</li>
+<li>交集里每个 xᵢ 先给 nᵢ + 1，剩下 r′ = r − Σ(nᵢ + 1) 随便分：C(r′+k−1, k−1)；r′ &lt; 0 时为 0。</li>
+<li>代入容斥公式 (6.1)。</li>
+</ol>
+</div>
+<p><b>讲义的例子</b>（幻灯片 258–261）：多重集 T = {3·a, 4·b, 5·c} 的 10-组合。Pᵢ 是 a 超过 3 个、b 超过 4 个、c 超过 5 个：</p>
+<div class="calc">|S| = C(12,2) = 66<br>|A₁| = C(6+2,2) = 28（先给 4 个 a，剩 6）<br>|A₂| = C(5+2,2) = 21（先给 5 个 b，剩 5）<br>|A₃| = C(4+2,2) = 15（先给 6 个 c，剩 4）<br>|A₁∩A₂| = C(1+2,2) = 3，|A₁∩A₃| = C(0+2,2) = 1，|A₂∩A₃| = 0（11 &gt; 10），|A₁∩A₂∩A₃| = 0<br>66 − (28 + 21 + 15) + (3 + 1 + 0) − 0 = <b>6</b></div>
+<p>这 6 个是 {3a,4b,3c}, {3a,3b,4c}, {3a,2b,5c}, {2a,4b,4c}, {2a,3b,5c}, {1a,4b,5c}（幻灯片 261）。</p>
+
+<div class="machine" id="sxBox">
+  <div class="head"><span class="title">演示：x₁ + x₂ + x₃ = r 的解，一项一项地减</span><span class="count" id="sxCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="sxR">r =</label><select id="sxR"></select>
+    <label for="sxU1">x₁ ≤</label><select id="sxU1"></select>
+    <label for="sxU2">x₂ ≤</label><select id="sxU2"></select>
+    <label for="sxU3">x₃ ≤</label><select id="sxU3"></select>
+  </div>
+  <svg id="sxSvg" role="img" aria-label="方程所有非负整数解排成的三角形点阵" style="max-width:460px;margin-top:.6rem"></svg>
+  <div class="caption" id="sxCap"></div>
+  <div class="caption" id="sxPickCap" hidden></div>
+  <div class="controls">
+    <button id="sxPrev">上一步</button>
+    <button id="sxNext" class="primary">下一步</button>
+    <button id="sxReset">重置</button>
+    <span class="tip">例子：</span>
+    <button class="sxP" data-v="4,2,2,2">水果</button>
+    <button class="sxP" data-v="10,3,4,5">幻灯片 260</button>
+    <button class="sxP" data-v="7,3,2,4">默认</button>
+  </div>
+</div>
+<p class="tip">图例：每个点是一组解 (x₁, x₂, x₃)。最上面的点是 x₁ = r，左下角 x₂ = r，右下角 x₃ = r。<b>虚线</b>是上界（绿 x₁、蓝 x₂、红 x₃）。浅色的角（绿 A₁、蓝 A₂、红 A₃）就是"超了这个上界"的解，它本身也是一个小三角形，所以也能用隔板法数。点里的数字是"到这一步为止它被算了几次"，<b>空心点</b>表示目前算 0 次，<b>黄圈</b>是这一步加上或减去的点。点一个点，看它的账。</p>
+
+<h3>有下界也有上界：先换元（幻灯片 262–264）</h3>
+<p>如果变量有下界，例如 1 ≤ x₁ ≤ 5，先像第3课那样换元，把下界挪到 0，上界跟着一起挪。讲义的例子：</p>
+<p class="mono">x₁ + x₂ + x₃ + x₄ = 18，1 ≤ x₁ ≤ 5，−2 ≤ x₂ ≤ 4，0 ≤ x₃ ≤ 5，3 ≤ x₄ ≤ 9</p>
+<ol class="steps">
+<li>令 y₁ = x₁ − 1，y₂ = x₂ + 2，y₃ = x₃，y₄ = x₄ − 3，每个 y 的下界都变成 0。</li>
+<li>上界一起挪：y₁ ≤ 4，y₂ ≤ 6，y₃ ≤ 5，y₄ ≤ 6。</li>
+<li>和变成 18 − 1 + 2 − 0 − 3 = 16：y₁ + y₂ + y₃ + y₄ = 16。为什么：把 xᵢ = yᵢ + (下界) 代进去，下界之和 1 − 2 + 0 + 3 = 2 移到右边。</li>
+<li>超上界：y₁ ≥ 5、y₂ ≥ 7、y₃ ≥ 6、y₄ ≥ 7，各自先给出这么多，剩 11、9、10、9。</li>
+<li>两两：5+7 → 剩 4，5+6 → 剩 5，5+7 → 剩 4，7+6 → 剩 3，7+7 → 剩 2，6+7 → 剩 3。三个以上至少要 5+6+7 = 18 &gt; 16，全是 0。</li>
+</ol>
+<div class="calc">C(19,3) − [C(14,3) + C(12,3) + C(13,3) + C(12,3)] + [C(7,3) + C(8,3) + C(7,3) + C(6,3) + C(5,3) + C(6,3)]<br>= 969 − (364 + 220 + 286 + 220) + (35 + 56 + 35 + 20 + 10 + 20) = 969 − 1090 + 176 = <b>55</b></div>
+<p class="tip">讲义写成 C(19,16)、C(14,11) 这样，和这里的 C(19,3)、C(14,3) 相等（C(n,k) = C(n,n−k)）。4 个变量用 3 块隔板，所以下面是 3。答案用程序枚举核对过。</p>
+
+<!-- ============ 5 ============ -->
+<h2 id="der">5　错排（幻灯片 265–271）</h2>
+
+<h3>每个人都拿错了帽子</h3>
+<p>n 个人进门时把帽子寄存，离开时帽子被随机还回来。<b>每个人都没拿到自己的帽子</b>，有几种还法？</p>
+<p>把"第 i 个人拿到第 pᵢ 号帽子"写成排列 p₁p₂…pₙ。要求是对每个 i 都有 pᵢ ≠ i，也就是没有一个数待在自己的位置上。这样的排列叫<b>错排</b>，个数记为 <b>Dₙ</b>（幻灯片 265）。</p>
+<p>n = 3：六个排列 123、132、213、231、312、321 中，123 三个人都拿对了；132 里 1 拿对了；213 里 3 拿对了；321 里 2 拿对了。只剩 <b>231 和 312</b>，D₃ = 2。</p>
+
+<h3>用容斥算 Dₙ（幻灯片 265–267）</h3>
+<ol class="steps">
+<li>S = 全部 n! 个排列。Pⱼ = "j 在第 j 位"（第 j 个人拿到自己的帽子）。错排就是一个性质都没有的排列。</li>
+<li><b>交 k 个</b>：|Aᵢ₁ ∩ … ∩ Aᵢₖ| = (n−k)!。理由：这 k 个数被钉死在自己的位置上，其余 n−k 个数在剩下的 n−k 个位置上随便排。例 n = 3：1 和 3 都在原位的排列只有 123，(3−2)! = 1。</li>
+<li>这个大小只和 k 有关，可以用 (6.3)：选哪 k 个钉住有 C(n,k) 种。</li>
+</ol>
+<div class="calc">Dₙ = n! − C(n,1)(n−1)! + C(n,2)(n−2)! − … + (−1)ⁿC(n,n)0!<br>C(n,k)(n−k)! = n!/(k!(n−k)!) × (n−k)! = n!/k!，所以<br>Dₙ = n! − n!/1! + n!/2! − n!/3! + … + (−1)ⁿ n!/n!</div>
+<div class="rule">
+<p><b>定理</b>（幻灯片 265）：n ≥ 1 时，</p>
+<p class="mono">Dₙ = n!(1 − 1/1! + 1/2! − 1/3! + … + (−1)ⁿ/n!)</p>
+</div>
+<p>核对 n = 3：6 × (1 − 1 + 1/2 − 1/6) = 6 × 1/3 = 2。✓ n = 4：24 − 24 + 12 − 4 + 1 = 9。</p>
+
+<h3>和 1/e 的关系</h3>
+<p>括号里的 1 − 1/1! + 1/2! − … 是 e⁻¹ = Σ (−1)ᵏ/k! 的前 n+1 项（微积分里 eˣ 的展开代 x = −1）。所以 Dₙ/n!，即"随机还帽子、没人拿对"的概率，很快接近 1/e ≈ 0.367 879。从 n = 1 起，Dₙ 就是离 n!/e 最近的整数。</p>
+<div class="scroll"><table>
+<tr><th>n</th><th>n!</th><th>Dₙ</th><th>递推 (n−1)(Dₙ₋₂+Dₙ₋₁)</th><th>n!/e</th><th>Dₙ/n!</th></tr>
+<tr><td class="mono">1</td><td class="mono">1</td><td class="mono"><b>0</b></td><td class="mono">起点</td><td class="mono">0.368</td><td class="mono">0.000000</td></tr>
+<tr><td class="mono">2</td><td class="mono">2</td><td class="mono"><b>1</b></td><td class="mono">起点</td><td class="mono">0.736</td><td class="mono">0.500000</td></tr>
+<tr><td class="mono">3</td><td class="mono">6</td><td class="mono"><b>2</b></td><td class="mono">2×(0+1) = 2</td><td class="mono">2.207</td><td class="mono">0.333333</td></tr>
+<tr><td class="mono">4</td><td class="mono">24</td><td class="mono"><b>9</b></td><td class="mono">3×(1+2) = 9</td><td class="mono">8.829</td><td class="mono">0.375000</td></tr>
+<tr><td class="mono">5</td><td class="mono">120</td><td class="mono"><b>44</b></td><td class="mono">4×(2+9) = 44</td><td class="mono">44.146</td><td class="mono">0.366667</td></tr>
+<tr><td class="mono">6</td><td class="mono">720</td><td class="mono"><b>265</b></td><td class="mono">5×(9+44) = 265</td><td class="mono">264.873</td><td class="mono">0.368056</td></tr>
+<tr><td class="mono">7</td><td class="mono">5040</td><td class="mono"><b>1854</b></td><td class="mono">6×(44+265) = 1854</td><td class="mono">1854.112</td><td class="mono">0.367857</td></tr>
+<tr><td class="mono">8</td><td class="mono">40320</td><td class="mono"><b>14833</b></td><td class="mono">7×(265+1854) = 14833</td><td class="mono">14832.899</td><td class="mono">0.367882</td></tr>
+<tr><td class="mono">9</td><td class="mono">362880</td><td class="mono"><b>133496</b></td><td class="mono">8×(1854+14833) = 133496</td><td class="mono">133496.092</td><td class="mono">0.367879</td></tr>
+<tr><td class="mono">10</td><td class="mono">3628800</td><td class="mono"><b>1334961</b></td><td class="mono">9×(14833+133496) = 1334961</td><td class="mono">1334960.916</td><td class="mono">0.367879</td></tr>
+</table></div>
+<p class="tip">表里每个 Dₙ（n ≤ 8）都用程序枚举全部排列核对过，n = 9、10 用公式和两个递推核对。手机上表格可以左右滑动。</p>
+
+<h3>递推 (6.4)：Dₙ = (n−1)(Dₙ₋₂ + Dₙ₋₁)（幻灯片 268–270）</h3>
+<p>公式要算一串分数，递推只用前两个数，而且有很清楚的"数数"理由。以 n = 4 为例，9 个错排是：</p>
+<p class="mono">2143　2341　2413　3142　3412　3421　4123　4312　4321</p>
+<ol class="steps">
+<li><b>按第 1 位放谁分组</b>：第 1 位不能是 1，只能是 2, 3, …, n，共 n−1 组。把数字 2 和 k 的名字互换，就把"第 1 位是 2"的组变成"第 1 位是 k"的组，所以每组一样多。n = 4 时每组 3 个，D₄ = 3 × 3。</li>
+<li><b>看第 1 位是 2 的那组</b>：2143、2341、2413。再按"第 2 位是不是 1"分两类。</li>
+<li><b>第 2 位是 1</b>（1 和 2 互换了帽子）：2143。剩下的 3, 4 在位置 3, 4 上要错排，有 Dₙ₋₂ 种（这里 D₂ = 1）。</li>
+<li><b>第 2 位不是 1</b>：2341、2413。现在要把 {1, 3, 4, …, n} 放进位置 2, 3, …, n，要求 1 不在位置 2、j 不在位置 j。把"1"暂时改名叫"2"，条件就变成"每个数都不在自己的位置"，正好是 n−1 个数的错排，Dₙ₋₁ 种（这里 D₃ = 2）。</li>
+<li>每组 Dₙ₋₂ + Dₙ₋₁ 个，共 n−1 组：<b>Dₙ = (n−1)(Dₙ₋₂ + Dₙ₋₁)</b>。n = 4：3 × (1 + 2) = 9。</li>
+</ol>
+<div class="figs"><figure>
+<svg viewBox="0 0 330 118" style="max-width:440px" role="img" aria-label="n=4 的 9 个错排按第一位分成三组，每组一个互换型">
+<text class="val mid" x="55" y="20">第 1 位是 2</text><text class="val mid" x="165" y="20">第 1 位是 3</text><text class="val mid" x="275" y="20">第 1 位是 4</text>
+<rect class="hot" x="25" y="34" width="60" height="22" rx="4"/><text class="mid onhot" x="55" y="50">2143</text>
+<text class="mid" x="55" y="80">2341</text><text class="mid" x="55" y="106">2413</text>
+<text class="mid" x="165" y="54">3142</text>
+<rect class="hot" x="135" y="60" width="60" height="22" rx="4"/><text class="mid onhot" x="165" y="76">3412</text>
+<text class="mid" x="165" y="106">3421</text>
+<text class="mid" x="275" y="54">4123</text><text class="mid" x="275" y="80">4312</text>
+<rect class="hot" x="245" y="86" width="60" height="22" rx="4"/><text class="mid onhot" x="275" y="102">4321</text>
+<line class="edge" x1="110" y1="12" x2="110" y2="112"/><line class="edge" x1="220" y1="12" x2="220" y2="112"/>
+</svg>
+<figcaption>黄色：位置 k 上是 1（互换型），每组 D₂ = 1 个；其余每组 D₃ = 2 个。D₄ = 3 组 × (D₂ + D₃) = 9</figcaption>
+</figure></div>
+<p><b>另一个递推 (6.5)</b>：Dₙ = nDₙ₋₁ + (−1)ⁿ（n ≥ 2，幻灯片 268 列出，没有证明）。直接从公式看最快：Dₙ 括号里的和比 Dₙ₋₁ 括号里的多一项 (−1)ⁿ/n!，而 n! = n·(n−1)!，所以</p>
+<div class="calc">Dₙ = n·(n−1)!·[1 − 1/1! + … + (−1)ⁿ⁻¹/(n−1)!] + n!·(−1)ⁿ/n! = n·Dₙ₋₁ + (−1)ⁿ</div>
+<p>例：D₅ = 5 × 9 − 1 = 44，D₆ = 6 × 44 + 1 = 265。</p>
+
+<div class="machine" id="drBox">
+  <div class="head"><span class="title">演示：一个一个看排列，找出错排</span><span class="count" id="drCount"></span></div>
+  <svg id="drSvg" viewBox="0 0 320 150" role="img" aria-label="人和帽子的连线图" style="max-width:420px"></svg>
+  <div class="caption" id="drCap"></div>
+  <div class="controls">
+    <label for="drN">n =</label>
+    <select id="drN"><option>3</option><option selected>4</option></select>
+    <button id="drPrev">上一个</button>
+    <button id="drNext" class="primary">下一个</button>
+    <button id="drSkip">跳到下一个错排</button>
+    <button id="drReset">重置</button>
+  </div>
+  <div class="history" id="drHist"></div>
+</div>
+<p class="tip">图例：上面一排是人，下面一排是帽子，线表示"人 i 拿到帽 pᵢ"。<b>红色竖线</b>是拿到自己帽子的人（不动点）；一条红线都没有就是错排。下面的列表里，看过的错排用绿色标出，带下划线的是当前这个。</p>
+
+<h3>讲义的两个例子（幻灯片 270–271）</h3>
+<ol class="steps">
+<li><b>舞会</b>：n 位男士、n 位女士。第一支舞每位女士选一位男伴，n! 种（第 i 位女士的舞伴是一个排列）。第二支舞要求<b>每个人都换舞伴</b>：每位女士不能选第一支舞的那位，就是一个错排，Dₙ 种。</li>
+<li><b>寄存帽子</b>：舞会前 n 位男士、n 位女士都寄存了帽子，还回来时男士拿到男帽、女士拿到女帽，但没人拿到自己的。男士之间是一个错排 Dₙ，女士之间也是 Dₙ，两件事独立，乘法原理：<b>Dₙ × Dₙ</b>。</li>
+</ol>
+<p><b>补充：恰好 k 个人拿对</b>（练习 #276、#279 要用）：先选是哪 k 个人拿对，C(n,k) 种；其余 n−k 个人都要拿错，Dₙ₋ₖ 种。共 C(n,k)·Dₙ₋ₖ。例 n = 4、k = 1：4 × D₃ = 8。规定 D₀ = 1（0 个人"全拿错"只有一种情况：什么都不发生）。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="rook">6　禁位排列与车多项式（幻灯片 272–280）</h2>
+
+<h3>每个位置有自己的禁区</h3>
+<p>错排要求"第 i 位不能放 i"，每个位置禁止<b>一个</b>数。如果每个位置禁止的数各不相同、个数也不同呢？例如排座位，有人不能坐靠窗，有人不能坐 1 号或 2 号座。</p>
+<p>讲义的记法（幻灯片 272）：X₁, …, Xₙ 是 {1, …, n} 的子集（可以是空集），P(X₁, …, Xₙ) 是满足 i₁ ∉ X₁、i₂ ∉ X₂、…、iₙ ∉ Xₙ 的排列 i₁i₂…iₙ 的集合，个数记为 p(X₁, …, Xₙ)。</p>
+<p>例（幻灯片 273）：n = 4，X₁ = {1,2}，X₂ = {2,3}，X₃ = {3,4}，X₄ = {1,4}。逐个检查 24 个排列，只有 <b>3412 和 4123</b> 满足，p = 2。错排就是 Xᵢ = {i} 的特例，p = Dₙ。</p>
+
+<h3>画成棋盘：排列 = 不互相攻击的车（第3课）</h3>
+<p>第3课讲过：在 n×n 棋盘上放 n 个互不攻击的车（任意两个不同行、不同列），每行恰好一个车，记下第 i 行的车在第 iᵢ 列，就得到一个排列 i₁i₂…iₙ，反过来也一样，所以一共 n! 种放法。</p>
+<p>现在把"第 i 位不能放 Xᵢ 里的数"画成：<b>第 i 行、Xᵢ 里那些列的格子打 ×</b>，不能放车。于是 p(X₁, …, Xₙ) = 在不碰 × 的前提下放 n 个互不攻击的车的方法数（幻灯片 274）。</p>
+<div class="figs"><figure>
+<svg viewBox="0 0 210 200" style="max-width:300px" role="img" aria-label="5×5 棋盘，7 个禁位，一种合法放法 21534">
+<g id="figB5"></g>
+</svg>
+<figcaption>幻灯片 274：X₁={1,4}，X₂={3}，X₃=∅，X₄={1,5}，X₅={2,5}。绿色圆点是一种合法放法 21534</figcaption>
+</figure></div>
+
+<h3>用容斥数：rₖ 是什么（幻灯片 275–278）</h3>
+<p>S = 全部 n! 种放法。Pⱼ = "第 j 行的车放在 × 上"。我们要的是一个性质都没有的放法。</p>
+<ol class="steps">
+<li><b>|A₁|</b>：第 1 行的车放在某个 × 上，有 |X₁| 种；其余 n−1 行的车在剩下的 n−1 列里互不攻击地放，(n−1)! 种。所以 |A₁| = |X₁|·(n−1)!。</li>
+<li><b>Σ|Aᵢ|</b> = (|X₁| + … + |Xₙ|)·(n−1)! = r₁·(n−1)!，r₁ = 棋盘上 × 的总数 = 把<b>一个</b>车放在 × 上的方法数。</li>
+<li><b>Σ|Aᵢ∩Aⱼ|</b>：第 i、j 行的车都在 × 上（互不攻击），其余 n−2 个车随便补，(n−2)! 种。对所有 {i, j} 加起来，前面那部分正好是"在 × 上放 <b>两个</b>互不攻击的车"的全部方法（这两个车总在某两行里），记为 r₂。所以 Σ|Aᵢ∩Aⱼ| = r₂·(n−2)!。</li>
+<li>一般地，<b>rₖ = 在 × 格上放 k 个互不攻击的车的方法数</b>，第 k 个和等于 rₖ·(n−k)!。</li>
+</ol>
+<div class="rule">
+<p><b>定理</b>（幻灯片 278）：在有禁位的 n×n 棋盘上放 n 个互不攻击的（相同的）车、都不放在禁位上，方法数是</p>
+<p class="mono">n! − r₁(n−1)! + r₂(n−2)! − … + (−1)ᵏrₖ(n−k)! + … + (−1)ⁿrₙ</p>
+</div>
+<p>先用幻灯片 273 的 4×4 核对：× 有 8 个，r₁ = 8；r₂ = 两个 × 不同行不同列的对数 = C(8,2) − 4（同行的对）− 4（同列的对）= 20；r₃ = 16，r₄ = 2（可以在下面的演示里一个个看）。24 − 8×6 + 20×2 − 16×1 + 2 = 2。✓</p>
+
+<h3>讲义的 6×6 例子：拆成互不相干的两块（幻灯片 279–280）</h3>
+<div class="figs"><figure>
+<svg viewBox="0 0 230 225" style="max-width:320px" role="img" aria-label="6×6 棋盘，左上 3 个红色禁位，中间 2×2 蓝色禁位">
+<g id="figB6"></g>
+</svg>
+<figcaption>幻灯片 279：红块（第 1–2 行、第 1–2 列）和蓝块（第 3–4 行、第 3–4 列）不共用任何行和列</figcaption>
+</figure></div>
+<p>× 分成两块，两块<b>没有共同的行，也没有共同的列</b>，所以在红块放的车和在蓝块放的车永远不会互相攻击，可以分开数再组合：</p>
+<ol class="steps">
+<li><b>红块</b>（3 个 ×：(1,1), (2,1), (2,2)）：放 1 个车 3 种；放 2 个车只有 (1,1)+(2,2) 1 种。</li>
+<li><b>蓝块</b>（2×2 全是 ×）：放 1 个车 4 种；放 2 个车 2 种（两条对角线）。</li>
+<li><b>r₁</b> = 3 + 4 = 7。</li>
+<li><b>r₂</b>：两个都在红块 1 种 + 两个都在蓝块 2 种 + 红块一个、蓝块一个 3×4 = 12 种，共 1 + 2 + 12 = 15。</li>
+<li><b>r₃</b>：红 2 蓝 1：1×4 = 4；红 1 蓝 2：3×2 = 6；共 10。</li>
+<li><b>r₄</b>：红 2 蓝 2：1×2 = 2。r₅ = r₆ = 0。</li>
+</ol>
+<div class="calc">6! − 7×5! + 15×4! − 10×3! + 2×2! = 720 − 840 + 360 − 60 + 4 = <b>184</b></div>
+<p><b>车多项式</b>：把 r₀ = 1, r₁, r₂, … 写成多项式 R(x) = r₀ + r₁x + r₂x² + …，学习计划和课本叫它<b>车多项式</b>（讲义里没出现这个名字）。上面"分开数再组合"其实就是多项式乘法：红块 1 + 3x + x²，蓝块 1 + 4x + 2x²，</p>
+<div class="calc">(1 + 3x + x²)(1 + 4x + 2x²) = 1 + 7x + 15x² + 10x³ + 2x⁴</div>
+<p>为什么是乘法：要在整个棋盘上放 k 个车，就是红块放 i 个、蓝块放 k−i 个，两边方法数相乘再对 i 求和，这正是多项式相乘时 xᵏ 系数的算法（和第5课 Vandermonde 卷积的道理一样）。前提是两块不共用行和列。</p>
+
+<div class="machine" id="rkBox">
+  <div class="head"><span class="title">演示：自己设禁位，算 rₖ 和排列数</span><span class="count" id="rkCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="rkN">n =</label>
+    <select id="rkN"><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
+    <label for="rkPre">棋盘：</label>
+    <select id="rkPre">
+      <option value="">自己点</option>
+      <option value="diag">对角线（错排）</option>
+      <option value="s273" selected>幻灯片 273（n=4）</option>
+      <option value="s274">幻灯片 274（n=5）</option>
+      <option value="s279">幻灯片 279（n=6）</option>
+      <option value="e288a">练习 #288(a)</option>
+      <option value="e288b">练习 #288(b)</option>
+      <option value="e288c">练习 #288(c)</option>
+      <option value="e289">练习 #289</option>
+    </select>
+  </div>
+  <div class="board" id="rkBoard" style="margin-top:.8rem"></div>
+  <div class="calc" id="rkCalc"></div>
+  <div class="caption" id="rkCap"></div>
+  <div class="controls">
+    <label for="rkK">看 rₖ 的放法，k =</label>
+    <select id="rkK"></select>
+    <button id="rkPrevP">上一种</button>
+    <button id="rkNextP" class="primary">下一种</button>
+    <button id="rkPerm">下一个合法排列</button>
+    <button id="rkClear">清空 ×</button>
+  </div>
+</div>
+<p class="tip">图例：点格子打 × 或取消。<b>黄色"车"</b>是 rₖ 的一种放法（车都在 × 上，带红框）；<b>绿色"车"</b>是一个合法的排列（车都不在 × 上）。r₀ = 1 表示"一个车都不放"只有一种。最后一行是程序逐个检查 n! 个排列的结果，和公式对比。</p>
+
+<!-- ============ 7 ============ -->
+<h2 id="qn">7　另一个禁位问题：Qₙ（幻灯片 281–285）</h2>
+
+<h3>禁止的不是位置，而是"谁紧跟着谁"</h3>
+<p>课本的故事：n 个小朋友排成一队散步，每人（除了第一个）看着前面一个人的后背。第二天想重新排队，让<b>每个人前面的人都换一个</b>。把第一天的队伍记成 1, 2, …, n，要求就是新的排列里不出现"1 紧跟着 2"、"2 紧跟着 3"……也就是不含连续的 12, 23, …, (n−1)n。这样的排列个数记为 <b>Qₙ</b>。</p>
+<p>和错排不同：这里不限制谁站在哪个位置，只限制<b>相对</b>位置。</p>
+<p>n = 3：123（含 12、23）、231（含 23）、312（含 12）不行，剩 <b>132、213、321</b>，Q₃ = 3。讲义（幻灯片 281）还列出了 Q₄ = 11 的全部排列。</p>
+
+<h3>用容斥：粘块（幻灯片 282–284）</h3>
+<ol class="steps">
+<li>S = 全部 n! 个排列，Pⱼ = "出现 j(j+1)"，j = 1, …, n−1，共 n−1 个性质。</li>
+<li><b>|Aⱼ|</b>：和 MATH 的例子一样，把 j 和 j+1 粘成一块，n−1 个符号随便排，(n−1)!。</li>
+<li><b>两个</b>：12 和 34 没有公共元素，粘成 [12], [34], 5, …，n−2 块，(n−2)!；12 和 23 共用 2，必须是 123 连在一起，粘成 [123], 4, …，也是 n−2 块，(n−2)!。</li>
+<li><b>一般</b>：把 1, 2, …, n 想成一排，相邻两个之间有一个"连接"，共 n−1 个。选 k 个性质 = 把 k 个连接粘上。每粘一个连接，块数少 1，所以永远剩 n−k 块，交集大小是 (n−k)!，只和 k 有关。</li>
+<li>选 k 个性质有 C(n−1,k) 种，用 (6.3)。</li>
+</ol>
+<div class="rule">
+<p><b>定理</b>（幻灯片 282）：n ≥ 1 时，</p>
+<p class="mono">Qₙ = n! − C(n−1,1)(n−1)! + C(n−1,2)(n−2)! − … + (−1)ⁿ⁻¹C(n−1,n−1)·1!</p>
+</div>
+<p>例：Q₄ = 24 − 3×6 + 3×2 − 1×1 = 11；Q₅ = 120 − 4×24 + 6×6 − 4×2 + 1 = <b>53</b>（幻灯片 284）。</p>
+
+<h3>和错排的关系（幻灯片 285）</h3>
+<p>讲义给出 <b>Qₙ = Dₙ + Dₙ₋₁</b>（n ≥ 2），证明是课本习题（Exercises #286、#287）。先用数字看：</p>
+<div class="scroll"><table>
+<tr><th>n</th><th>Qₙ（公式）</th><th>Qₙ（逐个检查）</th><th>Dₙ + Dₙ₋₁</th></tr>
+<tr><td class="mono">2</td><td class="mono">1</td><td class="mono">1</td><td class="mono">1 + 0 = 1</td></tr>
+<tr><td class="mono">3</td><td class="mono">3</td><td class="mono">3</td><td class="mono">2 + 1 = 3</td></tr>
+<tr><td class="mono">4</td><td class="mono">11</td><td class="mono">11</td><td class="mono">9 + 2 = 11</td></tr>
+<tr><td class="mono">5</td><td class="mono">53</td><td class="mono">53</td><td class="mono">44 + 9 = 53</td></tr>
+<tr><td class="mono">6</td><td class="mono">309</td><td class="mono">309</td><td class="mono">265 + 44 = 309</td></tr>
+<tr><td class="mono">7</td><td class="mono">2119</td><td class="mono">2119</td><td class="mono">1854 + 265 = 2119</td></tr>
+</table></div>
+<p class="tip">证明思路（#287）：把 Qₙ 公式里的每一项写成 (−1)ᵏ(n−1)!·(n−k)/k!，再用 (n−k)/k! = n/k! − 1/(k−1)! 拆成两部分，一部分凑出 Dₙ，另一部分凑出 Dₙ₋₁。</p>
+
+<!-- ============ 8 ============ -->
+<h2 id="mob">8　Möbius 反演（了解）（幻灯片 286–288）</h2>
+<p class="tip">讲义只有 3 页，学习计划说了解即可：知道它是什么样子、知道容斥原理是它的特例就够了。</p>
+
+<h3>先看最简单的"反演"：前缀和与差</h3>
+<p>第4课讲过偏序。最简单的偏序是一条链 1 &lt; 2 &lt; 3 &lt; …。在链上，如果 G(k) = F(1) + F(2) + … + F(k)（"把所有 ≤ k 的值加起来"），那么从 G 反推 F 很容易：F(k) = G(k) − G(k−1)。例：F = 3, 1, 4，则 G = 3, 4, 8；反过来 F(3) = 8 − 4 = 4。</p>
+<p>Möbius 反演回答同样的问题，只是把链换成别的偏序集。讲义用的是<b>子集按 ⊆ 排的偏序集</b>（第5课 Sperner 定理那里画过它的 Hasse 图）。</p>
+
+<h3>子集上的版本 (6.7)、(6.8)</h3>
+<div class="rule">
+<p>Xₙ = {1, …, n}，F 是给每个子集一个实数的函数。定义</p>
+<p class="mono">(6.7)　G(K) = Σ F(L)，对所有 L ⊆ K 求和</p>
+<p>那么 F 可以从 G 还原：</p>
+<p class="mono">(6.8)　F(K) = Σ (−1)^(|K|−|L|) G(L)，对所有 L ⊆ K 求和</p>
+</div>
+<p>小例子 n = 2：设 F(∅) = 3，F({1}) = 1，F({2}) = 4，F({1,2}) = 2。按 (6.7)：G(∅) = 3，G({1}) = 3 + 1 = 4，G({2}) = 3 + 4 = 7，G({1,2}) = 3 + 1 + 4 + 2 = 10。用 (6.8) 还原 F({1,2})：</p>
+<div class="calc">F({1,2}) = G({1,2}) − G({1}) − G({2}) + G(∅) = 10 − 4 − 7 + 3 = 2　✓</div>
+<div class="figs"><figure>
+<svg viewBox="0 0 300 190" style="max-width:360px" role="img" aria-label="{1,2} 的子集 Hasse 图，每个子集标出 F 和 G">
+<line class="edge" x1="150" y1="30" x2="70" y2="98"/><line class="edge" x1="150" y1="30" x2="230" y2="98"/>
+<line class="edge" x1="70" y1="98" x2="150" y2="162"/><line class="edge" x1="230" y1="98" x2="150" y2="162"/>
+<circle class="node" cx="150" cy="30" r="18"/><text class="in" x="150" y="30">12</text>
+<circle class="node" cx="70" cy="98" r="18"/><text class="in" x="70" y="98">1</text>
+<circle class="node" cx="230" cy="98" r="18"/><text class="in" x="230" y="98">2</text>
+<circle class="node" cx="150" cy="162" r="18"/><text class="in" x="150" y="162">∅</text>
+<text class="val" x="174" y="26">F=2，G=10</text>
+<text class="val" x="8" y="132">F=1，G=4</text>
+<text class="val" x="210" y="132">F=4，G=7</text>
+<text class="val" x="174" y="182">F=3，G=3</text>
+</svg>
+<figcaption>G(K) = K 和它下面所有子集的 F 之和</figcaption>
+</figure></div>
+<p><b>为什么符号这样交错</b>：看某个 F(M) 在 (6.8) 右边出现几次。它出现在每个满足 M ⊆ L ⊆ K 的 G(L) 里。这样的 L 由"K − M 里的元素放不放进去"决定，设 K − M 有 t 个元素，L 比 M 多 j 个元素的有 C(t,j) 个，符号是 (−1)^(t−j)。加起来是 Σ C(t,j)(−1)^(t−j) = (1−1)ᵗ，t ≥ 1 时为 0，只有 M = K（t = 0）时是 1。<b>和第2节的理由完全一样</b>，又是第5课的交错和。</p>
+
+<h3>容斥原理是它的特例（幻灯片 287–288）</h3>
+<ol class="steps">
+<li>A₁, …, Aₙ 是 S 的子集。对 K ⊆ Xₙ，令 F(K) = S 中"<b>恰好</b>属于那些下标不在 K 里的 Aᵢ"的元素个数：对 i ∈ K 不在 Aᵢ 里，对 j ∉ K 在 Aⱼ 里。</li>
+<li>那么 G(K) = Σ F(L)（L ⊆ K）数的是"至少属于所有下标不在 K 里的 Aⱼ"的元素，即 G(K) = |∩ⱼ∉K Aⱼ|（K = Xₙ 时是空交，约定为 S）。</li>
+<li>F(Xₙ) 就是一个 Aᵢ 都不属于的元素个数 = |Ā₁ ∩ … ∩ Āₙ|。代入 (6.8)，把 L 换成它的补集 J，得到 (6.11)：|Ā₁ ∩ … ∩ Āₙ| = Σ (−1)^|J| |∩ᵢ∈J Aᵢ|，对所有 J ⊆ Xₙ 求和，这正是容斥公式 (6.1)。</li>
+</ol>
+<p>用第1节的例子核对（1 到 20，A₁ = 2 的倍数，A₂ = 3 的倍数）：G({1,2}) = |S| = 20，G({1}) = |A₂| = 6，G({2}) = |A₁| = 10，G(∅) = |A₁∩A₂| = 3。F({1,2}) = 20 − 6 − 10 + 3 = 7，就是两个性质都没有的 7 个数。</p>
+
+<!-- ============ practice ============ -->
+<h2 id="practice">练习（Exercises.pdf 题号）</h2>
+<p class="tip">先自己做，再点开答案。所有数值答案都用程序核对过：整除和平方数逐个检查，方程整数解逐个枚举，排列类的题枚举全部排列（n ≤ 8），圆排列枚举全部字母串再按旋转合并。</p>
+
+<div class="q"><span class="src">#265</span>
+<p>求 1 到 10 000（含）中，不能被 4、5、6 中任何一个整除的整数个数。</p>
+<p class="orig">Find the number of integers between 1 and 10,000 inclusive that are not divisible by 4, 5, or 6.</p>
+<details><summary>看答案</summary><div class="ans">
+<p>A₁、A₂、A₃ 分别是 4、5、6 的倍数。注意 lcm(4,6) = 12，不是 24；lcm(4,5,6) = 60。</p>
+<div class="calc">|A₁| = 2500，|A₂| = 2000，|A₃| = 1666<br>|A₁∩A₂| = ⌊10000/20⌋ = 500，|A₁∩A₃| = ⌊10000/12⌋ = 833，|A₂∩A₃| = ⌊10000/30⌋ = 333<br>|A₁∩A₂∩A₃| = ⌊10000/60⌋ = 166<br>10000 − 6166 + 1666 − 166 = <b>5334</b></div>
+<p>第3节的计算器点"#265"可以一步步看。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#267</span>
+<p>求 1 到 10 000 中，既不是完全平方数、也不是完全立方数的整数个数。</p>
+<p class="orig">Find the number of integers between 1 and 10,000 that are neither perfect squares nor perfect cubes.</p>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>平方数：1², 2², …, 100²，共 100 个。</li>
+<li>立方数：1³, …, 21³（21³ = 9261，22³ = 10 648 太大），共 21 个。</li>
+<li>既是平方数又是立方数 = 六次方数（质因数分解里每个指数既是 2 的倍数又是 3 的倍数，就是 6 的倍数）：1, 64, 729, 4096（5⁶ = 15 625 太大），共 4 个。</li>
+</ol>
+<p>10 000 − 100 − 21 + 4 = <b>9883</b>。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#268</span>
+<p>求多重集 S = {4·a, 3·b, 4·c, 5·d} 的 12-组合数。</p>
+<p class="orig">Determine the number of 12-combinations of the multiset S = {4·a, 3·b, 4·c, 5·d}.</p>
+<details><summary>看答案</summary><div class="ans">
+<p>就是 x₁ + x₂ + x₃ + x₄ = 12，x₁ ≤ 4、x₂ ≤ 3、x₃ ≤ 4、x₄ ≤ 5 的非负整数解。4 个变量，隔板法 C(r′+3, 3)。超上界分别要先给出 5、4、5、6 个：</p>
+<div class="calc">|S| = C(15,3) = 455<br>单个：剩 7, 8, 7, 6 → C(10,3) + C(11,3) + C(10,3) + C(9,3) = 120 + 165 + 120 + 84 = 489<br>两两：a,b 剩 3；a,c 剩 2；a,d 剩 1；b,c 剩 3；b,d 剩 2；c,d 剩 1<br>　→ C(6,3) + C(5,3) + C(4,3) + C(6,3) + C(5,3) + C(4,3) = 20 + 10 + 4 + 20 + 10 + 4 = 68<br>三个：最少要 4 + 5 + 5 = 14 &gt; 12，都是 0<br>455 − 489 + 68 = <b>34</b></div>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#271</span>
+<p>求方程 x₁ + x₂ + x₃ + x₄ = 14 的非负整数解的个数，要求每个 xᵢ 都不超过 8。</p>
+<p class="orig">Determine the number of solutions of the equation x₁+x₂+x₃+x₄ = 14 in nonnegative integers x₁, x₂, x₃, and x₄ not exceeding 8.</p>
+<details><summary>看答案</summary><div class="ans">
+<p>不管上界：C(14+3, 3) = C(17,3) = 680。某个 xᵢ ≥ 9：先给 9，剩 5，C(8,3) = 56，4 个变量共 4 × 56 = 224。两个同时 ≥ 9 要 18 &gt; 14，不可能。</p>
+<p>680 − 224 = <b>456</b>。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#273</span>
+<p>求 x₁ + x₂ + x₃ + x₄ = 20 满足 1 ≤ x₁ ≤ 6、0 ≤ x₂ ≤ 7、4 ≤ x₃ ≤ 8、2 ≤ x₄ ≤ 6 的整数解个数。</p>
+<details><summary>看答案</summary><div class="ans">
+<p><b>换元</b>：y₁ = x₁ − 1（0 到 5），y₂ = x₂（0 到 7），y₃ = x₃ − 4（0 到 4），y₄ = x₄ − 2（0 到 4），和为 20 − 1 − 4 − 2 = 13。超上界分别要先给出 6、8、5、5。</p>
+<div class="calc">|S| = C(16,3) = 560<br>单个：剩 7, 5, 8, 8 → 120 + 56 + 165 + 165 = 506<br>两两：(1,2) 要 14 &gt; 13 → 0；(1,3) 剩 2 → 10；(1,4) 剩 2 → 10；(2,3) 剩 0 → 1；(2,4) 剩 0 → 1；(3,4) 剩 3 → 20；共 42<br>三个：最少 5 + 5 + 6 = 16 &gt; 13，都是 0<br>560 − 506 + 42 = <b>96</b></div>
+<p class="tip">"剩 0"的那项是 C(0+3,3) = 1，不是 0：两个变量正好卡在超界的最小值，其余全是 0，这是一个解。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#275</span>
+<p>求 {1, 2, …, 8} 的排列中，没有一个偶数在自己的位置上的排列个数。</p>
+<p class="orig">Determine the number of permutations of {1, 2, …, 8} in which no even integer is in its natural position.</p>
+<details><summary>看答案</summary><div class="ans">
+<p>只有 4 个性质：2、4、6、8 分别在原位。奇数在不在原位不管。钉住其中 k 个偶数，其余 8−k 个数随便排，(8−k)!，用 (6.3)：</p>
+<div class="calc">8! − C(4,1)7! + C(4,2)6! − C(4,3)5! + C(4,4)4!<br>= 40320 − 20160 + 4320 − 480 + 24 = <b>24024</b></div>
+<p>和错排的区别：错排有 n 个性质，这里只有 4 个，但每次钉住以后剩下的都是 8−k 个数。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#276</span>
+<p>求 {1, 2, …, 8} 的排列中，恰好有 4 个数在自己位置上的排列个数。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>先选哪 4 个数在原位：C(8,4) = 70。另外 4 个数必须都不在原位，是一个 4 元错排：D₄ = 9。乘法原理：70 × 9 = <b>630</b>。</p>
+<p class="tip">一般地，恰好 k 个在原位的有 C(n,k)·Dₙ₋ₖ 个（#278）。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#279</span>
+<p>聚会上 7 位先生寄存帽子。帽子还回来时，(i) 没有人拿到自己的帽子；(ii) 至少一人拿到自己的帽子；(iii) 至少两人拿到自己的帽子。各有多少种还法？</p>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>(i) 就是 D₇ = <b>1854</b>（表里有，也可以用 D₇ = 7 × D₆ − 1 = 7 × 265 − 1）。</li>
+<li>(ii) 全部减掉"没人拿对"：7! − D₇ = 5040 − 1854 = <b>3186</b>。</li>
+<li>(iii) 全部减掉"没人拿对"和"恰好一人拿对"。恰好一人：选这个人 7 种，其余 6 人错排 D₆ = 265，共 1855。5040 − 1854 − 1855 = <b>1331</b>。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#280</span>
+<p>用组合推理证明恒等式 n! = C(n,0)Dₙ + C(n,1)Dₙ₋₁ + C(n,2)Dₙ₋₂ + … + C(n,n−1)D₁ + C(n,n)D₀（规定 D₀ = 1）。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>左边是 {1, …, n} 的全部排列。按"<b>恰好有几个数在原位</b>"分类，k 从 0 到 n：</p>
+<ol class="steps">
+<li>恰好 k 个在原位：先选是哪 k 个，C(n,k) 种；其余 n−k 个都不在原位，Dₙ₋ₖ 种。这一类有 C(n,k)·Dₙ₋ₖ 个。</li>
+<li>每个排列的"在原位的个数"是唯一确定的，各类不重不漏，加法原理得右边。</li>
+<li>k = n 那一项：全部在原位只有恒等排列 1 种，C(n,n)·D₀ = 1，这就是规定 D₀ = 1 的原因。</li>
+</ol>
+<p>例 n = 4：1×9 + 4×2 + 6×1 + 4×0 + 1×1 = 24 = 4!。（C(4,3)·D₁ = 0：恰好 3 个在原位是不可能的，第 4 个也只能在原位。）</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#288</span>
+<p>在下面三个 6×6 棋盘上放 6 个互不攻击的车，都不放在 × 上，各有多少种方法？</p>
+<p class="tip">(a) × 在：第 1 行第 1、2 列；第 2 行第 3、4 列；第 3 行第 5、6 列。(b) 第 1–2 行 × 第 1–2 列、第 3–4 行 × 第 3–4 列、第 5–6 行 × 第 5–6 列，三个 2×2 块全是 ×。(c) 第 1 行第 1、2 列；第 2 行第 2、3 列；第 3 行第 3 列；第 4 行第 5、6 列；第 5 行第 6 列。（第6节的演示里选 #288(a)/(b)/(c) 可以看到棋盘。）</p>
+<details><summary>看答案</summary><div class="ans">
+<p>三个都用"拆成不共用行列的块，车多项式相乘"。</p>
+<ol class="steps">
+<li><b>(a)</b> 三个 1×2 块，每块放 0 个或 1 个车：1 + 2x。R = (1 + 2x)³ = 1 + 6x + 12x² + 8x³。<br>720 − 6×120 + 12×24 − 8×6 = 720 − 720 + 288 − 48 = <b>240</b>。</li>
+<li><b>(b)</b> 三个 2×2 块，每块 1 + 4x + 2x²。R = (1 + 4x + 2x²)³ = 1 + 12x + 54x² + 112x³ + 108x⁴ + 48x⁵ + 8x⁶。<br>720 − 1440 + 1296 − 672 + 216 − 48 + 8 = <b>80</b>。</li>
+<li><b>(c)</b> 两块：第 1–3 行、第 1–3 列的"楼梯"(1,1),(1,2),(2,2),(2,3),(3,3)，和第 4–5 行、第 5–6 列的 (4,5),(4,6),(5,6)。<br>楼梯：r₁ = 5；r₂ = C(5,2) − 2（同行）− 2（同列）= 6；r₃ = 1（第 3 行只能第 3 列，第 2 行只能第 2 列，第 1 行只能第 1 列）。R₁ = 1 + 5x + 6x² + x³。<br>小块：r₁ = 3，r₂ = 1（只有 (4,5)+(5,6)）。R₂ = 1 + 3x + x²。<br>R = R₁R₂ = 1 + 8x + 22x² + 24x³ + 9x⁴ + x⁵。<br>720 − 960 + 528 − 144 + 18 − 1 = <b>161</b>。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#289</span>
+<p>数 {1, …, 6} 的排列 i₁i₂i₃i₄i₅i₆ 的个数，要求 i₁ ≠ 1, 5；i₃ ≠ 2, 3, 5；i₄ ≠ 4；i₆ ≠ 5, 6。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>× 在 (1,1), (1,5), (3,2), (3,3), (3,5), (4,4), (6,5), (6,6)，共 8 个。</p>
+<ol class="steps">
+<li>(4,4) 那一行、那一列没有别的 ×，自成一块：1 + x。</li>
+<li>其余 7 个 × 在第 1、3、6 行：r₁ = 7；r₂ = C(7,2) − 5（同行：第 1 行 1 对、第 3 行 3 对、第 6 行 1 对）− 3（同列：第 5 列有 3 个 ×）= 13；r₃ = 第 1、3、6 行各放一个、列互不相同：第 1 行放第 1 列时，第 3 行 {2,3,5} 配第 6 行 {5,6} 且不同列，有 5 种；第 1 行放第 5 列时，第 3 行 {2,3}、第 6 行只能第 6 列，2 种；共 7。R′ = 1 + 7x + 13x² + 7x³。</li>
+<li>R = (1 + x)(1 + 7x + 13x² + 7x³) = 1 + 8x + 20x² + 20x³ + 7x⁴。</li>
+</ol>
+<p>720 − 8×120 + 20×24 − 20×6 + 7×2 = 720 − 960 + 480 − 120 + 14 = <b>134</b>。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#293</span>
+<p>多重集 {3·a, 4·b, 2·c, 1·d} 有多少个圆排列，使得每一种字母都<b>不全部</b>连在一起？</p>
+<p class="orig">How many circular permutations are there of the multiset {3·a, 4·b, 2·c, 1·d}, where, for each type of letter, all letters of that type do not appear consecutively?</p>
+<details><summary>看答案</summary><div class="ans">
+<p><b>理解</b>：圆排列按旋转看作相同（第3课）。"不全部连在一起"是说同种字母不能在圆上排成一整段，例如三个 a 不能是 aaa 相邻。d 只有一个，"d 不连在一起"没有意义，只看 a、b、c。</p>
+<ol class="steps">
+<li><b>化成直线</b>：d 只有一个，把圆转到 d 在最上面，从 d 开始顺时针读剩下 9 个字母，每个圆排列恰好对应 {3·a, 4·b, 2·c} 的一个直线排列。而且同种字母在圆上连成一段 ⇔ 在这条直线上连成一段（连成的段不可能跨过 d）。所以答案 = 直线排列里 a、b、c 都不全部相连的个数（这就是 #281）。</li>
+<li>|S| = 9!/(3!4!2!) = 1260。</li>
+<li>a 全相连：把 aaa 粘成一块，7 个符号 {[aaa], 4·b, 2·c}：7!/(4!2!) = 105。b 全相连：6!/(3!2!) = 60。c 全相连：8!/(3!4!) = 280。</li>
+<li>两两：a、b：4!/2! = 12；a、c：6!/4! = 30；b、c：5!/3! = 20。三个：3! = 6。</li>
+</ol>
+<div class="calc">1260 − (105 + 60 + 280) + (12 + 30 + 20) − 6 = <b>871</b></div>
+<p class="tip">假设：圆排列只把旋转看成相同，翻转不算相同（和第3课一致）。程序把 10 个字母的全部排列按旋转合并成 1260 个圆排列，再逐个检查，得到 871。</p>
+</div></details>
+</div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const SUBS='₀₁₂₃₄₅₆₇₈₉', SUPS='⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const sub=n=>String(n).split('').map(c=>/\d/.test(c)?SUBS[+c]:c).join('');
+  const sup=n=>String(n).split('').map(c=>/\d/.test(c)?SUPS[+c]:c).join('');
+  function C(n,k){if(k<0||n<0||n<k) return 0; let r=1; for(let i=1;i<=k;i++) r=r*(n-k+i)/i; return Math.round(r);}
+  const fact=n=>{let r=1; for(let i=2;i<=n;i++) r*=i; return r;};
+  const gcd=(a,b)=>{while(b){[a,b]=[b,a%b];} return a;};
+  const lcm=(a,b)=>a/gcd(a,b)*b;
+  const mn=v=>v<0?'−'+(-v):String(v);
+  function subsetsBySize(m){const out=[]; for(let k=0;k<=m;k++){(function rec(s,cur){if(cur.length===k){out.push(cur.slice());return;} for(let i=s;i<m;i++){cur.push(i);rec(i+1,cur);cur.pop();}})(0,[]);} return out;}
+  const An=i=>'A'+sub(i+1);
+  function signedExpr(vals){ // vals: [{s:+1/-1, v}] -> "30 − 15 − 10"
+    return vals.map((t,j)=>j===0?(t.s<0?'−':'')+t.v:(t.s<0?' − ':' + ')+t.v).join('');
+  }
+
+  /* ---------- 1. Venn ---------- */
+  const VN={
+    2:{N:20,ds:[2,3],circles:[[135,150,85],[225,150,85]],lab:{0:[322,268],1:[92,150],2:[268,150],3:[180,150]},names:[[58,70],[302,70]]},
+    3:{N:30,ds:[2,3,5],circles:[[140,118,80],[220,118,80],[180,190,80]],lab:{0:[322,268],1:[100,100],2:[260,100],4:[180,245],3:[180,85],5:[130,175],6:[230,175],7:[180,145]},names:[[64,50],[296,50],[92,264]]}
+  };
+  const vn={mode:2,step:0,pick:null};
+  const regName=(k,m)=>{ if(!k) return '不在任何集合里'; const s=[]; for(let i=0;i<m;i++) if(k>>i&1) s.push(An(i)); return s.length===1?'只在 '+s[0]:'恰在 '+s.join('、'); };
+  function vnData(){
+    const M=VN[vn.mode], m=M.ds.length, terms=subsetsBySize(m);
+    const reg={}; for(let k=0;k<(1<<m);k++) reg[k]=[];
+    for(let x=1;x<=M.N;x++){let k=0; M.ds.forEach((d,i)=>{if(x%d===0) k|=1<<i;}); reg[k].push(x);}
+    const tval=t=>{let L=1; t.forEach(i=>{L=lcm(L,M.ds[i]);}); return Math.floor(M.N/L);};
+    return {M,m,terms,reg,tval};
+  }
+  function vnRender(){
+    const {M,m,terms,reg,tval}=vnData(), step=vn.step, last=terms.length-1;
+    const coef=k=>{let c=0; for(let j=0;j<=step;j++){const t=terms[j]; if(t.every(i=>k>>i&1)) c+=t.length%2?-1:1;} return c;};
+    const W=360,H=300, full=cls=>`<rect class="${cls}" x="0" y="0" width="${W}" height="${H}"/>`;
+    const nest=(ins,outs,inner)=>{let s=inner; ins.forEach(i=>{s=`<g mask="url(#vin${i})">${s}</g>`;}); outs.forEach(i=>{s=`<g mask="url(#vout${i})">${s}</g>`;}); return s;};
+    let g='<defs>';
+    M.circles.forEach(([cx,cy,r],i)=>{g+=`<mask id="vin${i}"><rect x="0" y="0" width="${W}" height="${H}" fill="#000"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/></mask><mask id="vout${i}"><rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="#000"/></mask>`;});
+    g+='</defs>'+full('vbg');
+    const T=terms[step];
+    g+=T.length?nest(T,[],full('vshade')):full('vshade');
+    if(vn.pick!==null){const ins=[],outs=[]; for(let i=0;i<m;i++)(vn.pick>>i&1?ins:outs).push(i); g+=nest(ins,outs,full('vpick'));}
+    g+=`<rect class="vS" x="1" y="1" width="${W-2}" height="${H-2}" rx="8"/>`;
+    M.circles.forEach(([cx,cy,r],i)=>{g+=`<circle class="vset s${i+1}" cx="${cx}" cy="${cy}" r="${r}"/>`;});
+    M.names.forEach(([x,y],i)=>{g+=`<text class="f${i+1} mid" x="${x}" y="${y}" style="font-size:15px">${An(i)}</text>`;});
+    g+=`<text class="val" x="10" y="20">S = {1, …, ${M.N}}</text>`;
+    Object.keys(M.lab).forEach(key=>{const k=+key,[x,y]=M.lab[k],c=coef(k);
+      g+=`<text class="big${c<0?' neg':c===0?' zero':''}" x="${x}" y="${y}">${mn(c)}</text><text class="sm" x="${x}" y="${y+17}">${reg[k].length} 个数</text>`;});
+    $('vnSvg').innerHTML=g;
+    $('vnLegend').innerHTML=M.ds.map((d,i)=>`<span style="color:var(--g${i+1})"><span class="sw"></span>${An(i)}：${d} 的倍数</span>`).join('');
+    // region buttons
+    const order=[]; for(let s=0;s<=m;s++) for(let k=0;k<(1<<m);k++){let c=0,x=k; while(x){c+=x&1;x>>=1;} if(c===s) order.push(k);}
+    $('vnRegs').innerHTML=order.map(k=>`<button data-k="${k}" class="${vn.pick===k?'sel':''}">${regName(k,m)}</button>`).join('');
+    // caption
+    const vals=terms.slice(0,step+1).map(t=>({s:t.length%2?-1:1,v:tval(t)}));
+    const run=vals.reduce((a,t)=>a+t.s*t.v,0);
+    let cap='';
+    if(step===0) cap=`第 0 步：<b>+|S| = ${M.N}</b>。先把 1 到 ${M.N} 全部算进来，每个区域都被算了 1 次。`;
+    else{
+      const t=T, sgn=t.length%2?-1:1, v=tval(t), nm='|'+t.map(An).join('∩')+'|';
+      let L=1; t.forEach(i=>{L=lcm(L,M.ds[i]);});
+      const desc=t.length===1?`${M.ds[t[0]]} 的倍数有 ⌊${M.N}/${M.ds[t[0]]}⌋ = ${v} 个`:`同时是 ${t.map(i=>M.ds[i]).join('、')} 的倍数 = ${L} 的倍数，⌊${M.N}/${L}⌋ = ${v} 个`;
+      cap=`第 ${step} 步：${sgn<0?'减去':'加回'} <b>${nm} = ${v}</b>（${desc}）。浅绿色部分里每块的次数${sgn<0?'减 1':'加 1'}。`;
+      if(t.length===1) cap+='有这个性质的数不要，减掉。';
+      else if(t.length===2) cap+=`这部分在减 ${An(t[0])} 和减 ${An(t[1])} 时各被减了一次，多减了一次，加回来。`;
+      else cap+='中心这块：|S| 里 +1，单个的减了 3 次，两两的加回 3 次，净 1 − 3 + 3 = 1，还多算一次，减掉。';
+    }
+    cap+=`<br>现在式子的值：${signedExpr(vals)} = <span class="hl">${mn(run)}</span>。它也等于每块"数的个数 × 次数"加起来。`;
+    if(step===last) cap+=`<br>全部 ${terms.length} 项（2${sup(m)} 项）做完：圆外那块次数是 1，圆里每块都是 0。结果 ${run} 正好是圆外的数：${reg[0].join(', ')}。`;
+    $('vnCap').innerHTML=cap;
+    // pick caption
+    const pc=$('vnPickCap');
+    if(vn.pick===null){pc.hidden=true;}
+    else{
+      const k=vn.pick; let t=0; for(let i=0;i<m;i++) if(k>>i&1) t++;
+      const parts=[]; for(let j=0;j<=m;j++){const c=C(t,j); parts.push({s:j%2?-1:1,v:c});}
+      let s=`<b>${regName(k,m)}</b>：${reg[k].length?reg[k].join(', '):'（这块里没有数）'}，属于 t = ${t} 个集合。`;
+      s+=`在整个式子里它被算了 ${signedExpr(parts)} = ${t?0:1} 次`;
+      s+= t? `：C(${t},0) − C(${t},1) + C(${t},2) − … = (1−1)${sup(t)} = 0，就是第5课的交错和 (5.4)。` : '：只在 |S| 里算一次。';
+      s+=` 做到当前第 ${step} 步，它被算了 ${mn(coef(k))} 次。`;
+      pc.innerHTML=s; pc.hidden=false;
+    }
+    $('vnCount').textContent=`第 ${step} / ${last} 步`;
+    $('vnPrev').disabled=step===0; $('vnNext').disabled=step===last;
+  }
+  $('vnSvg').addEventListener('click',e=>{
+    const svg=$('vnSvg'), pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+    const ctm=svg.getScreenCTM(); if(!ctm) return; const p=pt.matrixTransform(ctm.inverse());
+    const M=VN[vn.mode]; let k=0; M.circles.forEach(([cx,cy,r],i)=>{if((p.x-cx)**2+(p.y-cy)**2<=r*r) k|=1<<i;});
+    vn.pick=vn.pick===k?null:k; vnRender();
+  });
+  $('vnRegs').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; const k=+b.dataset.k; vn.pick=vn.pick===k?null:k; vnRender();});
+  $('vnMode').addEventListener('change',()=>{vn.mode=+$('vnMode').value; vn.step=0; vn.pick=null; vnRender();});
+  $('vnNext').addEventListener('click',()=>{const last=(1<<VN[vn.mode].ds.length)-1; if(vn.step<last){vn.step++; vnRender();}});
+  $('vnPrev').addEventListener('click',()=>{if(vn.step>0){vn.step--; vnRender();}});
+  $('vnReset').addEventListener('click',()=>{vn.step=0; vn.pick=null; vnRender();});
+  vnRender();
+
+  /* ---------- 3. divisibility counter ---------- */
+  const dv={N:1000,ds:[5,6,8],step:0,err:''};
+  function dvRead(){
+    const pn=s=>{s=s.trim(); if(!/^\d{1,7}$/.test(s)) return null; return +s;};
+    const N=pn($('dvN').value);
+    const ds=[]; let bad=false;
+    ['dvA','dvB','dvC'].forEach(id=>{const s=$(id).value.trim(); if(s==='') return; const v=pn(s); if(!v||v>100000) bad=true; else ds.push(v);});
+    if(!N||N>1000000){dv.err='N 请填 1 到 1 000 000 之间的整数。'; return;}
+    if(bad||!ds.length){dv.err='除数请填 1 到 100 000 之间的整数，至少填一个（c 可以留空）。'; return;}
+    dv.err=''; dv.N=N; dv.ds=ds; dv.step=0;
+  }
+  function dvRender(){
+    if(dv.err){$('dvCalc').innerHTML=''; $('dvCap').innerHTML=dv.err; $('dvCount').textContent=''; $('dvPrev').disabled=true; $('dvNext').disabled=true; return;}
+    const {N,ds,step}=dv, m=ds.length, last=m+1;
+    let html=`<div>|S| = ${N}</div>`, run=N;
+    const sums=[N];
+    for(let k=1;k<=Math.min(step,m);k++){
+      const combos=subsetsBySize(m).filter(c=>c.length===k);
+      const sgn=k%2?-1:1; let S=0; const rows=[];
+      combos.forEach(c=>{let L=1; c.forEach(i=>{L=lcm(L,ds[i]);}); const v=Math.floor(N/L); S+=v;
+        rows.push(k===1?`⌊${N}/${ds[c[0]]}⌋ = ${v}`:`${c.map(i=>ds[i]).join(' 和 ')}：lcm = ${L}，⌊${N}/${L}⌋ = ${v}`);});
+      run+=sgn*S; sums.push(sgn*S);
+      html+=`<div>${sgn<0?'减去':'加回'}交 ${k} 个的项（${combos.length} 项）：</div>`+rows.map(r=>`<div class="ind">${r}</div>`).join('')+`<div class="ind sumln">小计 ${S}，目前 ${mn(run)}</div>`;
+    }
+    if(step===last){html+=`<div><b>结果 ${run}</b></div>`;}
+    $('dvCalc').innerHTML=html;
+    let cap='';
+    if(step===0) cap=`第 0 步：1 到 ${N} 一共 ${N} 个数，先全部算进来。下一步减掉能被 ${ds.join('、')} 中某一个整除的数。`;
+    else if(step===1) cap=`第 1 步：a 的倍数是 a, 2a, …, ka，ka ≤ N，所以有 ⌊N/a⌋ 个。把它们全部减掉。但是同时是两个除数的倍数的数，这一步被减了两次。`;
+    else if(step<=m){
+      cap= step===2?`第 2 步：同时是两个数的倍数 = 是它们最小公倍数 lcm 的倍数（不一定是乘积！例如 lcm(6,8) = 24）。这些数在上一步被减了两次，加回一次。`
+                   :`第 3 步：三个数的公倍数：|S| 里 +1，第 1 步 −3，第 2 步 +3，净 1 次，还要减掉。`;
+    } else {
+      let bf=0; const list=[];
+      for(let x=1;x<=N;x++){ if(ds.every(d=>x%d!==0)){bf++; if(N<=120) list.push(x);} }
+      cap=`结果：${signedExpr(sums.map(v=>({s:v<0?-1:1,v:Math.abs(v)})))} = <span class="hl">${run}</span>。程序从 1 到 ${N} 一个个检查，得到 ${bf} 个，${bf===run?'一致':'不一致（不应该发生）'}。`;
+      if(list.length) cap+=`<br>这些数是：${list.join(', ')}。`;
+    }
+    $('dvCap').innerHTML=cap;
+    $('dvCount').textContent=`第 ${step} / ${last} 步`;
+    $('dvPrev').disabled=step===0; $('dvNext').disabled=step===last;
+  }
+  $('dvGo').addEventListener('click',()=>{dvRead(); dvRender();});
+  ['dvN','dvA','dvB','dvC'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){dvRead(); dvRender();}}));
+  document.querySelectorAll('.dvP').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.v.split(','); $('dvN').value=v[0]; $('dvA').value=v[1]||''; $('dvB').value=v[2]||''; $('dvC').value=v[3]||''; dvRead(); dvRender();}));
+  $('dvNext').addEventListener('click',()=>{if(!dv.err&&dv.step<dv.ds.length+1){dv.step++; dvRender();}});
+  $('dvPrev').addEventListener('click',()=>{if(dv.step>0){dv.step--; dvRender();}});
+  dvRender();
+
+  /* ---------- 4. bounded solutions (simplex) ---------- */
+  const sx={r:7,u:[3,2,4],step:0,pick:null};
+  const SXMAX=12;
+  ['sxR','sxU1','sxU2','sxU3'].forEach(id=>{let h=''; for(let v=0;v<=SXMAX;v++) h+=`<option>${v}</option>`; $(id).innerHTML=h;});
+  function sxSync(){ $('sxR').value=sx.r; ['sxU1','sxU2','sxU3'].forEach((id,i)=>{$(id).value=sx.u[i];}); }
+  const xn=i=>'x'+sub(i+1);
+  function sxRender(){
+    const {r,u}=sx, terms=subsetsBySize(3), last=terms.length; // step == last : final
+    const step=sx.step;
+    const pts=[]; for(let x1=r;x1>=0;x1--) for(let x2=r-x1;x2>=0;x2--) pts.push([x1,x2,r-x1-x2]);
+    const badSet=p=>[0,1,2].filter(i=>p[i]>u[i]);
+    const coefAt=(p,upto)=>{const b=badSet(p); let c=0; for(let j=0;j<=upto&&j<last;j++){const t=terms[j]; if(t.every(i=>b.includes(i))) c+=t.length%2?-1:1;} return c;};
+    const upto=Math.min(step,last-1);
+    const T=step<last?terms[step]:null;
+    const sp=Math.min(40,280/Math.max(r,1)), h=sp*0.866, top=40, W=360, H=top+r*h+44;
+    const pos=(x1,x2)=>[180+((r-x1-x2)-x2)*sp/2, top+(r-x1)*h];
+    const rad=Math.min(12,sp*0.42), fs=Math.min(11.5,sp*0.44);
+    let g='';
+    // cut lines
+    const cut=(i)=>{ if(u[i]>=r) return '';
+      const c=u[i]+0.5, e=0.45; let a,b;
+      if(i===0){a=pos(c,-e); b=pos(c,r-c+e);}            // x1 = c, x2 from -e to r-c+e
+      else if(i===1){a=pos(-e,c); b=pos(r-c+e,c);}       // x2 = c
+      else {a=pos(-e,r-c+e); b=pos(r-c+e,-e);}           // x3 = c : x2 = r-x1-c
+      const apex=[pos(r,0),pos(0,r),pos(0,0)][i], cen=[180, top+r*h*2/3];
+      const dx=apex[0]-cen[0], dy=apex[1]-cen[1], L=Math.hypot(dx,dy)||1, d=sp*0.6;
+      const ap=[apex[0]+dx/L*d, apex[1]+dy/L*d];
+      const P=q=>q[0].toFixed(1)+','+q[1].toFixed(1);
+      return `<polygon class="reg${i+1}" points="${P(ap)} ${P(a)} ${P(b)}"/><line class="cut${i+1}" x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>`; };
+    g+=cut(0)+cut(1)+cut(2);
+    pts.forEach((p,idx)=>{
+      const [x,y]=pos(p[0],p[1]); const c=coefAt(p,upto);
+      let cls= step===last ? (badSet(p).length?'c0':'c1') : (c===1?'c1':c===0?'c0':'cn');
+      if(T&&T.every(i=>p[i]>u[i])) cls+=' tm';
+      if(sx.pick===idx) cls+=' pk';
+      const shown= step===last ? (badSet(p).length?0:1) : c;
+      g+=`<g class="pt ${cls}" data-i="${idx}" tabindex="0" role="button" aria-label="解 (${p.join(',')})"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad.toFixed(1)}"/><text class="pv" x="${x.toFixed(1)}" y="${y.toFixed(1)}" style="font-size:${fs.toFixed(1)}px">${shown?mn(shown):''}</text></g>`;
+    });
+    const [tx,ty]=pos(r,0), [lx,ly]=pos(0,r), [rx,ry]=pos(0,0);
+    g+=`<text class="val mid" x="${tx}" y="${ty-rad-8}">x₁ = ${r}</text>`;
+    g+=`<text class="val mid" x="${Math.max(lx,34)}" y="${ly+rad+16}">x₂ = ${r}</text>`;
+    g+=r?`<text class="val mid" x="${Math.min(rx,326)}" y="${ry+rad+16}">x₃ = ${r}</text>`:'';
+    const svg=$('sxSvg'); svg.setAttribute('viewBox',`0 0 ${W} ${H.toFixed(0)}`); svg.innerHTML=g;
+    // values
+    const tv=t=>{const need=t.reduce((a,i)=>a+u[i]+1,0), rest=r-need; return {need,rest,v:rest>=0?C(rest+2,2):0};};
+    const vals=terms.slice(0,upto+1).map(t=>({s:t.length%2?-1:1,v:tv(t).v}));
+    const run=vals.reduce((a,t)=>a+t.s*t.v,0);
+    let cap='';
+    if(step===0) cap=`第 0 步：先不管上界。x₁ + x₂ + x₃ = ${r} 的非负整数解，用隔板法（第3课）：${r} 个 ★ 和 2 块隔板排成一行，C(${r}+2, 2) = <b>${C(r+2,2)}</b> 个，就是图里全部的点。每个点先算 1 次。`;
+    else if(step<last){
+      const t=T, {need,rest,v}=tv(t), sg=t.length%2?-1:1;
+      const cond=t.map(i=>`${xn(i)} ≥ ${u[i]+1}`).join(' 且 ');
+      cap=`第 ${step} 步：${sg<0?'减去':'加回'} <b>|${t.map(An).join('∩')}| = ${v}</b>。条件：${cond}（超过上界）。`;
+      if(rest>=0){
+        cap+= t.length===1?`先给 ${xn(t[0])} ${need} 个，剩下 ${r} − ${need} = ${rest} 随便分给三个变量：C(${rest}+2, 2) = ${v}。拿掉这 ${need} 个就是和为 ${rest} 的解，一一对应。`
+                         :`先给出 ${t.map(i=>u[i]+1).join(' + ')} = ${need} 个，剩下 ${rest}：C(${rest}+2, 2) = ${v}。`;
+        cap+= v?` 黄圈就是这 ${v} 个点。`:'';
+      } else cap+=`要先给出 ${t.map(i=>u[i]+1).join(' + ')} = ${need} 个，比 ${r} 还多，不可能，这一项是 0。`;
+      if(t.length===2&&v) cap+=' 这些点前面被减了两次，加回一次。';
+      if(t.length===3&&v) cap+=' 这些点目前被算了 1 − 3 + 3 = 1 次，要再减一次。';
+    } else {
+      const good=pts.filter(p=>!badSet(p).length);
+      cap=`结果：<span class="hl">${run}</span>。逐个检查 ${pts.length} 个点，满足全部上界的正好 ${good.length} 个（绿色实心点）${good.length<=24&&good.length?'：'+good.map(p=>'('+p.join(',')+')').join(' '):''}。${good.length===run?'一致。':''}`;
+    }
+    if(step>0) cap+=`<br>目前：${signedExpr(vals)} = <b>${mn(run)}</b>`;
+    $('sxCap').innerHTML=cap;
+    const pc=$('sxPickCap');
+    if(sx.pick===null||sx.pick>=pts.length){pc.hidden=true;}
+    else{
+      const p=pts[sx.pick], b=badSet(p), t=b.length;
+      const parts=[]; for(let j=0;j<=3;j++) parts.push({s:j%2?-1:1,v:C(t,j)});
+      let s=`点 (${p.join(', ')})：`;
+      s+= t?`超了 ${b.map(i=>`${xn(i)} ≤ ${u[i]}`).join('、')}，属于 ${b.map(An).join('、')}，t = ${t}。`:'满足全部上界，不属于任何 Aᵢ，t = 0。';
+      s+=`整个式子里它被算 ${signedExpr(parts)} = ${t?0:1} 次。`;
+      pc.innerHTML=s; pc.hidden=false;
+    }
+    $('sxCount').textContent=`第 ${step} / ${last} 步`;
+    $('sxPrev').disabled=step===0; $('sxNext').disabled=step===last;
+  }
+  function sxFromSel(){sx.r=+$('sxR').value; sx.u=['sxU1','sxU2','sxU3'].map(id=>+$(id).value); sx.step=0; sx.pick=null; sxRender();}
+  ['sxR','sxU1','sxU2','sxU3'].forEach(id=>$(id).addEventListener('change',sxFromSel));
+  $('sxNext').addEventListener('click',()=>{if(sx.step<8){sx.step++; sxRender();}});
+  $('sxPrev').addEventListener('click',()=>{if(sx.step>0){sx.step--; sxRender();}});
+  $('sxReset').addEventListener('click',()=>{sx.step=0; sx.pick=null; sxRender();});
+  document.querySelectorAll('.sxP').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.v.split(',').map(Number); sx.r=v[0]; sx.u=v.slice(1); sx.step=0; sx.pick=null; sxSync(); sxRender();}));
+  const sxPickEv=e=>{const p=e.target.closest('.pt'); if(!p) return; const i=+p.dataset.i; sx.pick=sx.pick===i?null:i; sxRender();};
+  $('sxSvg').addEventListener('click',sxPickEv);
+  $('sxSvg').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); sxPickEv(e);}});
+  sxSync(); sxRender();
+
+  /* ---------- 5. derangements ---------- */
+  function permsOf(n){const out=[]; (function rec(cur,used){if(cur.length===n){out.push(cur.slice());return;} for(let v=1;v<=n;v++) if(!used[v]){used[v]=1;cur.push(v);rec(cur,used);cur.pop();used[v]=0;}})([],[]); return out;}
+  const isDer=p=>p.every((v,i)=>v!==i+1);
+  const DN=[1,0]; for(let n=2;n<=8;n++) DN.push((n-1)*(DN[n-1]+DN[n-2]));
+  const dr={n:4,i:0,list:permsOf(4)};
+  function drRender(){
+    const {n,i,list}=dr, p=list[i];
+    const xs=k=>40+k*(240/(n-1));
+    let g=`<text class="val" x="2" y="34">人</text><text class="val" x="2" y="124">帽</text>`;
+    p.forEach((v,k)=>{g+=`<line class="${v===k+1?'fx':'mv'}" x1="${xs(k)}" y1="46" x2="${xs(v-1)}" y2="104"/>`;});
+    for(let k=0;k<n;k++){
+      g+=`<g class="pp${p[k]===k+1?' own':''}"><circle cx="${xs(k)}" cy="30" r="15"/><text class="in" x="${xs(k)}" y="30">${k+1}</text></g>`;
+      g+=`<g class="pp"><circle cx="${xs(k)}" cy="120" r="15"/><text class="in" x="${xs(k)}" y="120">${k+1}</text></g>`;
+    }
+    $('drSvg').innerHTML=g;
+    const fixed=[]; p.forEach((v,k)=>{if(v===k+1) fixed.push(k+1);});
+    const seenDer=list.slice(0,i+1).filter(isDer).length;
+    let cap=`排列 <b>${p.join('')}</b>：${p.map((v,k)=>`人 ${k+1} 拿到帽 ${v}`).join('，')}。<br>`;
+    if(fixed.length) cap+=`人 ${fixed.join('、')} 拿到了自己的帽子（红色竖线），<b>不是</b>错排。`;
+    else{
+      const k=p[0];
+      cap+=`没有人拿到自己的帽子，<span class="hl">是错排</span>。第 1 位是 ${k}；位置 ${k} 上${p[k-1]===1?`是 1：人 1 和人 ${k} 互换了帽子，其余 ${n-2} 人之间是错排（这类共 D${sub(n-2)} = ${DN[n-2]} 个）`:`不是 1（这类共 D${sub(n-1)} = ${DN[n-1]} 个）`}。`;
+    }
+    if(i===list.length-1){
+      const terms=[]; for(let k=0;k<=n;k++) terms.push({s:k%2?-1:1,v:fact(n)/fact(k)});
+      cap+=`<br>全部 ${n}! = ${list.length} 个看完，错排共 <b>${DN[n]}</b> 个。公式：${signedExpr(terms)} = ${DN[n]}；递推：(${n}−1)(D${sub(n-2)} + D${sub(n-1)}) = ${n-1} × (${DN[n-2]} + ${DN[n-1]}) = ${DN[n]}。按第 1 位分成 ${n-1} 组，每组 ${DN[n-2]+DN[n-1]} 个。`;
+    }
+    $('drCap').innerHTML=cap;
+    $('drCount').textContent=`第 ${i+1} / ${list.length} 个 · 已见错排 ${seenDer} 个`;
+    $('drHist').innerHTML=list.map((q,t)=>{const c=[]; if(t===i) c.push('now'); if(t<=i&&isDer(q)) c.push('dg'); return `<span class="${c.join(' ')}">${q.join('')}</span>`;}).join(' ');
+    $('drPrev').disabled=i===0; $('drNext').disabled=i===list.length-1;
+    $('drSkip').disabled=!list.slice(i+1).some(isDer);
+  }
+  $('drN').addEventListener('change',()=>{dr.n=+$('drN').value; dr.list=permsOf(dr.n); dr.i=0; drRender();});
+  $('drNext').addEventListener('click',()=>{if(dr.i<dr.list.length-1){dr.i++; drRender();}});
+  $('drPrev').addEventListener('click',()=>{if(dr.i>0){dr.i--; drRender();}});
+  $('drSkip').addEventListener('click',()=>{for(let j=dr.i+1;j<dr.list.length;j++) if(isDer(dr.list[j])){dr.i=j; break;} drRender();});
+  $('drReset').addEventListener('click',()=>{dr.i=0; drRender();});
+  drRender();
+
+  /* ---------- 6. static boards ---------- */
+  function boardSvg(n,cell,ox,oy,crosses,rooks,extra){
+    let g='';
+    for(let c=0;c<n;c++) g+=`<text class="val mid" x="${ox+c*cell+cell/2}" y="${oy-8}">${c+1}</text>`;
+    for(let r=0;r<n;r++) g+=`<text class="val mid" x="${ox-12}" y="${oy+r*cell+cell/2+4}">${r+1}</text>`;
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) g+=`<rect class="gridc" x="${ox+c*cell}" y="${oy+r*cell}" width="${cell}" height="${cell}"/>`;
+    g+=extra||'';
+    crosses.forEach(([r,c,cls])=>{g+=`<text class="${cls||'xm'}" x="${ox+(c-1)*cell+cell/2}" y="${oy+(r-1)*cell+cell/2}">×</text>`;});
+    (rooks||[]).forEach(([r,c])=>{const x=ox+(c-1)*cell+cell/2,y=oy+(r-1)*cell+cell/2; g+=`<circle class="rk" cx="${x}" cy="${y}" r="${cell*0.34}"/><text class="rkt" x="${x}" y="${y}">车</text>`;});
+    return g;
+  }
+  $('figB5').innerHTML=boardSvg(5,32,34,26,[[1,1],[1,4],[2,3],[4,1],[4,5],[5,2],[5,5]],[[1,2],[2,1],[3,5],[4,3],[5,4]]);
+  {const cell=30,ox=34,oy=26;
+   const ex=`<rect class="blk1" x="${ox}" y="${oy}" width="${2*cell}" height="${2*cell}"/><rect class="blk2" x="${ox+2*cell}" y="${oy+2*cell}" width="${2*cell}" height="${2*cell}"/>`;
+   $('figB6').innerHTML=boardSvg(6,cell,ox,oy,[[1,1],[2,1],[2,2],[3,3,'xm2'],[3,4,'xm2'],[4,3,'xm2'],[4,4,'xm2']],[],ex);}
+
+  /* ---------- 6. rook board demo ---------- */
+  const RK_PRE={
+    diag:{n:4,X:[[1],[2],[3],[4]]},
+    s273:{n:4,X:[[1,2],[2,3],[3,4],[1,4]]},
+    s274:{n:5,X:[[1,4],[3],[],[1,5],[2,5]]},
+    s279:{n:6,X:[[1],[1,2],[3,4],[3,4],[],[]]},
+    e288a:{n:6,X:[[1,2],[3,4],[5,6],[],[],[]]},
+    e288b:{n:6,X:[[1,2],[1,2],[3,4],[3,4],[5,6],[5,6]]},
+    e288c:{n:6,X:[[1,2],[2,3],[3],[5,6],[6],[]]},
+    e289:{n:6,X:[[1,5],[],[2,3,5],[4],[],[5,6]]}
+  };
+  const rk={n:4,F:[],view:null,data:null};
+  const emptyF=n=>Array.from({length:n},()=>Array(n).fill(false));
+  function rkLoad(key){
+    if(key&&RK_PRE[key]){const P=RK_PRE[key]; rk.n=P.n; rk.F=emptyF(P.n); P.X.forEach((xs,i)=>xs.forEach(c=>{rk.F[i][c-1]=true;})); $('rkN').value=P.n;}
+    else {rk.F=emptyF(rk.n);}
+    rk.view=null; rkCompute(); rkRender();
+  }
+  function rkCompute(){
+    const n=rk.n,F=rk.F; const byK=Array.from({length:n+1},()=>[]);
+    (function rec(row,used,cur){ if(row===n){byK[cur.length].push(cur.slice()); return;} rec(row+1,used,cur); for(let c=0;c<n;c++) if(F[row][c]&&!(used>>c&1)){cur.push([row,c]); rec(row+1,used|1<<c,cur); cur.pop();} })(0,0,[]);
+    const allowed=[];
+    (function rec(row,used,cur){ if(row===n){allowed.push(cur.slice()); return;} for(let c=0;c<n;c++) if(!(used>>c&1)&&!F[row][c]){cur.push(c+1); rec(row+1,used|1<<c,cur); cur.pop();} })(0,0,[]);
+    rk.data={byK,r:byK.map(a=>a.length),allowed};
+    let h=''; for(let k=1;k<=n;k++) h+=`<option${k===1?' selected':''}>${k}</option>`;
+    const keep=$('rkK').value; $('rkK').innerHTML=h; if(keep&&+keep<=n) $('rkK').value=keep;
+  }
+  function rkRender(){
+    const n=rk.n,F=rk.F,{r,byK,allowed}=rk.data;
+    const rooks={}; let cap='';
+    if(rk.view&&rk.view.type==='rk'){
+      const {k,j}=rk.view, pl=byK[k][j]; pl.forEach(([a,b])=>{rooks[a+','+b]='rook';});
+      cap=`r${sub(k)} 的第 ${j+1} / ${r[k]} 种：车在 ${pl.map(([a,b])=>`(${a+1},${b+1})`).join('、')}。每个车都在 × 上，互不同行同列。其余 ${n-k} 行的车可以随便补全，${n-k}! = ${fact(n-k)} 种。所以公式里"交 ${k} 个集合"的那个和等于 r${sub(k)} × ${n-k}! = ${r[k]} × ${fact(n-k)} = ${r[k]*fact(n-k)}。`;
+    } else if(rk.view&&rk.view.type==='perm'){
+      const {j}=rk.view, p=allowed[j]; p.forEach((c,a)=>{rooks[a+','+(c-1)]='ok';});
+      cap=`合法排列第 ${j+1} / ${allowed.length} 个：<b>${p.join('')}</b>（第 i 行的车在第 iᵢ 列）。每行每列恰好一个车，没有一个在 × 上。`;
+    } else {
+      cap='点格子打 ×（或取消）。下面的按钮可以一个个看 rₖ 数的是哪些放法，或者看合法的排列。';
+    }
+    let h=`<div></div>`; for(let c=0;c<n;c++) h+=`<div class="hd">${c+1}</div>`;
+    for(let a=0;a<n;a++){
+      h+=`<div class="hd">${a+1}</div>`;
+      for(let b=0;b<n;b++){const x=F[a][b], rr=rooks[a+','+b]; const cls=['bd']; if(x) cls.push('x'); if(rr==='rook') cls.push('rook'); if(rr==='ok') cls.push('ok');
+        h+=`<button class="${cls.join(' ')}" data-a="${a}" data-b="${b}" aria-label="第 ${a+1} 行第 ${b+1} 列${x?'，禁位':''}">${rr?'车':(x?'×':'')}</button>`;}
+    }
+    const bd=$('rkBoard'); bd.style.gridTemplateColumns=`1.4rem repeat(${n}, minmax(0,1fr))`; bd.style.maxWidth=`calc(1.4rem + ${n*3.4}rem)`; bd.innerHTML=h;
+    // calc
+    const nz=[]; for(let k=0;k<=n;k++) if(r[k]) nz.push(k);
+    const poly=nz.map(k=>k===0?String(r[k]):`${r[k]===1?'':r[k]}x${k>1?sup(k):''}`).join(' + ');
+    const termsS=nz.map(k=>({s:k%2?-1:1,v:k===0?`${n}!`:`${r[k]}×${n-k}!`}));
+    const termsV=nz.map(k=>({s:k%2?-1:1,v:r[k]*fact(n-k)}));
+    const val=termsV.reduce((a,t)=>a+t.s*t.v,0);
+    let c=`<div>${r.map((v,k)=>`r${sub(k)} = ${v}`).join('，')}</div>`;
+    c+=`<div>车多项式 R(x) = ${poly}</div>`;
+    c+=`<div>Σ(−1)ᵏ rₖ (${n}−k)! = ${signedExpr(termsS)}</div><div class="ind">= ${signedExpr(termsV)} = <b>${val}</b></div>`;
+    c+=`<div class="sumln">逐个检查 ${fact(n)} 个排列：${allowed.length} 个不碰 ×，${allowed.length===val?'一致':'不一致（不应该发生）'}</div>`;
+    $('rkCalc').innerHTML=c;
+    $('rkCap').innerHTML=cap;
+    let fcount=0; F.forEach(row=>row.forEach(v=>{if(v) fcount++;}));
+    $('rkCount').textContent=`${n}×${n}，× 共 ${fcount} 个`;
+    const k=+$('rkK').value;
+    $('rkPrevP').disabled=!(rk.view&&rk.view.type==='rk'&&rk.view.j>0);
+    $('rkNextP').disabled=!(r[k]>0)||(rk.view&&rk.view.type==='rk'&&rk.view.k===k&&rk.view.j>=r[k]-1);
+    $('rkPerm').disabled=allowed.length===0;
+  }
+  $('rkBoard').addEventListener('click',e=>{const b=e.target.closest('.bd'); if(!b) return; const a=+b.dataset.a,c=+b.dataset.b; rk.F[a][c]=!rk.F[a][c]; rk.view=null; $('rkPre').value=''; rkCompute(); rkRender();});
+  $('rkN').addEventListener('change',()=>{rk.n=+$('rkN').value; $('rkPre').value=''; rkLoad('');});
+  $('rkPre').addEventListener('change',()=>rkLoad($('rkPre').value));
+  $('rkK').addEventListener('change',()=>{rk.view=null; rkRender();});
+  $('rkNextP').addEventListener('click',()=>{const k=+$('rkK').value; if(!rk.data.r[k]) return; if(rk.view&&rk.view.type==='rk'&&rk.view.k===k) rk.view.j=Math.min(rk.view.j+1,rk.data.r[k]-1); else rk.view={type:'rk',k,j:0}; rkRender();});
+  $('rkPrevP').addEventListener('click',()=>{if(rk.view&&rk.view.type==='rk'&&rk.view.j>0){rk.view.j--; rkRender();}});
+  $('rkPerm').addEventListener('click',()=>{const A=rk.data.allowed; if(!A.length) return; if(rk.view&&rk.view.type==='perm') rk.view.j=(rk.view.j+1)%A.length; else rk.view={type:'perm',j:0}; rkRender();});
+  $('rkClear').addEventListener('click',()=>{$('rkPre').value=''; rkLoad('');});
+  rkLoad('s273');
+})();
+</script>
