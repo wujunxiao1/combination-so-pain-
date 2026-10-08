@@ -1,0 +1,993 @@
+<title>第5课 二项式系数</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; each idea starts with "why", then a small example, then the rule. Demos are "machine" panels with the reason for each step under them. */
+:root{
+  --paper:#f5f6f3; --surface:#ffffff; --ink:#1c2422; --muted:#5d6a66; --line:#d7ddd9;
+  --accent:#1f6f5c; --accent-soft:#e1efe9; --mark:#f3cf5b; --mark-ink:#3b2f00; --warn:#b4472f;
+  --g1:#1f6f5c; --g2:#2f6db5; --g3:#b4472f; --g4:#7d4fb0; --g5:#8a6400;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068;
+  --g1:#62c3a6; --g2:#78aeea; --g3:#e48068; --g4:#b99ae6; --g5:#e2bd4f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068;
+  --g1:#62c3a6; --g2:#78aeea; --g3:#e48068; --g4:#b99ae6; --g5:#e2bd4f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75}
+.wrap{max-width:46rem;margin:0 auto;padding-inline:16px;padding-block:2rem 4rem}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35}
+h1{font-size:1.9rem;margin:0 0 .4rem}
+h2{font-size:1.45rem;margin:3rem 0 .8rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.12rem;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+ul{padding-left:1.3rem}
+.lede{color:var(--muted)}
+.meta{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+code,.mono{font-family:var(--mono);font-size:.95em}
+b,strong{font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.2rem 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;padding:.2rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:.9rem;background:var(--surface)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rule{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0}
+.rule p{margin:.2rem 0}
+ol.steps{padding-left:1.4rem;margin:.6rem 0}
+ol.steps li{margin:.25rem 0}
+.tip{font-size:.95rem;color:var(--muted)}
+.tip b{color:var(--ink)}
+.calc{font-family:var(--mono);font-size:.92rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.5rem .8rem;margin:.6rem 0;overflow-x:auto;line-height:1.9}
+/* machine panel */
+.machine{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.2rem 0}
+.machine .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.machine .title{font-weight:700;font-size:.95rem}
+.machine .count{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+button,select,input{font:inherit}
+button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font-size:.9rem}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,.toc a:focus-visible,summary:focus-visible,svg .sn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text]{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.25rem .5rem;font-size:.9rem;max-width:100%}
+input[type=text]{font-family:var(--mono);width:7rem}
+.caption{margin-top:.7rem;padding:.6rem .8rem;background:var(--paper);border-radius:6px;font-size:.95rem;min-height:3.2em}
+.caption .hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:3px}
+.history{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:.6rem;line-height:1.6;word-break:break-all}
+.history .now{color:var(--ink);font-weight:600}
+/* pascal triangle */
+.ptri{display:flex;flex-direction:column;gap:3px}
+.pt-row{display:flex;justify-content:center;gap:3px}
+.pt-cell{flex:0 0 calc((100% - 30px) / 11);max-width:2.6rem;min-width:0;height:2rem;padding:0;font-family:var(--mono);font-size:.8rem;border-radius:5px;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.pt-cell.new{border:1.5px dashed var(--accent)}
+.pt-cell.par{background:var(--accent-soft);border:2px solid var(--accent)}
+.pt-cell.neg{background:var(--paper);border:2px solid var(--warn);color:var(--warn)}
+.pt-cell.hot{background:var(--mark);color:var(--mark-ink);border:2px solid var(--mark)}
+/* words */
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.chip{font-family:var(--mono);border:1px solid var(--line);border-radius:5px;padding:.05rem .45rem;background:var(--surface);font-size:.95rem}
+.chip .y{color:var(--accent);font-weight:700}
+.chip .nw{box-shadow:inset 0 -3px 0 var(--mark)}
+.grp{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.3rem 0;padding-bottom:.3rem;border-bottom:1px dashed var(--line)}
+.grp .gl{font-size:.85rem;color:var(--muted);min-width:4.2rem}
+.grp .gr{font-family:var(--mono);font-size:.9rem;margin-left:auto}
+/* figures */
+.figs{display:flex;flex-wrap:wrap;gap:1rem;margin:.8rem 0}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem;flex:1 1 15rem;min-width:0}
+figure svg,.machine svg{width:100%;height:auto;display:block;margin:0 auto}
+figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.3rem}
+svg .edge{stroke:var(--muted);stroke-width:1.5}
+svg .node{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+svg .dot{fill:var(--accent)}
+svg text{fill:var(--ink);font-family:var(--mono);font-size:13px}
+svg text.val{font-size:12px;fill:var(--muted)}
+svg text.in{font-size:12px;text-anchor:middle;dominant-baseline:central}
+svg .gpath{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+svg .glast{fill:none;stroke:var(--warn);stroke-width:5;stroke-linecap:round}
+svg .hot{fill:var(--mark);stroke:var(--mark-ink);stroke-width:1.5}
+svg .gn{fill:var(--surface);stroke:var(--muted);stroke-width:1.5}
+svg .sn{cursor:pointer}
+svg .sn circle{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+svg .sn.on circle{fill:var(--mark);stroke:var(--mark)}
+svg .sn.on text{fill:var(--mark-ink);font-weight:600}
+svg .sn.bad circle{stroke:var(--warn);stroke-width:3.5}
+svg .sn.ch circle{stroke:var(--accent);stroke-width:3.5}
+svg .edge.ch{stroke:var(--accent);stroke-width:4}
+svg .dn circle{fill:var(--surface);stroke:var(--muted);stroke-width:1.5}
+svg .dn.col text{fill:var(--surface);font-weight:600}
+/* tables */
+.scroll{overflow-x:auto;margin:.8rem 0}
+table{border-collapse:collapse;font-size:.93rem;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:.35rem .7rem;text-align:left;white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:.85rem}
+td.mono{font-family:var(--mono)}
+td .hl,span.hl{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+/* practice */
+.q{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600}
+.q .orig{font-size:.85rem;color:var(--muted)}
+details{margin-top:.5rem}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+details[open] summary{margin-bottom:.3rem}
+.ans{font-size:.95rem}
+@media (prefers-reduced-motion:no-preference){.pt-cell{transition:background .2s,border-color .2s}}
+@media (max-width:480px){h1{font-size:1.55rem}.pt-cell{font-size:.72rem}}
+</style>
+
+<div class="wrap">
+<p class="meta">组合数学 · 讲义 05 · 幻灯片第 219–241 页 · Brualdi 第5章</p>
+<h1>第5课　二项式系数</h1>
+<p class="lede">第3课里，C(n,k) 是"从 n 个不同的东西里选 k 个"的方法数。这一章把这些数排成一张三角形的表，看它们之间的关系：一个数怎样由上一行加出来（Pascal 公式），它们为什么会出现在 (x+y)ⁿ 的展开式里（二项式定理），以及一整串"代一个数就能得到"的恒等式。最后把 C(n,k) 推广到负数和分数，为第7章的生成函数做准备。每个公式旁边都写了"为什么"，演示里每一步都有说明。</p>
+<ul class="toc">
+  <li><a href="#pascal">1 Pascal 公式</a></li>
+  <li><a href="#paths">2 路径计数</a></li>
+  <li><a href="#thm">3 二项式定理</a></li>
+  <li><a href="#ids">4 恒等式</a></li>
+  <li><a href="#uni">5 单峰性与 Sperner</a></li>
+  <li><a href="#multi">6 多项式定理</a></li>
+  <li><a href="#newton">7 Newton 二项式定理</a></li>
+  <li><a href="#dil">8 链与反链</a></li>
+  <li><a href="#practice">练习</a></li>
+</ul>
+
+<!-- ============ 1 ============ -->
+<h2 id="pascal">1　Pascal 公式与 Pascal 三角形（幻灯片 219–221）</h2>
+
+<h3>先回忆：C(n,k) 是怎么算出来的</h3>
+<p>第3课：从 n 个不同元素里选 k 个（不管顺序），方法数是 C(n,k)。讲义的公式 (5.1)（幻灯片 219）：</p>
+<div class="rule"><p class="mono">C(n,k) = n! / (k!(n−k)!) = n(n−1)…(n−k+1) / (k(k−1)…1)</p></div>
+<p><b>为什么是这样</b>：先按顺序一个一个选，第一个有 n 种、第二个 n−1 种、……、第 k 个 n−k+1 种，共 n(n−1)…(n−k+1) 种（这是第3课的 P(n,k)）。但同一组 k 个人，会以 k! 种不同的先后顺序被选到，每组被重复数了 k! 次，所以要除以 k!。例：C(5,2) = 5×4 / (2×1) = 10。</p>
+<p>约定：C(n,0) = 1（什么都不选，只有一种做法）；k &gt; n 时 C(n,k) = 0（根本选不出来）。</p>
+<p>还有一个马上能看出来的关系：<b>C(n,k) = C(n,n−k)</b>。理由：选出 k 个带走，等于选出 n−k 个留下，每种"带走"的选法恰好对应一种"留下"的选法。例：5 人中选 2 人值日，和选 3 人不值日，都是 10 种。</p>
+
+<h3>问题：每次都算阶乘太累</h3>
+<p>要写出 C(8,0) 到 C(8,8) 这 9 个数，如果每个都去算 8!/(k!(8−k)!)，又慢又容易错。能不能<b>只用加法，从上一行得到下一行</b>？</p>
+<p>先看一个小例子。C(4,2) = 6：从 {1,2,3,4} 里选 2 个。按"有没有选 4"分成两类：</p>
+<ol class="steps">
+<li><b>选了 4</b>：另一个只能从 {1,2,3} 里选，C(3,1) = 3 种：{1,4}、{2,4}、{3,4}。</li>
+<li><b>没选 4</b>：两个都从 {1,2,3} 里选，C(3,2) = 3 种：{1,2}、{1,3}、{2,3}。</li>
+</ol>
+<p>每个 2 元子集要么含 4、要么不含 4，两类不重不漏，用加法原理（第3课）：C(4,2) = C(3,1) + C(3,2) = 3 + 3 = 6。把 4 换成 n、2 换成 k，就是下面的公式。</p>
+<div class="rule">
+<p><b>Pascal 公式</b>（幻灯片 219）：对所有满足 1 ≤ k ≤ n−1 的整数，</p>
+<p class="mono">C(n,k) = C(n−1,k) + C(n−1,k−1)</p>
+</div>
+<p><b>组合理由</b>：盯住第 n 个元素。含它的 k 元子集，剩下 k−1 个从前 n−1 个里选，有 C(n−1,k−1) 个；不含它的，k 个全部从前 n−1 个里选，有 C(n−1,k) 个。</p>
+<p><b>代数验证</b>（也就是习题 #215）：把两项通分到同一个分母 k!(n−k)!。第一项分子分母同乘 (n−k)，第二项同乘 k：</p>
+<div class="calc">C(n−1,k) + C(n−1,k−1)<br>= (n−1)!/(k!(n−1−k)!) + (n−1)!/((k−1)!(n−k)!)<br>= (n−1)!·(n−k)/(k!(n−k)!) + (n−1)!·k/(k!(n−k)!)<br>= (n−1)!·[(n−k)+k]/(k!(n−k)!) = n!/(k!(n−k)!) = C(n,k)</div>
+<p class="tip"><b>为什么要求 1 ≤ k ≤ n−1</b>：k = 0 或 k = n 时，右边会出现 C(n−1,−1) 或 C(n−1,n)，它们按"选不出来就是 0"的约定其实也成立，但讲义这里只写中间的情况。三角形两端的 1 是直接规定的。</p>
+
+<h3>Pascal 三角形</h3>
+<p>把 C(n,k) 一行行排好，第 n 行写 C(n,0), C(n,1), …, C(n,n)。两端都是 1，中间每个数是它<b>左上和右上两个数之和</b>，于是整张表只用加法就能一行行写下去。讲义第 220 页把它写成左对齐的表（第 n 行、第 k 列），内容完全一样，只是没有错开。</p>
+
+<div class="machine" id="ptBox">
+  <div class="head"><span class="title">演示：Pascal 三角形</span><span class="count" id="ptCount"></span></div>
+  <div class="ptri" id="ptTri"></div>
+  <div class="caption" id="ptCap"></div>
+  <div class="controls">
+    <button id="ptGrow" class="primary">加一行</button>
+    <button id="ptShrink">删一行</button>
+    <button id="ptReset">重置</button>
+    <label for="ptMode">看：</label>
+    <select id="ptMode">
+      <option value="pascal">Pascal 公式（点格子）</option>
+      <option value="row">行和 = 2ⁿ</option>
+      <option value="alt">交错和 = 0</option>
+      <option value="sq">平方和 = C(2n,n)</option>
+      <option value="hockey">列求和 (5.12)（点格子）</option>
+    </select>
+  </div>
+</div>
+<p class="tip">图例：<b>黄色</b>是你点的格子或要得到的结果，<b>绿框</b>是加起来的那些数，<b>红框</b>是要减掉的数，<b>虚线框</b>是刚加上的新行。后三种模式看的是你点过的那一行（没点就看最后一行）。</p>
+
+<h3>从三角形里直接能看出的规律（幻灯片 220–221）</h3>
+<ul>
+<li><b>左右对称</b>：就是 C(n,k) = C(n,n−k)。</li>
+<li><b>每行之和是 2ⁿ</b>：第 4 行 1+4+6+4+1 = 16 = 2⁴。原因：4 元集合的子集按大小分组，0 个、1 个、……、4 个元素的子集分别有 1、4、6、4、1 个，合起来是全部子集。而第4课讲过，每个子集对应一个 4 位 0/1 串，一共 2⁴ 个。</li>
+<li><b>第 1 列</b> C(n,1) = n：1, 2, 3, 4, …，就是自然数。</li>
+<li><b>第 2 列</b> C(n,2) = n(n−1)/2：1, 3, 6, 10, 15, …，叫<b>三角形数</b>。名字来自把点摆成三角形：第一排 1 个，第二排 2 个，……，第 n−1 排 n−1 个，共 1+2+…+(n−1) 个点。为什么这个和等于 C(n,2)：n 个人两两握手，第 1 个人和后面 n−1 人各握一次，第 2 个人和后面 n−2 人各握一次，……，加起来正是 (n−1)+(n−2)+…+1；而握手次数就是从 n 人里选 2 人，C(n,2)。</li>
+</ul>
+<div class="figs"><figure>
+<svg viewBox="0 0 310 92" role="img" aria-label="三角形数 1、3、6、10 的点阵" style="max-width:420px"><circle class="dot" cx="40" cy="14" r="4"/><text x="40" y="84" text-anchor="middle">1</text><circle class="dot" cx="110" cy="14" r="4"/><circle class="dot" cx="103.5" cy="27" r="4"/><circle class="dot" cx="116.5" cy="27" r="4"/><text x="110" y="84" text-anchor="middle">3</text><circle class="dot" cx="185" cy="14" r="4"/><circle class="dot" cx="178.5" cy="27" r="4"/><circle class="dot" cx="191.5" cy="27" r="4"/><circle class="dot" cx="172" cy="40" r="4"/><circle class="dot" cx="185" cy="40" r="4"/><circle class="dot" cx="198" cy="40" r="4"/><text x="185" y="84" text-anchor="middle">6</text><circle class="dot" cx="265" cy="14" r="4"/><circle class="dot" cx="258.5" cy="27" r="4"/><circle class="dot" cx="271.5" cy="27" r="4"/><circle class="dot" cx="252" cy="40" r="4"/><circle class="dot" cx="265" cy="40" r="4"/><circle class="dot" cx="278" cy="40" r="4"/><circle class="dot" cx="245.5" cy="53" r="4"/><circle class="dot" cx="258.5" cy="53" r="4"/><circle class="dot" cx="271.5" cy="53" r="4"/><circle class="dot" cx="284.5" cy="53" r="4"/><text x="265" y="84" text-anchor="middle">10</text></svg>
+<figcaption>三角形数 C(2,2), C(3,2), C(4,2), C(5,2)（幻灯片 221）</figcaption>
+</figure></div>
+<ul>
+<li><b>第 3 列</b> C(n,3) = n(n−1)(n−2)/(3·2·1)：1, 4, 10, 20, 35, …，叫<b>四面体数</b>：把上面的三角形一层层叠成金字塔，1、1+3、1+3+6、1+3+6+10。"一列往下加，等于下一行右边一格"，第4节的 (5.12) 会说明为什么。</li>
+</ul>
+
+<!-- ============ 2 ============ -->
+<h2 id="paths">2　C(n,k) 也是路径数（幻灯片 222–223）</h2>
+<h3>为什么换一个角度</h3>
+<p>Pascal 公式说"每个数 = 上面两个数之和"。如果从顶上的 1 出发，一层层往下加，那么每个数其实在<b>数从顶点走下来、到达这一格有多少条路</b>。讲义第 222 页正是这样定义的。</p>
+<p>把三角形写成左对齐的表（第 n 行、第 k 列），从左上角的 C(0,0) 出发，每一步都走到下一行，只有两种走法：<b>竖直向下</b>（列号不变），或者<b>斜着向右下</b>（列号 +1）。记 p(n,k) = 走到 C(n,k) 那一格的路径数。</p>
+<p>小例子：p(2,1)，从 C(0,0) 走到 C(2,1)。要走 2 步，其中 1 步斜着走：可以"先竖后斜"，也可以"先斜后竖"，共 2 条，正好是 C(2,1) = 2。</p>
+<p><b>为什么 p(n,k) = C(n,k)</b>（幻灯片 222–223）：</p>
+<ol class="steps">
+<li><b>两条边</b>：p(n,0) = 1，因为要停在第 0 列只能一直竖直往下；p(n,n) = 1，因为要到第 n 列只能每步都斜着走。和三角形两端的 1 一样。</li>
+<li><b>中间</b>：到达 (n,k) 的最后一步，要么是从 (n−1,k) 竖直下来，要么是从 (n−1,k−1) 斜着下来。两类不重不漏，所以 p(n,k) = p(n−1,k) + p(n−1,k−1)，和 Pascal 公式一模一样。</li>
+<li>p 和 C 从同样的边开始，按同样的加法规则一行行往下算，所以每一格都相等：<b>p(n,k) = C(n,k)</b>。</li>
+</ol>
+<p>还有一个更直接的理由：每条路走了 n 步，其中恰好 k 步是斜的（列号要从 0 涨到 k）。确定一条路，就是确定 n 步里哪 k 步斜着走，C(n,k) 种。</p>
+<p><b>画成方格更清楚</b>：把"斜着走"画成<b>向右</b>，"竖直走"画成<b>向下</b>，三角表就变成了一个 k 列、n−k 行的方格，每条路是 k 次"右"加 n−k 次"下"。下面每个格点旁边的数是走到那里的路径数，它们正好是一个转了 45° 的 Pascal 三角形：每个数 = 左边的数 + 上边的数。</p>
+
+<div class="machine" id="paBox">
+  <div class="head"><span class="title">演示：一条一条数完所有路径</span><span class="count" id="paCount"></span></div>
+  <svg id="paSvg" role="img" aria-label="方格路径图" style="max-width:340px"></svg>
+  <div class="caption" id="paCap"></div>
+  <div class="controls">
+    <label for="paSel">终点：</label>
+    <select id="paSel">
+      <option value="3,1">C(3,1)</option>
+      <option value="4,2" selected>C(4,2)</option>
+      <option value="5,2">C(5,2)</option>
+      <option value="5,3">C(5,3)</option>
+      <option value="6,3">C(6,3)</option>
+    </select>
+    <button id="paPrev">上一条</button>
+    <button id="paNext" class="primary">下一条</button>
+    <button id="paReset">重置</button>
+  </div>
+  <div class="history" id="paHist"></div>
+</div>
+<p class="tip">图例：绿线是当前这条路，<b>红色</b>是它的最后一步，<b>黄点</b>是最后一步之前所在的格点。路径按"最后一步向下"在前、"最后一步向右"在后排列，中间用 | 隔开，两组的条数就是 Pascal 公式右边的两项。练习 #237（上学走街道）就是这个模型。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="thm">3　二项式定理（幻灯片 224–225）</h2>
+<h3>从 (x+y)² 到 (x+y)ⁿ</h3>
+<p>(x+y)² = x² + 2xy + y²，(x+y)³ = x³ + 3x²y + 3xy² + y³。系数 1,2,1 和 1,3,3,1 正是 Pascal 三角形的第 2、3 行。这是巧合吗？如果要展开 (x+y)¹⁰，能不能不真的乘十次，就直接写出每一项的系数？</p>
+<p>关键是把乘方写成乘积：(x+y)³ = (x+y)(x+y)(x+y)。乘开的过程就是：<b>从每个括号里各挑一个字母（x 或 y），乘起来，再把所有挑法加在一起</b>。把挑出的字母按括号顺序写下来，得到一个长度为 3 的"词"：</p>
+<p class="mono">xxx, xxy, xyx, xyy, yxx, yxy, yyx, yyy</p>
+<p>每个括号 2 种挑法，乘法原理给出 2³ = 8 个词。相乘时字母顺序无所谓，xyy、yxy、yyx 都等于 xy²，所以按<b>词里 y 的个数</b>合并：</p>
+<ol class="steps">
+<li>0 个 y：xxx，1 个，得 x³。</li>
+<li>1 个 y：xxy、xyx、yxx，3 个，得 3x²y。</li>
+<li>2 个 y：xyy、yxy、yyx，3 个，得 3xy²。</li>
+<li>3 个 y：yyy，1 个，得 y³。</li>
+</ol>
+<p>有 k 个 y 的词有几个？就是从 3 个括号里选出哪 k 个出 y（其余出 x），C(3,k) 个。这就是系数是二项式系数的原因。</p>
+<div class="rule">
+<p><b>二项式定理</b>（幻灯片 224）：n 为正整数，对所有 x、y，</p>
+<p class="mono">(x+y)ⁿ = xⁿ + C(n,1)xⁿ⁻¹y + C(n,2)xⁿ⁻²y² + … + C(n,n−1)xyⁿ⁻¹ + yⁿ</p>
+<p>求和写法：(x+y)ⁿ = Σ C(n,k) xⁿ⁻ᵏ yᵏ，k 从 0 到 n。</p>
+</div>
+<p><b>理由</b>：xⁿ⁻ᵏyᵏ 的系数 = 长度 n、恰有 k 个 y 的词的个数 = 在 n 个括号里选 k 个出 y 的方法数 = C(n,k)。</p>
+
+<div class="machine" id="exBox">
+  <div class="head"><span class="title">演示：一个括号一个括号地乘开</span><span class="count" id="exCount"></span></div>
+  <div id="exView"></div>
+  <div class="caption" id="exCap"></div>
+  <div class="controls">
+    <label for="exN">n =</label>
+    <select id="exN"><option>2</option><option selected>3</option><option>4</option></select>
+    <button id="exPrev">上一步</button>
+    <button id="exNext" class="primary">下一步</button>
+    <button id="exReset">重置</button>
+  </div>
+</div>
+<p class="tip">图例：词里的 <b>y</b> 用绿色加粗；底下有黄线的字母是这一步刚接上去的。</p>
+
+<h3>几种等价写法（幻灯片 224–225）</h3>
+<p>因为 C(n,k) = C(n,n−k)，系数也可以写成 C(n,n−k)；x 和 y 的地位是对称的，所以也可以写成 Σ C(n,k)xᵏyⁿ⁻ᵏ。最常用的是令 y = 1：</p>
+<div class="rule"><p class="mono">(1+x)ⁿ = Σ C(n,k) xᵏ = 1 + C(n,1)x + C(n,2)x² + … + xⁿ</p></div>
+<p>例：(1+x)⁴ = 1 + 4x + 6x² + 4x³ + x⁴。下一节的恒等式几乎都从这个式子出发。</p>
+<p class="tip"><b>带系数的情形</b>：例如 (2x−y)³，把 2x 和 −y 各当成一个整体代进去，第 k 项是 C(3,k)(2x)³⁻ᵏ(−y)ᵏ。系数要连同 2 的乘方和 −1 的乘方一起算：8x³ − 12x²y + 6xy² − y³（−12 = 3 × 2² × (−1)）。练习 #220 就是这种题。</p>
+
+<!-- ============ 4 ============ -->
+<h2 id="ids">4　二项式系数的恒等式（幻灯片 226–230）</h2>
+<p>(1+x)ⁿ = Σ C(n,k)xᵏ 对<b>所有</b> x 都成立。所以给 x 代一个特殊的值，或者两边同时求导、积分，就能"免费"得到关于 C(n,k) 的等式。每个等式我们还会给一个"数数"的解释：同一批东西用两种方法去数，结果必然相等。这种证明叫<b>组合证明</b>（双重计数）。</p>
+
+<h3>(5.2)　k·C(n,k) = n·C(n−1,k−1)</h3>
+<p>先看数字：n = 4、k = 2 时，左边 2 × 6 = 12，右边 4 × 3 = 12。</p>
+<p><b>数数</b>：4 个人里选 2 人组队，并指定其中一人当队长。两种数法：</p>
+<ol class="steps">
+<li>先选队员 C(4,2) = 6 种，再从队里挑队长 2 种：6 × 2 = 12。</li>
+<li>先选队长 4 种，再从剩下 3 人里补 1 名队员 C(3,1) = 3 种：4 × 3 = 12。</li>
+</ol>
+<p>同一件事数了两遍，结果必然相等。一般地，两边都在数"n 人中选 k 人组队、并指定一名队长"。</p>
+<p><b>代数</b>（幻灯片 226）：k·n!/(k!(n−k)!) = n!/((k−1)!(n−k)!) = n·(n−1)!/((k−1)!((n−1)−(k−1))!) = n·C(n−1,k−1)。约掉的是 k/k! = 1/(k−1)!。</p>
+
+<h3>(5.3)　行和：C(n,0) + C(n,1) + … + C(n,n) = 2ⁿ</h3>
+<p><b>代入 x = 1</b>：(1+1)ⁿ = Σ C(n,k)·1ᵏ，左边是 2ⁿ。</p>
+<p><b>数数</b>：n 元集合的子集一共 2ⁿ 个（每个元素"进"或"不进"，第4课的 0/1 串）；按子集大小 k 分组，每组 C(n,k) 个。例 n = 3：1 + 3 + 3 + 1 = 8。</p>
+
+<h3>(5.4)　交错和：C(n,0) − C(n,1) + C(n,2) − … + (−1)ⁿC(n,n) = 0（n ≥ 1）</h3>
+<p><b>代入 x = −1</b>：(1−1)ⁿ = 0ⁿ。n ≥ 1 时它等于 0；n = 0 时 0⁰ = 1（第 0 行只有一个 1），所以要求 n ≥ 1。</p>
+<p><b>数数</b>：式子移项后说的是"大小为偶数的子集和大小为奇数的子集一样多"。把每个子集和"把元素 1 放进去或拿出来"之后的子集配成一对。n = 3 时：</p>
+<p class="mono">∅ ↔ {1}　　{2} ↔ {1,2}　　{3} ↔ {1,3}　　{2,3} ↔ {1,2,3}</p>
+<p>每一对的大小差 1，一个偶一个奇，所以偶的和奇的一样多（各 4 个）。这个配对要用到元素 1，所以集合不能是空的，也就是 n ≥ 1。</p>
+
+<h3>(5.5)–(5.7)　偶数项之和 = 奇数项之和 = 2ⁿ⁻¹</h3>
+<p>(5.4) 把负的项移到右边，就是 (5.5)：C(n,0) + C(n,2) + … = C(n,1) + C(n,3) + …。这两部分加起来是 2ⁿ（(5.3)），又相等，所以各是一半，2ⁿ⁻¹（(5.6)、(5.7)）。例 n = 4：1 + 6 + 1 = 8，4 + 4 = 8，2³ = 8。</p>
+
+<h3>(5.8)　1·C(n,1) + 2·C(n,2) + … + n·C(n,n) = n·2ⁿ⁻¹</h3>
+<p>先看数字：n = 3 时，1×3 + 2×3 + 3×1 = 12 = 3 × 2²。</p>
+<p><b>数数</b>：从 n 人里选一个委员会（人数不限，至少 1 人），并指定一名主席。按委员会人数 k 分类：选委员会 C(n,k) 种，主席 k 种，合计 Σ k·C(n,k)。换个顺序数：先选主席 n 种，其余 n−1 人每人进或不进，2ⁿ⁻¹ 种。</p>
+<p><b>讲义的路线</b>（幻灯片 227）：用 (5.2) 把每个 k·C(n,k) 换成 n·C(n−1,k−1)，提出 n，剩下的 C(n−1,0) + … + C(n−1,n−1) 是第 n−1 行的行和，等于 2ⁿ⁻¹。</p>
+<p><b>求导的路线</b>：(1+x)ⁿ = Σ C(n,k)xᵏ 两边对 x 求导，得 n(1+x)ⁿ⁻¹ = Σ k·C(n,k)xᵏ⁻¹，再代 x = 1。<b>为什么想到求导</b>：xᵏ 求导会掉下一个因子 k，正好造出我们想要的 k·C(n,k)。（如果改代 x = −1，就是练习 #229。）</p>
+
+<h3>(5.9)　1²·C(n,1) + 2²·C(n,2) + … + n²·C(n,n) = n(n+1)·2ⁿ⁻²</h3>
+<p>先看数字：n = 3 时，1×3 + 4×3 + 9×1 = 24 = 3 × 4 × 2。</p>
+<p><b>数数</b>：委员会里指定一名主席和一名秘书，<b>允许同一人兼任</b>。左边：k 人的委员会 C(n,k) 个，主席 k 种、秘书 k 种。右边按"是不是同一个人"分两类：</p>
+<ol class="steps">
+<li>同一人兼任：选这个人 n 种，其余 n−1 人随意进出 2ⁿ⁻¹ 种，共 n·2ⁿ⁻¹。n = 3 时是 12。</li>
+<li>两个不同的人：主席 n 种、秘书 n−1 种，其余 n−2 人随意 2ⁿ⁻² 种，共 n(n−1)·2ⁿ⁻²。n = 3 时是 12。</li>
+</ol>
+<p>合起来 n·2ⁿ⁻¹ + n(n−1)·2ⁿ⁻² = n·2ⁿ⁻²·(2 + n − 1) = n(n+1)·2ⁿ⁻²。n = 3：12 + 12 = 24。</p>
+<p class="tip"><b>代数路线</b>：k² = k(k−1) + k，k(k−1) 那部分对应对 (1+x)ⁿ 求两次导再代 x = 1，k 那部分就是 (5.8)。</p>
+
+<h3>(5.10)　平方和：C(n,0)² + C(n,1)² + … + C(n,n)² = C(2n,n)（重点）</h3>
+<p>前面都是把一行的数直接加起来。这一个是把一行的数<b>先平方再加</b>，结果居然又是一个二项式系数，而且在第 2n 行的正中间。</p>
+<p>先看数字：n = 3 时，1² + 3² + 3² + 1² = 20 = C(6,3)；n = 4 时，1 + 16 + 36 + 16 + 1 = 70 = C(8,4)。</p>
+<p><b>数数</b>：一个班有 n 个男生、n 个女生，选 n 人去开会，共 C(2n,n) 种。按"选了几个男生"分类：选 k 个男生有 C(n,k) 种，剩下的 n−k 个名额给女生，有 C(n,n−k) 种。所以</p>
+<div class="calc">C(2n,n) = Σ C(n,k)·C(n,n−k) = Σ C(n,k)·C(n,k) = Σ C(n,k)²</div>
+<p>第二步用了对称性 C(n,n−k) = C(n,k)。具体看 n = 2：男生 A、B，女生 a、b，选 2 人。0 个男生：{a,b}，1 种；1 个男生：2 × 2 = 4 种；2 个男生：{A,B}，1 种。1 + 4 + 1 = 6 = C(4,2)，而 1, 4, 1 正是 1², 2², 1²。</p>
+<p><b>代数路线</b>：(1+x)ⁿ·(1+x)ⁿ = (1+x)²ⁿ。右边 xⁿ 的系数是 C(2n,n)。左边要凑出 xⁿ，第一个因子出 xᵏ（系数 C(n,k)），第二个因子出 xⁿ⁻ᵏ（系数 C(n,n−k)），k 从 0 到 n 加起来。</p>
+<div class="rule">
+<p><b>补充：Vandermonde 卷积</b>（讲义没有单列，课本 5.25，练习 #239）：</p>
+<p class="mono">C(m₁,0)C(m₂,n) + C(m₁,1)C(m₂,n−1) + … + C(m₁,n)C(m₂,0) = C(m₁+m₂, n)</p>
+<p>理由同上：m₁ 个男生、m₂ 个女生里选 n 人，按男生人数 k 分类。平方和是 m₁ = m₂ = n 的特例。例 m₁ = 3、m₂ = 2、n = 2：1×1 + 3×2 + 3×1 = 10 = C(5,2)。</p>
+</div>
+<p class="tip">可以回到第1节的三角形，选"平方和"模式，把三角形加到第 2n 行，看黄色的 C(2n,n)。</p>
+
+<h3>把 C(r,k) 推广到任意实数 r（幻灯片 228–229）</h3>
+<p>到这里，n 都是"有几个元素"，必须是非负整数。但第7节的 Newton 二项式定理要用到 C(−3,k)、C(1/2,k) 这样的东西。n!/(k!(n−k)!) 这种写法对 r = 1/2 没有意义（(1/2)! 是什么？），而另一种写法 r(r−1)…(r−k+1)/k! 只用到乘法和除法，r 是什么实数都能算。于是讲义这样定义：</p>
+<div class="rule">
+<p class="mono">C(r,k) = r(r−1)…(r−k+1) / k!　（k ≥ 1）</p>
+<p class="mono">C(r,0) = 1，　C(r,k) = 0　（k ≤ −1）</p>
+<p>分子是从 r 开始、每次减 1、一共 k 个因子的乘积。</p>
+</div>
+<p>讲义的例子：</p>
+<ul>
+<li>C(5/2, 4) = (5/2)(3/2)(1/2)(−1/2) / 4! = (−15/16) / 24 = −5/128。</li>
+<li>C(−8, 2) = (−8)(−9) / 2 = 36。</li>
+<li>C(3.2, 0) = 1，C(3, −2) = 0，都是按定义。</li>
+</ul>
+<p><b>和原来的定义一致吗？</b>r 是非负整数 n 时，k ≤ n 的情况就是 (5.1) 的第二种写法；k &gt; n 时，分子里会出现因子 (n−n) = 0，所以 C(n,k) = 0，和"选不出来"一致。r 不是非负整数时，分子永远碰不到 0。</p>
+<p><b>Pascal 公式和 (5.2) 对所有实数 r 仍然成立</b>（幻灯片 229）。这时没法讲"选人"的故事了，只能代数验证。以 Pascal 公式为例，两项都含公共部分 (r−1)(r−2)…(r−k+1)，提出来：</p>
+<div class="calc">C(r−1,k) + C(r−1,k−1)<br>= (r−1)…(r−k+1)(r−k)/k! + (r−1)…(r−k+1)/(k−1)!<br>= (r−1)…(r−k+1)/k! × [(r−k) + k]<br>= r(r−1)…(r−k+1)/k! = C(r,k)</div>
+<p>第二项化成分母 k! 时乘了 k/k，这就是方括号里那个 k 的来源。例 r = 1/2、k = 2：C(−1/2, 2) + C(−1/2, 1) = 3/8 + (−1/2) = −1/8，而 C(1/2, 2) = (1/2)(−1/2)/2 = −1/8。</p>
+
+<h3>(5.11) 和 (5.12)：沿斜线、沿列求和（幻灯片 229–230）</h3>
+<p>反复用 Pascal 公式，可以把一个数"拆"成一串数之和。</p>
+<div class="rule"><p class="mono">(5.11)　C(r,0) + C(r+1,1) + C(r+2,2) + … + C(r+k,k) = C(r+k+1, k)</p><p>对所有实数 r 和整数 k 成立。</p></div>
+<p>例 r = 2、k = 3：C(2,0) + C(3,1) + C(4,2) + C(5,3) = 1 + 3 + 6 + 10 = 20 = C(6,3)。</p>
+<p><b>为什么</b>：从右边开始，每次用 Pascal 公式把<b>最后一项</b>拆成两项：</p>
+<ol class="steps">
+<li>C(6,3) = C(5,3) + C(5,2)</li>
+<li>把 C(5,2) 拆开：C(5,2) = C(4,2) + C(4,1)</li>
+<li>把 C(4,1) 拆开：C(4,1) = C(3,1) + C(3,0)</li>
+<li>最后 C(3,0) = 1 = C(2,0)。合起来 C(6,3) = C(5,3) + C(4,2) + C(3,1) + C(2,0)。</li>
+</ol>
+<p>每一步只用了 Pascal 公式，而它对实数 r 也成立，所以 (5.11) 对实数 r 也成立。</p>
+<div class="rule"><p class="mono">(5.12)　C(0,k) + C(1,k) + … + C(n−1,k) + C(n,k) = C(n+1, k+1)</p><p>对所有非负整数 k、n 成立。</p></div>
+<p>例 k = 2、n = 4：0 + 0 + 1 + 3 + 6 = 10 = C(5,3)。</p>
+<p><b>数数</b>：从 {1, 2, …, n+1} 里选 k+1 个数，按选出的<b>最大的数</b>分类。最大数是 m+1 时，其余 k 个只能从 {1, …, m} 里选，有 C(m,k) 种；m 从 0 到 n 加起来就是左边。例：从 {1,…,5} 选 3 个数，最大数是 3 的有 C(2,2) = 1 种（{1,2,3}），最大数是 4 的有 C(3,2) = 3 种，最大数是 5 的有 C(4,2) = 6 种，共 10 = C(5,3)。</p>
+<p class="tip">在三角形里看，(5.12) 是"一列从上往下加，结果在下一行的右边一格"，形状像一根曲棍球棒。三角形演示里选"列求和"模式，点一个格子就能看到。练习 #233 用它求 1² + 2² + … + n²。</p>
+
+<!-- ============ 5 ============ -->
+<h2 id="uni">5　单峰性与 Sperner 定理（幻灯片 231–233）</h2>
+<h3>每一行都是先升后降</h3>
+<p>看第 6 行 1, 6, 15, 20, 15, 6, 1 和第 5 行 1, 5, 10, 10, 5, 1：从两端往中间越来越大，中间最大。这种"先严格上升、再严格下降"（顶上可以有两个相等的数）的序列叫<b>单峰</b>序列。</p>
+<p><b>为什么</b>：比较相邻两项。C(n,k) 的分子比 C(n,k−1) 多乘一个 (n−k+1)，分母多乘一个 k，所以</p>
+<div class="calc">C(n,k) / C(n,k−1) = (n−k+1) / k</div>
+<p>n = 6 时，k = 1, …, 6 的比值依次是 6/1, 5/2, 4/3, 3/4, 2/5, 1/6：前三个大于 1（在涨），后三个小于 1（在跌）。一般地，(n−k+1)/k &gt; 1 等价于 k &lt; (n+1)/2，也就是前一半在涨、后一半在跌。n 是奇数时，k = (n+1)/2 那一步比值正好等于 1，所以中间有两个相等的最大值。例 n = 5：比值 5, 2, 1, 1/2, 1/5，所以 C(5,2) = C(5,3) = 10。</p>
+<div class="rule">
+<p><b>定理</b>（幻灯片 231）：第 n 行 C(n,0), …, C(n,n) 是单峰的。n 为偶数时 C(n,0) &lt; … &lt; C(n,n/2) &gt; … &gt; C(n,n)；n 为奇数时 C(n,0) &lt; … &lt; C(n,(n−1)/2) = C(n,(n+1)/2) &gt; … &gt; C(n,n)。</p>
+<p><b>推论</b>（幻灯片 232）：一行中最大的是 C(n,⌊n/2⌋) = C(n,⌈n/2⌉)。</p>
+</div>
+<p class="tip">⌊ ⌋ 是向下取整，⌈ ⌉ 是向上取整：n = 5 时 ⌊5/2⌋ = 2，⌈5/2⌉ = 3。</p>
+
+<h3>一个看起来无关的问题：互不包含的子集</h3>
+<p>一位脱口秀主持人有 10 个笑话（练习 #250），每晚讲其中的一部分。你想多看几晚，但要求<b>任何一晚听到的笑话，都不能把另一晚的全部包含进去</b>（否则那一晚等于白看）。最多能看几晚？</p>
+<p>把每晚讲的笑话看成 {1,…,10} 的一个子集，问题就变成：最多能取多少个子集，使得<b>其中没有一个包含另一个</b>？满足这个条件的一族子集叫 <b>clutter</b>（幻灯片 232）。</p>
+<p><b>和第4课 §6 的联系</b>：子集按 ⊆ 构成一个偏序集（第4课画过 {1,2,3} 的 Hasse 图）。"两个子集谁也不包含谁"就是"不可比"，所以 clutter 就是这个偏序集里的<b>反链</b>，讲义也是这么说的。</p>
+<p>例（幻灯片 233）：S = {a,b,c,d}，{ {a,b}, {b,c,d}, {a,d}, {a,c} } 是 clutter。三个 2 元集合大小相同又互不相等，不可能互相包含；{b,c,d} 不含 a，所以不包含另外三个（它们都含 a）；它比另外三个大，也不可能被它们包含。</p>
+<p>最简单的造法：取<b>所有 k 元子集</b>。大小相同的不同集合不可能互相包含，所以这是一个 clutter，有 C(n,k) 个集合。按单峰性，取中间那层 k = ⌊n/2⌋ 最多。问题是：混合不同大小的集合，会不会更多？</p>
+<div class="rule"><p><b>Sperner 定理</b>（幻灯片 233）：n 元集合上的 clutter 最多含 C(n,⌊n/2⌋) 个集合。</p></div>
+<p>也就是说，混合大小不会比"只取中间一层"更好。笑话问题的答案是 C(10,5) = 252 晚：每晚恰好讲 5 个笑话，每晚的组合都不同。</p>
+
+<h3>为什么不会更多：数"极大链"（了解）</h3>
+<p>讲义没给证明。下面这个证明只用到排列计数（第3课），以 n = 4 为例：</p>
+<ol class="steps">
+<li><b>极大链</b>：从 ∅ 开始，每次加一个元素，一直加到全集，例如 ∅ ⊂ {3} ⊂ {1,3} ⊂ {1,3,4} ⊂ {1,2,3,4}。把元素加入的先后记下来就是一个排列 3,1,4,2；反过来每个排列也给出一条链。所以极大链共有 4! = 24 条。</li>
+<li><b>一个 k 元子集 A 在几条极大链上？</b>链要先把 A 的 k 个元素按某种顺序加完（k! 种），再把其余 n−k 个按某种顺序加完（(n−k)! 种），共 k!(n−k)! 条。例 A = {1,2}：2!·2! = 4 条（排列 1,2,3,4、1,2,4,3、2,1,3,4、2,1,4,3）。</li>
+<li><b>一条链最多碰到 clutter 里的一个集合</b>：链上任意两个集合可比（后面的包含前面的），而 clutter 里两两不可比。所以把 clutter 中每个集合所在的链数加起来，不会超过链的总数 n!。</li>
+<li>每个集合贡献 k!(n−k)! 条链，这个数在 k = ⌊n/2⌋ 时最小（因为 n!/(k!(n−k)!) = C(n,k) 在中间最大）。所以每个集合至少占 ⌊n/2⌋!·⌈n/2⌉! 条链，集合个数 ≤ n! / (⌊n/2⌋!⌈n/2⌉!) = C(n,⌊n/2⌋)。n = 4：每个集合至少占 2!·2! = 4 条，最多 24/4 = 6 个。</li>
+</ol>
+
+<div class="machine" id="spBox">
+  <div class="head"><span class="title">演示：在 {1,2,3,4} 的子集里挑一个 clutter</span><span class="count" id="spCount"></span></div>
+  <svg id="spSvg" viewBox="0 0 360 312" role="group" aria-label="{1,2,3,4} 的子集 Hasse 图，点圆圈选择子集" style="max-width:520px"></svg>
+  <div class="caption" id="spCap"></div>
+  <div class="controls">
+    <button id="spMid" class="primary">选中间一层</button>
+    <button id="spL1">选第 1 层</button>
+    <button id="spChain">随机一条极大链</button>
+    <button id="spClear">清空</button>
+  </div>
+</div>
+<p class="tip">图例：点圆圈把子集加入或移出你的家族（黄色）；<b>红框</b>表示它和家族里另一个集合可比，家族就不是 clutter；<b>粗绿线</b>是一条极大链。圆圈里的 12 表示 {1,2}，以此类推。</p>
+<p class="tip">n = 4 时，大小为 6 的 clutter 只有中间一层这一个（练习 #245；程序穷举 2¹⁶ 个子集族核对过）。n 为奇数时上限可以由两层达到，例如 n = 3 时 {1},{2},{3} 和 {1,2},{1,3},{2,3} 都是 3 个。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="multi">6　多项式定理（幻灯片 234–236）</h2>
+<h3>两项换成很多项</h3>
+<p>二项式定理处理的是两项之和的乘方。三项、五项之和的乘方呢？先看最小的例子 (x₁+x₂+x₃)²。</p>
+<p>和第3节完全一样的想法：(x₁+x₂+x₃)(x₁+x₂+x₃)，每个括号挑一个字母，得到长度 2 的词，共 3² = 9 个。x₁x₂ 这一项来自 "x₁x₂" 和 "x₂x₁" 两个词，所以系数是 2；x₁² 只来自 "x₁x₁"，系数 1：</p>
+<p class="mono">(x₁+x₂+x₃)² = x₁² + x₂² + x₃² + 2x₁x₂ + 2x₁x₃ + 2x₂x₃</p>
+<p>一般地，x₁ 的 n₁ 次方 × x₂ 的 n₂ 次方 × … 这一项的系数 = 由 n₁ 个 x₁、n₂ 个 x₂、……、nₜ 个 xₜ 组成的词有几个。这正是第3课的<b>多重集排列</b>数 n!/(n₁!n₂!…nₜ!)。为什么：先把 n 个字母都当成不同的，有 n! 种排法；同一种字母之间互换位置不会产生新的词，每种字母造成 nᵢ! 倍的重复，要除掉。</p>
+<div class="rule">
+<p><b>多项式系数</b> (5.13)：n₁ + n₂ + … + nₜ = n 时，记 C(n; n₁,n₂,…,nₜ) = n! / (n₁! n₂! … nₜ!)。</p>
+<p><b>多项式定理</b>（幻灯片 235）：(x₁ + x₂ + … + xₜ)ⁿ = Σ C(n; n₁,…,nₜ) x₁<sup>n₁</sup> x₂<sup>n₂</sup> … xₜ<sup>nₜ</sup>，对 n₁ + … + nₜ = n 的所有非负整数解求和。</p>
+</div>
+<p>t = 2 时，C(n; k, n−k) = n!/(k!(n−k)!) = C(n,k)，就回到二项式定理。</p>
+<p><b>讲义的两个例子</b>：</p>
+<ol class="steps">
+<li>（幻灯片 235）(x₁+x₂+x₃+x₄+x₅)⁷ 展开后，x₁²x₃x₄³x₅ 的系数。各字母的指数是 2, 0, 1, 3, 1（x₂ 没出现，指数为 0，而 0! = 1），加起来是 7。系数 = 7!/(2!·0!·1!·3!·1!) = 5040/12 = <b>420</b>。</li>
+<li>（幻灯片 236）(2x₁ − 3x₂ + 5x₃)⁶ 展开后，x₁³x₂x₃² 的系数。把 2x₁、−3x₂、5x₃ 各当作一个整体，这一项是 C(6; 3,1,2)·(2x₁)³(−3x₂)¹(5x₃)²。C(6; 3,1,2) = 720/12 = 60，所以系数 = 60 × 2³ × (−3) × 5² = 60 × 8 × (−3) × 25 = <b>−36000</b>。</li>
+</ol>
+<p class="tip">和二项式一样，令所有 xᵢ = 1，得到所有多项式系数之和 = tⁿ（练习 #252）：长度 n、每一位有 t 种字母可选的词共 tⁿ 个。</p>
+
+<!-- ============ 7 ============ -->
+<h2 id="newton">7　Newton 二项式定理（幻灯片 237–239）</h2>
+<h3>当指数不是正整数</h3>
+<p>二项式定理要求 n 是正整数。可是你见过等比级数 1/(1−x) = 1 + x + x² + x³ + …（|x| &lt; 1），它就是 (1−x)⁻¹ 的"展开"，只不过有无穷多项。能不能把二项式定理推广到负的、分数的指数？</p>
+<p>有了第4节推广过的 C(α,k)，答案是：<b>公式原样照搬，只是项数变成无穷</b>。</p>
+<div class="rule">
+<p><b>Newton 二项式定理</b>（幻灯片 237）：α 为实数，|x| &lt; |y| 时</p>
+<p class="mono">(x+y)<sup>α</sup> = Σ C(α,k) xᵏ y<sup>α−k</sup>，k 从 0 到 ∞，其中 C(α,k) = α(α−1)…(α−k+1)/k!</p>
+<p>最常用 y = 1 的形式：|x| &lt; 1 时，(1+x)<sup>α</sup> = Σ C(α,k) xᵏ。</p>
+</div>
+<p><b>为什么正整数时只有有限项</b>：α = n 是非负整数时，k &gt; n 的 C(n,k) 分子里含因子 (n−n) = 0，后面全是 0，级数自己截断，就是普通的二项式定理。α 不是非负整数时，分子永远不为 0，所以有无穷多项，这时就需要 |x| &lt; |y| 保证级数收敛。</p>
+<p><b>先拿已知的验证一下</b>：α = −1。C(−1,k) = (−1)(−2)…(−k)/k! = (−1)ᵏ·k!/k! = (−1)ᵏ。所以 (1+x)⁻¹ = 1 − x + x² − x³ + …。把 x 换成 −x，就是 1/(1−x) = 1 + x + x² + …，正是等比级数。</p>
+
+<h3>负整数指数 α = −n（幻灯片 238）</h3>
+<p>一步步算 C(−n,k)：</p>
+<ol class="steps">
+<li>按定义，C(−n,k) = (−n)(−n−1)…(−n−k+1)/k!，分子是 k 个负数相乘。</li>
+<li>每个因子提出一个 −1：分子 = (−1)ᵏ · n(n+1)…(n+k−1)。</li>
+<li>n(n+1)…(n+k−1) 是从 n 往上数 k 个连续整数，也就是从 n+k−1 往下数 k 个，除以 k! 正好是 C(n+k−1, k)。</li>
+</ol>
+<div class="rule">
+<p class="mono">C(−n,k) = (−1)ᵏ · C(n+k−1, k)</p>
+<p class="mono">(5.14)　1/(1−z)ⁿ = (1−z)⁻ⁿ = Σ C(n+k−1, k) zᵏ　（|z| &lt; 1）</p>
+</div>
+<p><b>(5.14) 里为什么没有负号了</b>：(1−z)⁻ⁿ 是把 x = −z 代进 (1+x)⁻ⁿ，每一项的 (−z)ᵏ 带出一个 (−1)ᵏ，和 C(−n,k) 里的 (−1)ᵏ 相乘得 1。</p>
+<p>例：n = 2 时 1/(1−z)² = 1 + 2z + 3z² + 4z³ + …（C(k+1,k) = k+1）；n = 3 时 1/(1−z)³ = 1 + 3z + 6z² + 10z³ + …。</p>
+<p><b>和第3课的联系（第7章要用）</b>：C(n+k−1, k) 是从 n 种物品里<b>可重复地</b>取 k 个的方法数（隔板法）。它为什么会出现在这里：1/(1−z)ⁿ = (1 + z + z² + …)ⁿ 是 n 个括号相乘，从第 i 个括号挑 z 的 aᵢ 次方，表示第 i 种物品取 aᵢ 个。凑出 zᵏ，就是 a₁ + … + aₙ = k 的一组非负整数解，个数正是隔板法的 C(n+k−1, k)。例 n = 2、k = 2：(a₁,a₂) = (0,2)、(1,1)、(2,0)，3 种 = C(3,2)，对应 1/(1−z)² 里 z² 的系数 3。</p>
+
+<h3>分数指数 α = 1/2（幻灯片 239）</h3>
+<p>按定义一项项算：C(1/2,0) = 1，C(1/2,1) = 1/2，C(1/2,2) = (1/2)(−1/2)/2 = −1/8，C(1/2,3) = (1/2)(−1/2)(−3/2)/6 = 1/16，C(1/2,4) = −5/128。所以</p>
+<div class="calc">√(1+z) = 1 + z/2 − z²/8 + z³/16 − 5z⁴/128 + …　（|z| &lt; 1）</div>
+<p>例：算 √1.1，取 z = 0.1，前 5 项 = 1 + 0.05 − 0.00125 + 0.0000625 − 0.0000039 ≈ 1.0488086，真值 1.0488088…，前 5 项已经准到小数点后 6 位。</p>
+<p>讲义把一般项化成 C(1/2,k) = (−1)ᵏ⁻¹ / (k·2²ᵏ⁻¹) · C(2k−2, k−1)。思路：分子里的 1·3·5…(2k−3) 是奇数连乘，补上偶数连乘 2·4…(2k−2) 就成了 (2k−2)!，而 2·4…(2k−2) = 2ᵏ⁻¹·(k−1)!。用 k = 3 核对：(+1)/(3·2⁵) · C(4,2) = 6/96 = 1/16。</p>
+
+<div class="machine" id="nwBox">
+  <div class="head"><span class="title">计算器：(1+x)<sup>α</sup> 的前 8 个系数</span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="nwA">α =</label><input type="text" id="nwA" value="-3" autocomplete="off">
+    <label for="nwX">x =</label><input type="text" id="nwX" value="0.1" autocomplete="off" style="width:5rem">
+    <button id="nwGo" class="primary">计算</button>
+  </div>
+  <div class="controls">
+    <span class="tip">试试：</span>
+    <button class="nwP" data-a="-1">−1</button>
+    <button class="nwP" data-a="-2">−2</button>
+    <button class="nwP" data-a="-3">−3</button>
+    <button class="nwP" data-a="1/2">1/2</button>
+    <button class="nwP" data-a="-1/2">−1/2</button>
+    <button class="nwP" data-a="4">4</button>
+    <button class="nwP" data-a="5/2">5/2</button>
+  </div>
+  <div class="scroll" id="nwTable"></div>
+  <div class="caption" id="nwCap"></div>
+</div>
+<p class="tip">α 可以写成整数、分数（如 -1/2）或小数（如 2.5）。手机上表格可以左右滑动看最后一列。表里每一行都是"上一行 × (α−k+1)/k"：从 C(α,k−1) 到 C(α,k)，分子多乘一个 (α−k+1)，分母 k! 多乘一个 k。</p>
+
+<!-- ============ 8 ============ -->
+<h2 id="dil">8　链与反链：Dilworth 定理（幻灯片 240–241）</h2>
+<h3>从 Sperner 到一般的偏序集</h3>
+<p>第5节问的是"子集按 ⊆ 这个偏序里，最大的反链有多大"。现在对<b>任意</b>有限偏序集（第4课 §6）问两个"拆分"问题。先回忆两个概念：</p>
+<ul>
+<li><b>链</b>：任意两个元素都可比的子集，可以排成一串 a &lt; b &lt; c &lt; …。</li>
+<li><b>反链</b>：任意两个元素都不可比的子集。</li>
+</ul>
+<p>讲义的例子（幻灯片 240）：X = {1, 2, …, 10}，按整除排序（a ≤ b 表示 a 整除 b）。</p>
+<ul>
+<li>{1, 2, 4, 8}：1|2|4|8，是一条大小为 4 的链。</li>
+<li>{4, 6, 7, 9, 10}：任意两个都不整除，是一个大小为 5 的反链。</li>
+<li>没有大小为 5 的链：链里每个数至少是前一个的 2 倍，5 个数的链最大的至少是 1×2⁴ = 16 &gt; 10。</li>
+<li>没有大小为 6 的反链：理由在下面的 Dilworth 定理里。（程序穷举也确认了：大小为 5 的反链共 4 个，没有 6 个的。）</li>
+</ul>
+
+<h3>分成反链：最少几块？</h3>
+<p>问题：把 X 分成若干块，每块都是反链，最少要几块？</p>
+<ol class="steps">
+<li><b>至少几块</b>：链里任意两个元素可比，不能放进同一个反链。有一条大小为 r 的链，它的 r 个元素就要分到 r 个不同的块里。1 到 10 有链 {1,2,4,8}，所以至少 4 块。</li>
+<li><b>怎么分</b>：一层一层"剥"。把所有<b>极小元</b>（下面没有更小的元素）拿出来当第 1 块。它们两两不可比，因为如果 a &lt; b，b 下面就有 a，b 就不是极小元。在剩下的元素里再拿极小元当第 2 块……</li>
+<li>1 到 10：第 1 块 {1}；第 2 块 {2,3,5,7}；第 3 块 {4,6,9,10}；第 4 块 {8}。正好 4 块。</li>
+<li><b>为什么剥的层数正好等于最长链</b>：如果 x 在第 j 层才被拿走，那么第 j−1 层里一定有个比它小的元素（不然它早就是极小元了），继续往下找，能找到一条以 x 结尾、长度为 j 的链。所以层数不会超过最长链的长度 r。</li>
+</ol>
+<div class="rule"><p><b>定理</b>（幻灯片 240）：最长链的大小为 r，则 X 可以分成 r 个反链，而且不能更少。</p></div>
+
+<h3>分成链：Dilworth 定理</h3>
+<p>反过来问：把 X 分成若干条链，最少几条？</p>
+<ol class="steps">
+<li><b>至少几条</b>：反链里任意两个元素不可比，不能在同一条链上。有一个大小为 m 的反链，就至少要 m 条链。1 到 10 有反链 {4,6,7,9,10}，至少 5 条。</li>
+<li><b>5 条够了</b>：{1,2,4,8}、{3,6}、{5,10}、{7}、{9}。每条都是链（3|6，5|10），合起来正好是 1 到 10。</li>
+<li>这也说明了为什么没有大小为 6 的反链：只有 5 条链，6 个元素必有两个落在同一条链上（鸽巢原理，第2课），这两个就可比了。</li>
+</ol>
+<div class="rule"><p><b>Dilworth 定理</b>（幻灯片 241）：最大反链的大小为 m，则 X 可以分成 m 条链，而且不能更少。</p></div>
+<p class="tip">"至少 m 条"的理由就是上面第 1 步；"m 条一定够"的一般证明比较长（课本用归纳法），这门课只要求了解：会找最大反链，会给出一种分法，知道两个下界的理由。</p>
+
+<div class="machine" id="dwBox">
+  <div class="head"><span class="title">演示：{1,…,10} 按整除的 Hasse 图</span><span class="count" id="dwCount"></span></div>
+  <svg id="dwSvg" viewBox="0 0 340 250" role="img" aria-label="1 到 10 按整除关系的 Hasse 图" style="max-width:460px"></svg>
+  <div class="caption" id="dwCap"></div>
+  <div class="controls">
+    <label for="dwMode">看：</label>
+    <select id="dwMode">
+      <option value="anti">分成反链（逐层剥）</option>
+      <option value="chain">分成链（Dilworth）</option>
+    </select>
+    <button id="dwPrev">上一步</button>
+    <button id="dwNext" class="primary">下一步</button>
+    <button id="dwReset">重置</button>
+  </div>
+</div>
+<p class="tip">和第2课的联系：Erdős–Szekeres 定理也能从这里得到（练习 #261、#262）。mn+1 个元素的偏序集里，要么有大小 m+1 的链，要么有大小 n+1 的反链。否则最长链 ≤ m，按上面的定理能分成 ≤ m 个反链，每个反链 ≤ n 个元素，总共 ≤ mn 个，矛盾。</p>
+
+<!-- ============ practice ============ -->
+<h2 id="practice">练习（Exercises.pdf 题号）</h2>
+<p class="tip">先自己做，再点开答案。所有数值答案和恒等式都用程序核对过（小的 n 逐个枚举或展开多项式）。</p>
+
+<div class="q"><span class="src">#218</span>
+<p>用二项式定理展开 (x+y)⁵ 和 (x+y)⁶。</p>
+<p class="orig">Expand (x+y)⁵ and (x+y)⁶, using the binomial theorem.</p>
+<details><summary>看答案</summary><div class="ans">
+<p>系数就是 Pascal 三角形的第 5、6 行（第1节的演示里加到第 6 行就能看到）：</p>
+<p class="mono">(x+y)⁵ = x⁵ + 5x⁴y + 10x³y² + 10x²y³ + 5xy⁴ + y⁵</p>
+<p class="mono">(x+y)⁶ = x⁶ + 6x⁵y + 15x⁴y² + 20x³y³ + 15x²y⁴ + 6xy⁵ + y⁶</p>
+<p>检查：每一项 x 和 y 的指数加起来等于 n；系数加起来是 2ⁿ（32 和 64）。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#220</span>
+<p>(3x − 2y)¹⁸ 展开后 x⁵y¹³ 的系数是多少？x⁸y⁹ 的系数呢？（题目没有印错！）</p>
+<p class="orig">What is the coefficient of x⁵y¹³ in the expansion of (3x−2y)¹⁸? What is the coefficient of x⁸y⁹?</p>
+<details><summary>看答案</summary><div class="ans">
+<p>把 3x 和 −2y 各当作一个整体，一般项是 C(18,k)(3x)¹⁸⁻ᵏ(−2y)ᵏ。要 y¹³ 就取 k = 13，这时 x 的指数是 5，正好对上：</p>
+<p class="mono">C(18,13) · 3⁵ · (−2)¹³ = 8568 × 243 × (−8192) = −17 055 940 608</p>
+<p>符号为负，因为 (−2) 的奇数次方是负的。</p>
+<p>x⁸y⁹：展开式里每一项 x 和 y 的指数之和都是 18，而 8 + 9 = 17，根本没有这一项，所以<b>系数是 0</b>。"没有印错"就是提醒这一点。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#221</span>
+<p>用二项式定理证明 3ⁿ = Σ C(n,k)·2ᵏ（k 从 0 到 n）。推广：对任意实数 r，求 Σ C(n,k)·rᵏ。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>在 (1+x)ⁿ = Σ C(n,k)xᵏ 里代 x = 2：左边 3ⁿ，右边 Σ C(n,k)2ᵏ。一般地代 x = r：<b>Σ C(n,k)rᵏ = (1+r)ⁿ</b>。</p>
+<p>数数的理解：长度 n、每一位填 0、1、2 的串共 3ⁿ 个。按"非 0 的位有几个"分类：有 k 位非 0 时，先选是哪 k 位 C(n,k) 种，每一位再填 1 或 2，2ᵏ 种。例 n = 2：1 + 2×2 + 4 = 9 = 3²。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#224</span>
+<p>用组合推理证明 k·C(n,k) = n·C(n−1,k−1)（n、k 为正整数）。提示：选一个队，并指定一名队长。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>数"从 n 人中选 k 人组队、并在队里指定一名队长"的方法数。</p>
+<ol class="steps">
+<li>先选队：C(n,k) 种；再从 k 名队员里选队长：k 种。共 k·C(n,k)。</li>
+<li>先选队长：n 种；再从其余 n−1 人里选 k−1 名队员：C(n−1,k−1) 种。共 n·C(n−1,k−1)。</li>
+</ol>
+<p>同一组对象数了两遍，所以相等。例 n = 5、k = 3：3 × 10 = 30，5 × 6 = 30。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#229</span>
+<p>证明对每个整数 n &gt; 1，C(n,1) − 2C(n,2) + 3C(n,3) − … + (−1)ⁿ⁻¹·n·C(n,n) = 0。</p>
+<details><summary>看答案</summary><div class="ans">
+<p><b>求导</b>：(1+x)ⁿ = Σ C(n,k)xᵏ 两边对 x 求导，n(1+x)ⁿ⁻¹ = Σ k·C(n,k)xᵏ⁻¹。代 x = −1：右边正是题目的式子（xᵏ⁻¹ 在 x = −1 时是 (−1)ᵏ⁻¹）；左边是 n·0ⁿ⁻¹，n &gt; 1 时 n−1 ≥ 1，所以是 0。</p>
+<p>n = 1 时左边是 1·0⁰ = 1，式子不成立，这就是 n &gt; 1 的原因。</p>
+<p><b>另一种</b>：用 (5.2) 把 k·C(n,k) 换成 n·C(n−1,k−1)，式子变成 n × [C(n−1,0) − C(n−1,1) + …]，方括号是第 n−1 行的交错和，n−1 ≥ 1 时为 0（(5.4)）。</p>
+<p>例 n = 4：4 − 12 + 12 − 4 = 0。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#230</span>
+<p>对二项式展开式积分，证明 1 + (1/2)C(n,1) + (1/3)C(n,2) + … + (1/(n+1))C(n,n) = (2ⁿ⁺¹ − 1)/(n+1)。</p>
+<details><summary>看答案</summary><div class="ans">
+<p><b>为什么积分</b>：∫xᵏ dx = xᵏ⁺¹/(k+1)，会掉出一个 1/(k+1)，正是题目里每项的系数。</p>
+<p>对 (1+x)ⁿ = Σ C(n,k)xᵏ 两边从 0 积到 1：</p>
+<ul>
+<li>左边：∫₀¹(1+x)ⁿdx = [(1+x)ⁿ⁺¹/(n+1)]₀¹ = (2ⁿ⁺¹ − 1)/(n+1)。</li>
+<li>右边：Σ C(n,k)·∫₀¹xᵏdx = Σ C(n,k)/(k+1)。</li>
+</ul>
+<p>例 n = 3：1 + 3/2 + 1 + 1/4 = 15/4，(16 − 1)/4 = 15/4。</p>
+<p><b>不用积分的做法</b>（#231）：由 (5.2)（把 n、k 换成 n+1、k+1）得 C(n,k)/(k+1) = C(n+1,k+1)/(n+1)。求和得 [C(n+1,1) + … + C(n+1,n+1)]/(n+1) = (2ⁿ⁺¹ − 1)/(n+1)，减 1 是因为少了 C(n+1,0)。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#233</span>
+<p>利用 m² = 2C(m,2) + C(m,1) 和恒等式 (5.12)，求 1² + 2² + … + n²。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>先看 m² 为什么能这样拆：2C(m,2) + C(m,1) = m(m−1) + m = m²。</p>
+<p>对 m 从 0 到 n 求和（m = 0 那项是 0，不影响），两部分分别用 (5.12)：</p>
+<div class="calc">Σ m² = 2·[C(0,2)+…+C(n,2)] + [C(0,1)+…+C(n,1)]<br>= 2·C(n+1,3) + C(n+1,2)<br>= (n+1)n(n−1)/3 + (n+1)n/2<br>= n(n+1)·[2(n−1) + 3]/6 = n(n+1)(2n+1)/6</div>
+<p>例 n = 4：1 + 4 + 9 + 16 = 30，2·C(5,3) + C(5,2) = 20 + 10 = 30。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#237</span>
+<p>一个学生每天从家走到学校，学校在家往东 10 个街区、往北 14 个街区处。她总是走最短路线（24 个街区）。</p>
+<ol class="steps">
+<li>可能的路线有多少条？</li>
+<li>她最好的朋友住在她家往东 4、往北 5 个街区处，她每天路上都去找朋友。现在有多少条路线？</li>
+<li>另外，朋友家往东 3、往北 6 个街区处有一个公园，两人每天在那里停下来玩。现在有多少条？</li>
+<li>在公园玩常常迟到，两人决定再也不经过公园所在的路口（但仍然先去朋友家）。现在有多少条？</li>
+</ol>
+<details><summary>看答案</summary><div class="ans">
+<p>和第2节的方格路径一样：从一个路口到另一个路口，往东 a 次、往北 b 次，最短路线数 = 在 a+b 步里选哪 a 步往东 = C(a+b, a)。</p>
+<ol class="steps">
+<li>C(24,10) = <b>1 961 256</b>。</li>
+<li>家到朋友家（东 4 北 5）C(9,4) = 126，朋友家到学校（东 6 北 9）C(15,6) = 5005。两段独立，用乘法原理：126 × 5005 = <b>630 630</b>。</li>
+<li>朋友家到公园（东 3 北 6）C(9,3) = 84，公园到学校（东 3 北 3）C(6,3) = 20：126 × 84 × 20 = <b>211 680</b>。</li>
+<li>减法原理：经过朋友家的全部路线，减去经过朋友家又经过公园的：126 × (5005 − 84 × 20) = 126 × 3325 = <b>418 950</b>。</li>
+</ol>
+<p>四个答案都用逐格累加（每个路口 = 左边 + 下边，就是 Pascal 公式）的程序核对过。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#239</span>
+<p>用组合推理证明 Vandermonde 卷积：对正整数 m₁、m₂、n，Σ C(m₁,k)·C(m₂,n−k) = C(m₁+m₂, n)（k 从 0 到 n）。并由此推出 Σ C(n,k)² = C(2n,n)。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>设一个集合有 m₁ 个红球、m₂ 个蓝球（都编了号，互不相同）。从中选 n 个，共 C(m₁+m₂, n) 种。按选中的红球个数 k 分类：选 k 个红球 C(m₁,k) 种，其余 n−k 个都是蓝球 C(m₂,n−k) 种。各类不重不漏（每种选法的红球个数唯一确定），加起来就是左边。k &gt; m₁ 或 n−k &gt; m₂ 的项是 0，对应"选不出来"，不影响。</p>
+<p>取 m₁ = m₂ = n，得 Σ C(n,k)C(n,n−k) = C(2n,n)，再用 C(n,n−k) = C(n,k) 就是平方和 (5.10)。</p>
+<p>例 m₁ = 3、m₂ = 2、n = 2：1 + 6 + 3 = 10 = C(5,2)。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#250</span>
+<p>脱口秀主持人刚买了 10 个新笑话，每晚讲其中一些。你最多能看几晚，使得任何一晚听到的笑话都不包含另一晚听到的全部笑话？（例如一晚听 1、2、3，另一晚听 3、4，第三晚听 1、2、4 是可以的；一晚听 1、2，另一晚只听 2 是不行的。）</p>
+<details><summary>看答案</summary><div class="ans">
+<p>每晚的笑话是 {1,…,10} 的一个子集，要求是这些子集互不包含，也就是一个 clutter。由 Sperner 定理，最多 C(10, ⌊10/2⌋) = C(10,5) = <b>252</b> 晚。</p>
+<p>这个数能达到：每晚恰好讲 5 个笑话，252 晚用遍所有不同的 5 个笑话组合。两个不同的 5 元集合不可能一个包含另一个。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#254</span>
+<p>求 (x₁ + x₂ + x₃ + x₄ + x₅)¹⁰ 展开后 x₁³x₂x₃⁴x₅² 的系数。</p>
+<details><summary>看答案</summary><div class="ans">
+<p>各字母的指数是 3, 1, 4, 0, 2（x₄ 没出现，指数 0），加起来是 10，对得上。系数是多项式系数：</p>
+<p class="mono">10! / (3!·1!·4!·0!·2!) = 3 628 800 / (6·1·24·1·2) = 3 628 800 / 288 = <b>12 600</b></p>
+<p>含义：由 3 个 x₁、1 个 x₂、4 个 x₃、2 个 x₅ 组成的长度 10 的词有 12600 个。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#258</span>
+<p>对 n 用归纳法证明：n 为正整数、|z| &lt; 1 时，1/(1−z)ⁿ = Σ C(n+k−1, k)zᵏ（k 从 0 到 ∞）。可以直接使用 1/(1−z) = Σ zᵏ。</p>
+<details><summary>看答案</summary><div class="ans">
+<p><b>n = 1</b>：C(k,k) = 1，就是已知的 1/(1−z) = Σ zᵏ。</p>
+<p><b>从 n 到 n+1</b>：设 1/(1−z)ⁿ = Σ C(n+i−1, i)zⁱ。那么</p>
+<div class="calc">1/(1−z)ⁿ⁺¹ = [Σᵢ C(n+i−1, i)zⁱ] × [Σⱼ zʲ]</div>
+<p>两个级数相乘，zᵏ 的系数是所有 i + j = k 的项之和。第二个级数每项系数都是 1，所以 zᵏ 的系数是 C(n−1,0) + C(n,1) + C(n+1,2) + … + C(n+k−1,k)。</p>
+<p>这正是 (5.11) 取 r = n−1 的左边，等于 C(n+k, k)。而要证的式子在 n+1 时，zᵏ 的系数是 C((n+1)+k−1, k) = C(n+k, k)，一致。归纳完成。</p>
+<p>例 n = 1 到 2：1/(1−z)² 中 z² 的系数 = 1 + 1 + 1 = 3 = C(3,2)。（|z| &lt; 1 保证两个级数绝对收敛，可以逐项相乘。）</p>
+</div></details>
+</div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻','−':'⁻','+':'⁺','n':'ⁿ','k':'ᵏ'};
+  const sup=s=>String(s).split('').map(c=>SUP[c]||c).join('');
+  function C(n,k){if(k<0||n<k) return 0; let r=1; for(let i=1;i<=k;i++) r=r*(n-k+i)/i; return Math.round(r);}
+  const minus=s=>String(s).replace(/-/g,'−');
+
+  /* ---------- 1. Pascal triangle ---------- */
+  const pt={N:4,sel:null,grown:false};
+  const ptMax=10;
+  function ptRender(){
+    const mode=$('ptMode').value, N=pt.N, sel=pt.sel;
+    const cls={}; const add=(n,k,c)=>{(cls[n+','+k]=cls[n+','+k]||[]).push(c);};
+    let cap='';
+    if(pt.grown){
+      for(let k=0;k<=N;k++) add(N,k,'new');
+      const sums=[]; for(let k=1;k<N;k++) sums.push(`${C(N-1,k-1)}+${C(N-1,k)}=${C(N,k)}`);
+      cap+=`新加的第 ${N} 行：两端是 1${sums.length?'；中间每个数 = 左上 + 右上：'+sums.join('，'):''}。<br>`;
+    }
+    const r=sel?sel.n:N;
+    if(mode==='pascal'){
+      if(!sel) cap+='点三角形里任意一个格子，看它是哪两个数加出来的。';
+      else{
+        const {n,k}=sel; add(n,k,'hot');
+        if(n===0) cap+='顶上的 C(0,0) = 1：从 0 个元素里选 0 个，只有"什么都不选"一种。';
+        else if(k===0||k===n){ add(n-1,k===0?0:n-1,'par'); cap+=`C(${n},${k}) = 1 在边上，上面只有一个邻居。${k===0?'选 0 个只有一种选法：什么都不选':'选全部 '+n+' 个只有一种选法'}，所以两端永远是 1。`; }
+        else{
+          add(n-1,k-1,'par'); add(n-1,k,'par');
+          cap+=`C(${n},${k}) = C(${n-1},${k-1}) + C(${n-1},${k}) = ${C(n-1,k-1)} + ${C(n-1,k)} = <span class="hl">${C(n,k)}</span>。<br>理由：从 ${n} 个元素里选 ${k} 个，看第 ${n} 个元素选没选。选了：剩下 ${k-1} 个从前 ${n-1} 个里选，C(${n-1},${k-1}) = ${C(n-1,k-1)} 种；没选：${k} 个全从前 ${n-1} 个里选，C(${n-1},${k}) = ${C(n-1,k)} 种。`;
+        }
+      }
+    } else if(mode==='row'){
+      const row=[]; for(let k=0;k<=r;k++){add(r,k,'par'); row.push(C(r,k));}
+      cap+=`第 ${r} 行：${row.join(' + ')} = <span class="hl">${2**r}</span> = 2${sup(r)}。<br>理由：${r} 元集合的子集按大小分组，大小为 k 的有 C(${r},k) 个；每个元素进或不进，子集一共 2${sup(r)} 个。`;
+    } else if(mode==='alt'){
+      let s=''; let tot=0;
+      for(let k=0;k<=r;k++){add(r,k,k%2?'neg':'par'); const v=C(r,k); tot+=k%2?-v:v; s+=(k===0?'':(k%2?' − ':' + '))+v;}
+      cap+=`第 ${r} 行：${s} = <span class="hl">${tot}</span>。<br>`;
+      cap+= r===0?'第 0 行只有一个 1，交错和是 1，所以 (5.4) 要求 n ≥ 1。':`理由：绿框（偶数大小的子集）和红框（奇数大小的子集）一样多。把每个子集和"放进或拿走元素 1"后的子集配对，每一对恰好一偶一奇。`;
+    } else if(mode==='sq'){
+      const row=[]; let tot=0;
+      for(let k=0;k<=r;k++){add(r,k,'par'); const v=C(r,k); row.push(v+'²'); tot+=v*v;}
+      cap+=`第 ${r} 行：${row.join(' + ')} = <span class="hl">${tot}</span> = C(${2*r},${r})。<br>`;
+      if(2*r<=N){ add(2*r,r,'hot'); cap+=`黄格就是第 ${2*r} 行正中间的 C(${2*r},${r})。`; }
+      else cap+=`把三角形加到第 ${2*r} 行，就能在正中间看到 C(${2*r},${r})${2*r>ptMax?'（这里最多显示到第 10 行，可以点上面某一行试）':''}。`;
+      cap+=`理由：${r} 男 ${r} 女里选 ${r} 人，选 k 个男生有 C(${r},k) 种、再选 ${r}−k 个女生有 C(${r},${r}−k) = C(${r},k) 种，相乘是 C(${r},k)²，对 k 加起来就是平方和。`;
+    } else if(mode==='hockey'){
+      if(!sel||sel.k===0){ cap+='点一个<b>不在最左边一列</b>的格子 C(n,k)，看它等于上一列（第 k−1 列）从顶上一直加到第 n−1 行。'; }
+      else{
+        const {n,k}=sel; add(n,k,'hot'); const parts=[]; let tot=0;
+        for(let m=k-1;m<=n-1;m++){add(m,k-1,'par'); parts.push(C(m,k-1)); tot+=C(m,k-1);}
+        cap+=`C(${k-1},${k-1}) + … + C(${n-1},${k-1}) = ${parts.join(' + ')} = <span class="hl">${tot}</span> = C(${n},${k})。这是 (5.12)。<br>理由：从 {1,…,${n}} 里选 ${k} 个数，按最大的数分类。最大数是 m+1 时（m 从 ${k-1} 到 ${n-1}），其余 ${k-1} 个从 {1,…,m} 里选，C(m,${k-1}) 种；各类加起来就是绿框的和。`;
+      }
+    }
+    let html='';
+    for(let n=0;n<=N;n++){
+      html+='<div class="pt-row">';
+      for(let k=0;k<=n;k++){const c=(cls[n+','+k]||[]).join(' '); html+=`<button class="pt-cell ${c}" data-n="${n}" data-k="${k}" aria-label="C(${n},${k}) = ${C(n,k)}">${C(n,k)}</button>`;}
+      html+='</div>';
+    }
+    $('ptTri').innerHTML=html; $('ptCap').innerHTML=cap;
+    $('ptCount').textContent=`第 0 到第 ${N} 行`;
+    $('ptGrow').disabled=N>=ptMax; $('ptShrink').disabled=N<=1;
+  }
+  $('ptTri').addEventListener('click',e=>{const b=e.target.closest('.pt-cell'); if(!b) return; pt.sel={n:+b.dataset.n,k:+b.dataset.k}; pt.grown=false; ptRender();});
+  $('ptGrow').addEventListener('click',()=>{if(pt.N<ptMax){pt.N++; pt.grown=true; pt.sel=null; ptRender();}});
+  $('ptShrink').addEventListener('click',()=>{if(pt.N>1){pt.N--; pt.grown=false; if(pt.sel&&pt.sel.n>pt.N) pt.sel=null; ptRender();}});
+  $('ptReset').addEventListener('click',()=>{pt.N=4; pt.sel=null; pt.grown=false; $('ptMode').value='pascal'; ptRender();});
+  $('ptMode').addEventListener('change',()=>{pt.grown=false; ptRender();});
+  ptRender();
+
+  /* ---------- 2. lattice paths ---------- */
+  const pa={n:4,k:2,list:[],i:0,nD:0};
+  function paInit(){
+    const [n,k]=$('paSel').value.split(',').map(Number); pa.n=n; pa.k=k;
+    const all=[];
+    (function rec(w,r,d){ if(r===0&&d===0){all.push(w);return;} if(d>0) rec(w+'D',r,d-1); if(r>0) rec(w+'R',r-1,d); })('',k,n-k);
+    const dl=all.filter(w=>w.endsWith('D')), rl=all.filter(w=>w.endsWith('R'));
+    pa.list=dl.concat(rl); pa.nD=dl.length; pa.i=0; paRender();
+  }
+  const arrows=w=>w.split('').map(c=>c==='R'?'→':'↓').join('');
+  const slideWords=w=>w.split('').map(c=>c==='R'?'斜':'竖').join('');
+  function paRender(){
+    const {n,k}=pa, h=n-k, m=34, s=52, W=2*m+k*s, H=2*m+h*s;
+    const P=(a,b)=>[m+a*s,m+b*s];
+    const svg=$('paSvg'); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    let g='';
+    for(let a=0;a<=k;a++){const [x1,y1]=P(a,0),[x2,y2]=P(a,h); g+=`<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;}
+    for(let b=0;b<=h;b++){const [x1,y1]=P(0,b),[x2,y2]=P(k,b); g+=`<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;}
+    const w=pa.list[pa.i];
+    let a=0,b=0; const pts=[P(0,0)];
+    for(const c of w){ if(c==='R') a++; else b++; pts.push(P(a,b)); }
+    const pre=pts[pts.length-2], end=pts[pts.length-1];
+    g+=`<polyline class="gpath" points="${pts.slice(0,-1).map(p=>p.join(',')).join(' ')}"/>`;
+    g+=`<line class="glast" x1="${pre[0]}" y1="${pre[1]}" x2="${end[0]}" y2="${end[1]}"/>`;
+    for(let aa=0;aa<=k;aa++) for(let bb=0;bb<=h;bb++){
+      const [x,y]=P(aa,bb); const isPre=(x===pre[0]&&y===pre[1]);
+      g+=`<circle class="${isPre?'hot':'gn'}" cx="${x}" cy="${y}" r="${isPre?7:4.5}"/>`;
+      g+=`<text class="val" x="${x+7}" y="${y+16}">${C(aa+bb,aa)}</text>`;
+    }
+    g+=`<text class="val" x="${m-16}" y="${m-14}">起点</text>`;
+    svg.innerHTML=g;
+    const last=w[w.length-1], inD=pa.i<pa.nD, j=inD?pa.i+1:pa.i-pa.nD+1;
+    const total=pa.list.length, nR=total-pa.nD;
+    const pn=n-1, pk=last==='D'?k:k-1, pv=C(pn,pk);
+    $('paCount').textContent=`第 ${pa.i+1} / ${total} 条`;
+    let cap=`第 ${pa.i+1} 条：${arrows(w)}（讲义三角表里的走法：${slideWords(w)}）。${k} 次向右、${n-k} 次向下，共 ${n} 步。<br>`;
+    cap+=`最后一步是<b>${last==='D'?'向下（讲义里的竖直走）':'向右（讲义里的斜着走）'}</b>，走这一步之前停在黄点，它的数是 C(${pn},${pk}) = ${pv}：先沿这 ${pv} 条路之一走到黄点，再走最后一步。这是"最后一步${last==='D'?'向下':'向右'}"这一类的第 ${j} / ${pv} 条。`;
+    if(pa.i===total-1) cap+=`<br>全部数完：最后一步向下的 ${pa.nD} 条 + 最后一步向右的 ${nR} 条 = ${total} = C(${n},${k})。这就是 Pascal 公式 C(${n},${k}) = C(${n-1},${k}) + C(${n-1},${k-1})。`;
+    $('paCap').innerHTML=cap;
+    $('paHist').innerHTML=pa.list.map((x,t)=>`<span class="${t===pa.i?'now':''}">${arrows(x)}</span>`).map((s,t)=>t===pa.nD?'| '+s:s).join(' ');
+    $('paPrev').disabled=pa.i===0; $('paNext').disabled=pa.i===total-1;
+  }
+  $('paSel').addEventListener('change',paInit);
+  $('paNext').addEventListener('click',()=>{if(pa.i<pa.list.length-1){pa.i++;paRender();}});
+  $('paPrev').addEventListener('click',()=>{if(pa.i>0){pa.i--;paRender();}});
+  $('paReset').addEventListener('click',()=>{pa.i=0;paRender();});
+  paInit();
+
+  /* ---------- 3. expanding (x+y)^n ---------- */
+  const ex={n:3,i:0};
+  const chip=(w,nw)=>'<span class="chip">'+w.split('').map((c,t)=>{const cl=[]; if(c==='y') cl.push('y'); if(nw&&t===w.length-1) cl.push('nw'); return cl.length?`<span class="${cl.join(' ')}">${c}</span>`:c;}).join('')+'</span>';
+  function wordsOf(j){let ws=['']; for(let t=0;t<j;t++){const nx=[]; ws.forEach(w=>{nx.push(w+'x'); nx.push(w+'y');}); ws=nx;} return ws;}
+  function term(n,k){const c=C(n,k); const xs=n-k?('x'+(n-k>1?sup(n-k):'')):''; const ys=k?('y'+(k>1?sup(k):'')):''; return (c>1?c:'')+xs+ys;}
+  function exRender(){
+    const n=ex.n, i=ex.i; let view='', cap='';
+    if(i===0){
+      view='<div class="chips">'+Array(n).fill('<span class="chip">(x+y)</span>').join('<span>×</span>')+'</div>';
+      cap=`(x+y)${sup(n)} 就是 ${n} 个 (x+y) 相乘。乘开 = 从每个括号里各挑一个字母（x 或 y）乘起来，再把所有挑法加在一起。把挑出的字母按括号顺序写下来，叫一个"词"。点"下一步"一个括号一个括号地乘。`;
+    } else if(i<=n){
+      const ws=wordsOf(i);
+      view='<div class="chips">'+ws.map(w=>chip(w,i>1)).join('')+'</div>';
+      cap= i===1?`第 1 个括号：挑 x 或挑 y，得到 2 个词。`
+        :`乘上第 ${i} 个括号：上一步的每个词后面接 x 或接 y（黄线），各变成两个新词。词的个数 ${2**(i-1)} × 2 = <span class="hl">${2**i}</span> = 2${sup(i)}。`;
+      if(i===n) cap+=`<br>${n} 个括号都乘完了，一共 2${sup(n)} = ${2**n} 个词。相乘时字母顺序无所谓（xy = yx），下一步把 y 的个数相同的词合并。`;
+    } else {
+      const ws=wordsOf(n);
+      for(let k=0;k<=n;k++){
+        const g=ws.filter(w=>w.split('y').length-1===k);
+        view+=`<div class="grp"><span class="gl">${k} 个 y</span>${g.map(w=>chip(w,false)).join('')}<span class="gr">${g.length} 个 → ${term(n,k)}</span></div>`;
+      }
+      const poly=[]; for(let k=0;k<=n;k++) poly.push(term(n,k));
+      const k=Math.ceil(n/2);
+      cap=`按 y 的个数分组：有 k 个 y 的词，就是在 ${n} 个括号里选哪 k 个出 y，共 C(${n},k) 个。所以<br><span class="hl">(x+y)${sup(n)} = ${poly.join(' + ')}</span><br>`;
+      cap+=`顺便又看到 Pascal 公式：有 ${k} 个 y 的 ${n} 字母词，最后一个字母是 x 的，前 ${n-1} 个字母里有 ${k} 个 y，C(${n-1},${k}) = ${C(n-1,k)} 个；最后是 y 的，前面有 ${k-1} 个 y，C(${n-1},${k-1}) = ${C(n-1,k-1)} 个；${C(n-1,k)} + ${C(n-1,k-1)} = ${C(n,k)}。`;
+    }
+    $('exView').innerHTML=view; $('exCap').innerHTML=cap;
+    $('exCount').textContent=`第 ${i} / ${n+1} 步`;
+    $('exPrev').disabled=i===0; $('exNext').disabled=i===n+1;
+  }
+  $('exN').addEventListener('change',()=>{ex.n=+$('exN').value; ex.i=0; exRender();});
+  $('exNext').addEventListener('click',()=>{if(ex.i<ex.n+1){ex.i++;exRender();}});
+  $('exPrev').addEventListener('click',()=>{if(ex.i>0){ex.i--;exRender();}});
+  $('exReset').addEventListener('click',()=>{ex.i=0;exRender();});
+  exRender();
+
+  /* ---------- 5. Sperner on subsets of {1,2,3,4} ---------- */
+  const SN=4, pc=m=>{let c=0; while(m){c+=m&1; m>>=1;} return c;};
+  const name=m=>{let s=''; for(let i=0;i<SN;i++) if(m>>i&1) s+=(i+1); return s||'∅';};
+  const setName=m=>m?'{'+name(m).split('').join(',')+'}':'∅';
+  const levels=[[],[],[],[],[]]; for(let m=0;m<16;m++) levels[pc(m)].push(m);
+  levels.forEach(L=>L.sort((a,b)=>name(a).localeCompare(name(b))));
+  const pos={}; const xs={1:[180],4:[60,140,220,300],6:[30,90,150,210,270,330]};
+  levels.forEach((L,l)=>L.forEach((m,t)=>{pos[m]=[xs[L.length][t],287-l*66];}));
+  const sp={fam:new Set(),chain:null,perm:null};
+  function spBuild(){
+    let g='';
+    for(let m=0;m<16;m++) for(let i=0;i<SN;i++) if(!(m>>i&1)){const u=m|(1<<i); g+=`<line class="edge" data-a="${m}" data-b="${u}" x1="${pos[m][0]}" y1="${pos[m][1]}" x2="${pos[u][0]}" y2="${pos[u][1]}"/>`;}
+    for(let m=0;m<16;m++) g+=`<g class="sn" data-m="${m}" tabindex="0" role="button" aria-label="子集 ${setName(m)}"><circle cx="${pos[m][0]}" cy="${pos[m][1]}" r="17"/><text class="in" x="${pos[m][0]}" y="${pos[m][1]}"${pc(m)===4?' style="font-size:10px"':''}>${name(m)}</text></g>`;
+    $('spSvg').innerHTML=g;
+  }
+  function spRender(){
+    const fam=[...sp.fam]; const bad=new Set(), conf=[];
+    for(const a of fam) for(const b of fam) if(a!==b&&(a&b)===a){bad.add(a);bad.add(b);conf.push([a,b]);}
+    const chainSet=new Set(sp.chain||[]);
+    document.querySelectorAll('#spSvg .sn').forEach(el=>{const m=+el.dataset.m; el.classList.toggle('on',sp.fam.has(m)); el.classList.toggle('bad',bad.has(m)); el.classList.toggle('ch',chainSet.has(m)&&!sp.fam.has(m));});
+    document.querySelectorAll('#spSvg line.edge').forEach(el=>{const a=+el.dataset.a,b=+el.dataset.b; el.classList.toggle('ch',chainSet.has(a)&&chainSet.has(b));});
+    const s=fam.length;
+    $('spCount').textContent=`已选 ${s} 个子集`;
+    let cap='';
+    if(!s) cap='点圆圈挑一些子集，组成一个家族。目标：家族里任何一个集合都不包含另一个（clutter），看最多能挑几个。';
+    else if(conf.length){
+      cap=`<b>不是 clutter</b>：${conf.slice(0,3).map(([a,b])=>`${setName(a)} ⊂ ${setName(b)}`).join('，')}${conf.length>3?' 等':''}（红框）。一个包含另一个，就是两个可比的元素。`;
+    } else {
+      const sorted=fam.slice().sort((a,b)=>pc(a)-pc(b)||name(a).localeCompare(name(b)));
+      cap=`<b>是 clutter</b>，大小 ${s}：${sorted.map(setName).join('、')}。`;
+      if(s===6) cap+=`<br>这已经是 Sperner 定理的上限 C(4,2) = 6。再加任何一个子集都会和某个 2 元子集可比：∅ 和单元素集被包含，3 元集和全集包含别人。试试看。`;
+      else cap+=` 上限是 C(4,2) = 6，还差 ${6-s} 个。`;
+    }
+    if(sp.chain){
+      const hit=sp.chain.filter(m=>sp.fam.has(m)).length;
+      cap+=`<br>极大链：${sp.chain.map(setName).join(' ⊂ ')}，对应排列 ${sp.perm.join(',')}（依次加入的元素）。它碰到你的家族 <span class="hl">${hit}</span> 次。`;
+      cap+= conf.length?'':' 链上的集合两两可比，所以一条链最多碰到 clutter 一次。24 条链，每个 2 元集合在 2!·2! = 4 条上，所以 clutter 最多 24/4 = 6 个。';
+    }
+    $('spCap').innerHTML=cap;
+  }
+  function spToggle(m){ if(sp.fam.has(m)) sp.fam.delete(m); else sp.fam.add(m); spRender(); }
+  spBuild();
+  $('spSvg').addEventListener('click',e=>{const g=e.target.closest('.sn'); if(g) spToggle(+g.dataset.m);});
+  $('spSvg').addEventListener('keydown',e=>{const g=e.target.closest('.sn'); if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault(); spToggle(+g.dataset.m);}});
+  $('spMid').addEventListener('click',()=>{sp.fam=new Set(levels[2]); spRender();});
+  $('spL1').addEventListener('click',()=>{sp.fam=new Set(levels[1]); spRender();});
+  $('spClear').addEventListener('click',()=>{sp.fam=new Set(); sp.chain=null; spRender();});
+  $('spChain').addEventListener('click',()=>{
+    const p=[1,2,3,4]; for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]];}
+    let m=0; const ch=[0]; p.forEach(v=>{m|=1<<(v-1); ch.push(m);}); sp.chain=ch; sp.perm=p; spRender();
+  });
+  spRender();
+
+  /* ---------- 7. Newton calculator (exact fractions) ---------- */
+  const babs=a=>a<0n?-a:a;
+  function gcd(a,b){a=babs(a);b=babs(b); while(b){[a,b]=[b,a%b];} return a;}
+  function fr(n,d){d=d===undefined?1n:d; if(d<0n){n=-n;d=-d;} const g=gcd(n,d)||1n; return {n:n/g,d:d/g};}
+  const fmul=(a,b)=>fr(a.n*b.n,a.d*b.d), fsub=(a,b)=>fr(a.n*b.d-b.n*a.d,a.d*b.d), fdiv=(a,b)=>fr(a.n*b.d,a.d*b.n);
+  const fstr=f=>(f.n<0n?'−':'')+babs(f.n)+(f.d===1n?'':'/'+f.d);
+  const fnum=f=>Number(f.n)/Number(f.d);
+  function parseQ(s){
+    s=s.trim().replace(/[−–]/g,'-').replace(/\s+/g,'');
+    let m=s.match(/^(-?\d{1,6})\/(\d{1,6})$/); if(m&&+m[2]!==0) return fr(BigInt(m[1]),BigInt(m[2]));
+    m=s.match(/^(-?)(\d{1,6})(?:\.(\d{1,5}))?$/);
+    if(m){const dec=m[3]||''; return fr(BigInt(m[1]+m[2]+dec),10n**BigInt(dec.length));}
+    return null;
+  }
+  function nwCalc(){
+    const a=parseQ($('nwA').value), xv=parseFloat($('nwX').value.replace(/[−–]/g,'-'));
+    if(!a){$('nwTable').innerHTML=''; $('nwCap').innerHTML='α 请写成整数、分数或小数，例如 -3、1/2、2.5。'; return;}
+    const K=8; const negInt=a.d===1n&&a.n<0n, nonnegInt=a.d===1n&&a.n>=0n;
+    const nn=negInt?Number(-a.n):0;
+    let c=fr(1n); const rows=[];
+    for(let k=0;k<K;k++){
+      let fac='';
+      if(k>0){const f=fdiv(fsub(a,fr(BigInt(k-1))),fr(BigInt(k))); fac=`× (${fstr(a)} − ${k-1})/${k} = ${fstr(f)}`; c=fmul(c,f);}
+      else fac='（规定 C(α,0) = 1）';
+      rows.push({k,fac,c});
+    }
+    let h=`<table><tr><th>k</th><th>C(α,k)</th><th>约等于</th><th>由上一行乘 (α−k+1)/k</th>${negInt?`<th>(−1)ᵏ·C(${nn}+k−1,k)</th>`:''}</tr>`;
+    rows.forEach(r=>{h+=`<tr><td class="mono">${r.k}</td><td class="mono"><b>${fstr(r.c)}</b></td><td class="mono">${minus(+fnum(r.c).toPrecision(6))}</td><td class="mono">${r.fac}</td>${negInt?`<td class="mono">${minus((r.k%2?-1:1)*C(nn+r.k-1,r.k))}</td>`:''}</tr>`;});
+    h+='</table>';
+    $('nwTable').innerHTML=h;
+    let cap='';
+    if(nonnegInt) cap=`α = ${fstr(a)} 是非负整数：k = ${fstr(a)}+1 那一行乘的因子是 (${fstr(a)} − ${fstr(a)})/${Number(a.n)+1} = 0，从那以后全是 0。级数自己截断，就是普通的二项式定理（系数是 Pascal 三角形第 ${fstr(a)} 行）。`;
+    else if(negInt) cap=`α = −${nn} 是负整数：每个因子 (α−k+1)/k 都是负数，所以符号正负交替；绝对值是 C(${nn}+k−1, k)，和最后一列一致。换成 (1−z)${sup('-'+nn)} 时符号被抵消，系数就是 ${rows.slice(0,5).map(r=>C(nn+r.k-1,r.k)).join(', ')}, …，也就是从 ${nn} 种物品里可重复地取 k 个的方法数。`;
+    else cap=`α = ${fstr(a)} 不是整数：因子 (α−k+1) 永远不会是 0，所以级数有无穷多项。${a.n===1n&&a.d===2n?'这就是 √(1+x) 的展开，和讲义第 239 页的公式 (−1)ᵏ⁻¹C(2k−2,k−1)/(k·2²ᵏ⁻¹) 一致。':''}`;
+    if(isFinite(xv)){
+      let S=0; rows.forEach(r=>{S+=fnum(r.c)*Math.pow(xv,r.k);});
+      cap+='<br>';
+      if(Math.abs(xv)>=1&&!nonnegInt) cap+=`x = ${minus(xv)}：|x| ≥ 1 时级数不收敛，部分和不可靠。把 x 改成绝对值小于 1 的数试试。`;
+      else if(1+xv<=0) cap+=`x = ${minus(xv)} 时 1+x ≤ 0，这里不比较。`;
+      else{const T=Math.pow(1+xv,fnum(a)); cap+=`代 x = ${minus(xv)}：前 8 项之和 ≈ ${minus(+S.toPrecision(10))}，真值 (1+x)<sup>α</sup> = ${minus(+T.toPrecision(10))}，相差 ${Math.abs(S-T).toExponential(1)}。`;}
+    }
+    $('nwCap').innerHTML=cap;
+  }
+  $('nwGo').addEventListener('click',nwCalc);
+  ['nwA','nwX'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')nwCalc();}));
+  document.querySelectorAll('.nwP').forEach(b=>b.addEventListener('click',()=>{$('nwA').value=b.dataset.a; nwCalc();}));
+  nwCalc();
+
+  /* ---------- 8. Dilworth on {1..10} ---------- */
+  const DP={1:[170,220],2:[140,155],3:[60,155],5:[220,155],7:[300,155],9:[40,90],6:[110,90],4:[170,90],10:[240,90],8:[170,25]};
+  const covers=[[1,2],[1,3],[1,5],[1,7],[2,4],[2,6],[2,10],[3,6],[3,9],[5,10],[4,8]];
+  const DW={
+    anti:{groups:[[1],[2,3,5,7],[4,6,9,10],[8]],why:[
+      '第 1 块：极小元只有 1（1 整除所有数，别的数下面都有 1）。',
+      '拿走 1 之后，2、3、5、7 下面没有别的数了（它们除了 1 没有别的因子）。它们两两不整除，是反链。',
+      '再拿走它们：剩下的 4、6、8、9、10 中，4、6、9、10 的因子都已拿走，成为新的极小元；8 还不行，因为 4 还在。',
+      '最后只剩 8。']},
+    chain:{groups:[[1,2,4,8],[3,6],[5,10],[7],[9]],why:[
+      '先取最长链：1|2|4|8。',
+      '3|6，是链。',
+      '5|10，是链。',
+      '只有一个元素也算一条链。',
+      '剩下的 9 自成一条。（也可以换成 {3,9} 和 {6}，链的分法不唯一。）']}
+  };
+  const dw={mode:'anti',i:0};
+  function dwRender(){
+    const M=DW[dw.mode], gs=M.groups.slice(0,dw.i);
+    const col={}; gs.forEach((g,t)=>g.forEach(v=>{col[v]=t+1;}));
+    let g='';
+    covers.forEach(([a,b])=>{
+      let st=''; if(dw.mode==='chain'&&col[a]&&col[a]===col[b]) st=` style="stroke:var(--g${col[a]});stroke-width:4"`;
+      g+=`<line class="edge" x1="${DP[a][0]}" y1="${DP[a][1]}" x2="${DP[b][0]}" y2="${DP[b][1]}"${st}/>`;
+    });
+    Object.keys(DP).forEach(v=>{const [x,y]=DP[v], c=col[v];
+      g+=`<g class="dn${c?' col':''}"><circle cx="${x}" cy="${y}" r="15"${c?` style="fill:var(--g${c});stroke:var(--g${c})"`:''}/><text class="in" x="${x}" y="${y}">${v}</text></g>`;});
+    $('dwSvg').innerHTML=g;
+    const n=M.groups.length;
+    $('dwCount').textContent=`第 ${dw.i} / ${n} 块`;
+    let cap='';
+    if(dw.i===0) cap= dw.mode==='anti'
+      ?'目标：把 1 到 10 分成尽量少的反链。最长链 {1,2,4,8} 有 4 个元素，它们必须在 4 个不同的块里，所以至少 4 块。点"下一步"一层一层剥极小元。'
+      :'目标：把 1 到 10 分成尽量少的链。反链 {4,6,7,9,10} 有 5 个元素，它们必须在 5 条不同的链上，所以至少 5 条。点"下一步"一条一条给出来。';
+    else{
+      const grp=M.groups[dw.i-1];
+      cap=`<span class="hl">{${grp.join(',')}}</span>　${M.why[dw.i-1]}`;
+      if(dw.i===n) cap+= dw.mode==='anti'
+        ?'<br>一共 4 块 = 最长链的大小 4（幻灯片 240 的定理）。'
+        :'<br>一共 5 条 = 最大反链的大小 5（Dilworth 定理）。每条链恰好经过反链 {4,6,7,9,10} 的一个元素。';
+    }
+    $('dwCap').innerHTML=cap;
+    $('dwPrev').disabled=dw.i===0; $('dwNext').disabled=dw.i===n;
+  }
+  $('dwMode').addEventListener('change',()=>{dw.mode=$('dwMode').value; dw.i=0; dwRender();});
+  $('dwNext').addEventListener('click',()=>{if(dw.i<DW[dw.mode].groups.length){dw.i++;dwRender();}});
+  $('dwPrev').addEventListener('click',()=>{if(dw.i>0){dw.i--;dwRender();}});
+  $('dwReset').addEventListener('click',()=>{dw.i=0;dwRender();});
+  dwRender();
+})();
+</script>
