@@ -100,6 +100,44 @@ details[open] summary{margin-bottom:.3rem}
 .ans{font-size:.95rem}
 @media (prefers-reduced-motion:no-preference){.tile .num{transition:background .2s,border-color .2s}}
 @media (max-width:480px){h1{font-size:1.55rem}.tile,.tile .num{min-width:2.2rem;width:2.2rem}.tile .num{height:2.2rem;font-size:1.15rem}}
+/* 6.x 三者对照 */
+.rl-tbl td.c{text-align:center;font-family:var(--mono);font-weight:600}
+.rl-tbl td.y{color:var(--accent)}
+.rl-tbl td.n{color:var(--muted);font-weight:400}
+.rl-tbl td.rl-w{white-space:normal;min-width:8.5rem}
+.rl-tbl th,.rl-tbl td{padding:.35rem .5rem;vertical-align:middle}
+.rl-vs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin:1rem 0}
+@media (max-width:560px){.rl-vs{grid-template-columns:1fr}}
+.rl-vs .box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;min-width:0}
+.rl-vs .box h4{font-family:var(--serif);font-size:1.02rem;margin:0 0 .4rem}
+.rl-vs .box p{font-size:.95rem}
+.rl-f{font-family:var(--mono);font-size:.9rem;background:var(--paper);border-radius:6px;padding:.25rem .6rem;margin:.3rem 0;overflow-x:auto;white-space:nowrap}
+.rl-lab{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:600px){.rl-lab{grid-template-columns:1fr}}
+.rl-matrix{display:grid;grid-template-columns:2.2rem repeat(4,2.75rem);gap:.25rem;align-items:center;justify-items:center}
+.rl-matrix .hd{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+button.rl-cell{width:2.75rem;height:2.75rem;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);font-family:var(--mono);font-size:.85rem}
+button.rl-cell.diag{border-style:dashed}
+button.rl-cell.on{background:var(--ink);color:var(--paper);border-color:var(--ink);border-style:solid;font-weight:600}
+button.rl-cell.hit{outline:3px solid var(--warn);outline-offset:1px}
+.rl-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
+button.rl-chip{border-radius:999px;font-family:var(--mono);font-size:.85rem;padding:.2rem .75rem}
+button.rl-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.rl-checks{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.rl-ck{display:grid;grid-template-columns:1.3rem 4.8em minmax(0,1fr);gap:.4rem;font-size:.95rem;align-items:baseline}
+.rl-ck .s{font-weight:700;text-align:center}
+.rl-ck .s.ok{color:var(--accent)}.rl-ck .s.no{color:var(--warn)}
+.rl-ck .why{color:var(--muted);font-size:.88rem}
+.rl-verdict{font-weight:700;border-left:3px solid var(--ink);padding:.1rem 0 .1rem .7rem;margin:.5rem 0 .2rem}
+.rl-verdict .no{color:var(--warn)}
+.rl-quiz .item{padding:.6rem 0;border-bottom:1px solid var(--line)}
+.rl-quiz .item:last-child{border-bottom:none}
+.rl-quiz .item p{margin:.2rem 0}
+.rl-opts{display:flex;flex-wrap:wrap;gap:.35rem;margin:.35rem 0}
+button.rl-opt.right{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
+.rl-fb{font-size:.92rem}
+.rl-fb .ok{color:var(--accent);font-weight:700}.rl-fb .no{color:var(--warn);font-weight:700}
 </style>
 
 <div class="wrap">
@@ -512,6 +550,70 @@ details[open] summary{margin-bottom:.3rem}
 <div class="classes"><span class="cls">[3] = {3, 6, 9}</span><span class="cls">[1] = {1, 4, 7}</span><span class="cls">[2] = {2, 5, 8}</span></div>
 <div class="rule"><p><b>定理</b>（幻灯片 218）：等价类把 X 分成互不相交的非空部分；反过来，X 的任意一种划分，都对应一个等价关系（"在同一块里"）。所以<b>等价关系 ⇔ 划分</b>。</p></div>
 
+<h3 id="po-compare">三者对照：偏序、全序、等价关系怎么分</h3>
+<p>三个名字听着像三种东西，其实是同一个问题的三种答案：<b>这个关系满足了哪几条性质</b>。先记住这张表：</p>
+<div class="scroll">
+<table class="rl-tbl">
+<thead><tr><th>性质</th><th>意思</th><th>偏序</th><th>全序</th><th>等价</th></tr></thead>
+<tbody>
+<tr><td><b>自反</b></td><td class="rl-w">每个 x 都有 xRx</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td></tr>
+<tr><td><b>传递</b></td><td class="rl-w">xRy 且 yRz ⇒ xRz</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td></tr>
+<tr><td><b>反对称</b></td><td class="rl-w">xRy 且 yRx ⇒ x = y（两个<b>不同</b>元素不能互相有关系）</td><td class="c y">✓</td><td class="c y">✓</td><td class="c n">—</td></tr>
+<tr><td><b>对称</b></td><td class="rl-w">xRy ⇒ yRx（有关系就一定是双向的）</td><td class="c n">—</td><td class="c n">—</td><td class="c y">✓</td></tr>
+<tr><td><b>任意两个可比</b></td><td class="rl-w">任意 x、y，xRy 或 yRx 至少一个成立</td><td class="c n">不要求</td><td class="c y">✓</td><td class="c n">—</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><b>偏序</b>和<b>等价</b>都要自反、传递，<span class="hl">只差一个字</span>：偏序要<b>反</b>对称，等价要<b>对称</b>。</li>
+<li><b>全序</b>不是第三种独立的东西，它是<b>额外满足"任意两个都能比"的偏序</b>。全序一定是偏序，偏序不一定是全序。</li>
+<li>一句话区分：偏序讲<b>上下</b>（图会分叉），全序是上下排成<b>一列</b>（图是一根竖线），等价讲<b>分组</b>（画成几块，块内两两双向相关，块间都不相关）。</li>
+</ul>
+
+<p><b>最容易混的两处</b></p>
+<div class="rl-vs">
+<div class="box">
+<h4>对称 vs 反对称</h4>
+<div class="rl-f">对称：aRb ⇒ bRa</div>
+<div class="rl-f">反对称：aRb 且 bRa ⇒ a = b</div>
+<p>对称说"能过去就一定能回来"；反对称说"两个<b>不同</b>的元素不能互相过去又回来"。</p>
+<p>例："a − b 是偶数"。2 − 4 = −2 是偶数，所以 2R4；4 − 2 = 2 也是偶数，所以 4R2；但 2 ≠ 4，<b>反对称不成立</b>，不是偏序。它是对称的（再加自反、传递），所以是<b>等价关系</b>，两个等价类：偶数、奇数。</p>
+</div>
+<div class="box">
+<h4>&lt; 和 ≤</h4>
+<div class="rl-f">≤：自反 ✓ 反对称 ✓ 传递 ✓</div>
+<div class="rl-f">&lt;：自反 ✗（1 &lt; 1 不成立）</div>
+<p>偏序第一条就要自反，所以 <b>&lt; 不是偏序，更不是全序</b>。全序指的是 ≤。</p>
+<p>&lt; 叫"严格偏序"，就是 ≤ 去掉所有 (x, x)。讲"覆盖""比不了"时用 &lt; 方便，但判断题问"是不是偏序"时，&lt; 要判"不是"。</p>
+</div>
+</div>
+<p class="tip">对称和反对称不是互相否定：一个关系可以两个都不满足，也可以两个都满足（只有"a = b"这种，它同时是偏序和等价关系）。</p>
+
+<div class="machine" id="rl-machine">
+<div class="head"><span class="title">演示：在 {1, 2, 3, 4} 上造一个关系，逐条检查性质</span></div>
+<div class="rl-chips" id="rl-presets" role="group" aria-label="选择关系"></div>
+<div class="rl-lab">
+<div>
+<div class="rl-matrix" id="rl-matrix" aria-label="关系矩阵：第 a 行第 b 列表示 aRb"></div>
+<p class="tip" style="max-width:15rem">点格子可以加上或去掉"aRb"。第 a 行第 b 列 = aRb，虚线格是对角线 (x, x)；红框是反例。</p>
+</div>
+<div class="rl-checks" id="rl-checks" aria-live="polite"></div>
+</div>
+</div>
+
+<p><b>考试时的判断顺序</b></p>
+<ol class="steps">
+<li><b>自反</b>：每个 x 都有 xRx 吗？不满足就直接"都不是"，写反例（如 1R1 不成立）。</li>
+<li><b>传递</b>：xRy、yRz 能推出 xRz 吗？不满足也是"都不是"，写出具体的 x、y、z。</li>
+<li>看<b>方向</b>：有没有两个不同元素 aRb 且 bRa？没有（反对称）→ <b>偏序</b>，再看第 4 步；有关系就总是双向（对称）→ <b>等价关系</b>，写出等价类。</li>
+<li>偏序再问<b>任意两个都能比吗</b>：能 → <b>全序</b>；找到一对比不了的（如 2 和 3 互不整除）→ 只是偏序。</li>
+</ol>
+<p class="tip">判"不是"时一定给一个具体反例，这是拿分的地方。</p>
+
+<div class="machine rl-quiz" id="rl-quiz">
+<div class="head"><span class="title">自测：下面每个关系是哪一种？</span></div>
+</div>
+
 <!-- ============ practice ============ -->
 <h2 id="practice">练习（Exercises.pdf 题号）</h2>
 <p class="tip">先自己做，再点开答案。答案都用程序枚举核对过。#161（n=5 的全部排列）你在作业里已经做过，这里不重复。</p>
@@ -732,5 +834,127 @@ details[open] summary{margin-bottom:.3rem}
   $('posGo').addEventListener('click',posCalc);
   ['posN','posC'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')posCalc();}));
   posCalc();
+})();
+</script>
+<script>
+/* 6.x 三者对照：关系检查器与自测 */
+(function(){
+  var N=[1,2,3,4];
+  var presets=[
+    {k:'le',name:'a ≤ b',f:function(a,b){return a<=b}},
+    {k:'lt',name:'a < b',f:function(a,b){return a<b}},
+    {k:'div',name:'a 整除 b',f:function(a,b){return b%a===0}},
+    {k:'par',name:'a − b 是偶数',f:function(a,b){return (a-b)%2===0}},
+    {k:'eq',name:'a = b',f:function(a,b){return a===b}},
+    {k:'near',name:'|a − b| ≤ 1',f:function(a,b){return Math.abs(a-b)<=1}},
+    {k:'all',name:'任意两个都相关',f:function(){return true}}
+  ];
+  var R={},current='div';
+  function key(a,b){return a+','+b}
+  function has(a,b){return !!R[key(a,b)]}
+  var box=document.getElementById('rl-presets');
+  presets.forEach(function(p){
+    var b=document.createElement('button');b.type='button';b.className='rl-chip';b.id='rl-preset-'+p.k;b.textContent=p.name;
+    b.addEventListener('click',function(){load(p.k)});box.appendChild(b);
+  });
+  var mx=document.getElementById('rl-matrix'),cells={};
+  mx.appendChild(document.createElement('span'));
+  N.forEach(function(b){var h=document.createElement('span');h.className='hd';h.textContent='b='+b;mx.appendChild(h)});
+  N.forEach(function(a){
+    var h=document.createElement('span');h.className='hd';h.textContent='a='+a;mx.appendChild(h);
+    N.forEach(function(b){
+      var c=document.createElement('button');c.type='button';c.className='rl-cell'+(a===b?' diag':'');c.id='rl-cell-'+a+'-'+b;
+      c.addEventListener('click',function(){R[key(a,b)]=!R[key(a,b)];current='custom';render()});
+      cells[key(a,b)]=c;mx.appendChild(c);
+    });
+  });
+  function load(k){
+    var p=presets.filter(function(x){return x.k===k})[0];
+    R={};N.forEach(function(a){N.forEach(function(b){if(p.f(a,b))R[key(a,b)]=true})});
+    current=k;render();
+  }
+  function analyse(){
+    var o={refl:{ok:true},sym:{ok:true},anti:{ok:true},trans:{ok:true},tot:{ok:true}};
+    N.forEach(function(x){if(o.refl.ok&&!has(x,x))o.refl={ok:false,why:x+'R'+x+' 不成立',hit:[[x,x]]}});
+    N.forEach(function(a){N.forEach(function(b){
+      if(o.sym.ok&&has(a,b)&&!has(b,a))o.sym={ok:false,why:a+'R'+b+' 成立，但 '+b+'R'+a+' 不成立',hit:[[a,b],[b,a]]};
+      if(o.anti.ok&&a!==b&&has(a,b)&&has(b,a))o.anti={ok:false,why:a+'R'+b+' 且 '+b+'R'+a+'，但 '+a+' ≠ '+b,hit:[[a,b],[b,a]]};
+      N.forEach(function(c){
+        if(o.trans.ok&&has(a,b)&&has(b,c)&&!has(a,c))o.trans={ok:false,why:a+'R'+b+'、'+b+'R'+c+'，但 '+a+'R'+c+' 不成立',hit:[[a,b],[b,c],[a,c]]};
+      });
+      if(o.tot.ok&&a<b&&!has(a,b)&&!has(b,a))o.tot={ok:false,why:a+' 和 '+b+' 比不了',hit:[[a,b],[b,a]]};
+    })});
+    return o;
+  }
+  var checks=document.getElementById('rl-checks');
+  function row(ok,label,why){
+    var d=document.createElement('div');d.className='rl-ck';
+    var s=document.createElement('span');s.className='s '+(ok?'ok':'no');s.textContent=ok?'✓':'✗';
+    var l=document.createElement('span');l.textContent=label;
+    var w=document.createElement('span');w.className='why';w.textContent=why||'';
+    d.appendChild(s);d.appendChild(l);d.appendChild(w);return d;
+  }
+  function render(){
+    presets.forEach(function(p){document.getElementById('rl-preset-'+p.k).setAttribute('aria-pressed',current===p.k?'true':'false')});
+    N.forEach(function(a){N.forEach(function(b){
+      var c=cells[key(a,b)],on=has(a,b);
+      c.classList.toggle('on',on);c.classList.remove('hit');c.textContent=on?'R':'';
+      c.setAttribute('aria-label',a+'R'+b+(on?' 成立':' 不成立'));c.setAttribute('aria-pressed',on?'true':'false');
+    })});
+    var r=analyse();checks.innerHTML='';
+    checks.appendChild(row(r.refl.ok,'自反',r.refl.why));
+    checks.appendChild(row(r.trans.ok,'传递',r.trans.why));
+    checks.appendChild(row(r.anti.ok,'反对称',r.anti.why));
+    checks.appendChild(row(r.sym.ok,'对称',r.sym.why));
+    checks.appendChild(row(r.tot.ok,'都能比',r.tot.why));
+    var po=r.refl.ok&&r.anti.ok&&r.trans.ok,eq=r.refl.ok&&r.sym.ok&&r.trans.ok,hits=[];
+    var v=document.createElement('p');v.className='rl-verdict';
+    if(po&&eq)v.textContent='同时是偏序和等价关系（只有"a = b"会这样）。';
+    else if(po&&r.tot.ok)v.textContent='全序（当然也是偏序）。';
+    else if(po){v.textContent='偏序，但不是全序：'+r.tot.why+'。';hits=r.tot.hit;}
+    else if(eq)v.textContent='等价关系。等价类：';
+    else{
+      var f=!r.refl.ok?r.refl:!r.trans.ok?r.trans:r.anti;
+      v.innerHTML='<span class="no">都不是</span>：'+(!r.refl.ok?'不自反':!r.trans.ok?'不传递':'既不反对称也不对称')+'。';hits=f.hit;
+    }
+    checks.appendChild(v);
+    if(eq){
+      var cw=document.createElement('div');cw.className='classes';var seen={};
+      N.forEach(function(a){if(seen[a])return;var cl=N.filter(function(b){return has(a,b)});cl.forEach(function(b){seen[b]=1});
+        var s=document.createElement('span');s.className='cls';s.textContent='{'+cl.join(', ')+'}';cw.appendChild(s)});
+      checks.appendChild(cw);
+    }
+    hits.forEach(function(h){var c=cells[key(h[0],h[1])];if(c)c.classList.add('hit')});
+  }
+  load('div');
+
+  var Q=[
+    {t:'{1,2,3} 的所有子集上，A R B ⇔ A ⊆ B',a:0,e:'自反、反对称、传递都成立；但 {1} 和 {2} 互不包含，比不了。'},
+    {t:'实数上，a R b ⇔ a ≥ b',a:1,e:'≥ 和 ≤ 一样：自反、反对称、传递，而且任意两个实数都能比。'},
+    {t:'全班同学之间，a R b ⇔ a 和 b 生日在同一天',a:2,e:'自己和自己同一天（自反），双向（对称），传递也成立。等价类就是"同一天生日的一群人"。'},
+    {t:'整数上，a R b ⇔ |a − b| ≤ 1',a:3,e:'自反、对称都成立，但不传递：1R2、2R3，可 |1 − 3| = 2，1R3 不成立。'},
+    {t:'{1, 3, 9, 27} 上，a R b ⇔ a 整除 b',a:1,e:'1 | 3 | 9 | 27 排成一条链，任意两个都能比，所以是全序。同一个"整除"，换个集合结论就可能变。'},
+    {t:'平面上所有直线，l R m ⇔ l 与 m 平行或重合',a:2,e:'自反（和自己重合）、对称、传递都成立。等价类就是"同一个方向的全部直线"。'},
+    {t:'正整数上，a R b ⇔ a 整除 b 且 a ≠ b',a:3,e:'a ≠ b 让它不自反（2R2 不成立），所以连偏序都不是。它和 < 一样是严格偏序。'}
+  ];
+  var labels=['偏序（不是全序）','全序','等价关系','都不是'];
+  var qz=document.getElementById('rl-quiz');
+  Q.forEach(function(q,i){
+    var d=document.createElement('div');d.className='item';
+    var t=document.createElement('p');t.textContent=(i+1)+'. '+q.t;
+    var o=document.createElement('div');o.className='rl-opts';
+    var fb=document.createElement('p');fb.className='rl-fb';fb.hidden=true;
+    labels.forEach(function(L,j){
+      var b=document.createElement('button');b.type='button';b.className='rl-opt';b.id='rl-q'+i+'-'+j;b.textContent=L;
+      b.addEventListener('click',function(){
+        Array.prototype.forEach.call(o.children,function(x){x.classList.remove('right','wrong')});
+        if(j===q.a){b.classList.add('right');fb.innerHTML='<span class="ok">对。</span>'+q.e;}
+        else{b.classList.add('wrong');fb.innerHTML='<span class="no">再想想。</span>按"自反 → 传递 → 方向 → 都能比"的顺序逐条检查。';}
+        fb.hidden=false;
+      });
+      o.appendChild(b);
+    });
+    d.appendChild(t);d.appendChild(o);d.appendChild(fb);qz.appendChild(d);
+  });
 })();
 </script>
