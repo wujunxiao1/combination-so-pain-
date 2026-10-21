@@ -1,10 +1,10 @@
 # 组合数学学习笔记
 
-郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。从第2课起笔记是 HTML 网页，下载后用浏览器打开就能看到图和可以点的演示。
+郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。前6章均配有 HTML 交互笔记，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
 
 | 章 | 主题 | 讲义 | 课程笔记 |
 |---|---|---|---|
-| 1 | [什么是组合数学](ch01-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%84%E5%90%88%E6%95%B0%E5%AD%A6) | （缺，幻灯片 1–100 未上传） | [第1课-什么是组合数学.md](ch01-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%84%E5%90%88%E6%95%B0%E5%AD%A6/%E7%AC%AC1%E8%AF%BE-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%84%E5%90%88%E6%95%B0%E5%AD%A6.md) |
+| 1 | [什么是组合数学](ch01-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%84%E5%90%88%E6%95%B0%E5%AD%A6) | （缺，幻灯片 1–100 未上传） | [第1课-什么是组合数学.html](ch01-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%84%E5%90%88%E6%95%B0%E5%AD%A6/%E7%AC%AC1%E8%AF%BE-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BB%84%E5%90%88%E6%95%B0%E5%AD%A6.html) |
 | 2 | [鸽巢原理](ch02-%E9%B8%BD%E5%B7%A2%E5%8E%9F%E7%90%86) | [02 The Pigeonhole Principle.pdf](ch02-%E9%B8%BD%E5%B7%A2%E5%8E%9F%E7%90%86/02%20The%20Pigeonhole%20Principle.pdf) | [第2课-鸽巢原理.html](ch02-%E9%B8%BD%E5%B7%A2%E5%8E%9F%E7%90%86/%E7%AC%AC2%E8%AF%BE-%E9%B8%BD%E5%B7%A2%E5%8E%9F%E7%90%86.html) |
 | 3 | [排列与组合](ch03-%E6%8E%92%E5%88%97%E4%B8%8E%E7%BB%84%E5%90%88) | [03 Permutations and Combinations.pdf](ch03-%E6%8E%92%E5%88%97%E4%B8%8E%E7%BB%84%E5%90%88/03%20Permutations%20and%20Combinations.pdf) | [第3课-排列与组合.html](ch03-%E6%8E%92%E5%88%97%E4%B8%8E%E7%BB%84%E5%90%88/%E7%AC%AC3%E8%AF%BE-%E6%8E%92%E5%88%97%E4%B8%8E%E7%BB%84%E5%90%88.html) |
 | 4 | [生成排列和组合](ch04-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88) | [04 Generating Permutations and Combinations.pdf](ch04-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88/04%20Generating%20Permutations%20and%20Combinations.pdf) | [第4课-生成排列和组合.html](ch04-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88/%E7%AC%AC4%E8%AF%BE-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88.html) |
