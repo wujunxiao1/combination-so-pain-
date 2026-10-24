@@ -151,6 +151,17 @@ details{margin-top:.5rem}
 summary{cursor:pointer;color:var(--accent);font-size:.9rem}
 details[open] summary{margin-bottom:.3rem}
 .ans{font-size:.95rem}
+/* möbius */
+svg .mbx rect{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+svg .mbx.pos rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+svg .mbx.neg rect{fill:var(--paper);stroke:var(--warn);stroke-width:2}
+svg .mbx.top rect{stroke-width:3.5}
+svg .mbx.off{opacity:.4}
+svg .mboff{opacity:.25}
+svg text.mbl{font-size:13px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+svg text.mbv{font-size:11px;fill:var(--muted);text-anchor:middle;dominant-baseline:central}
+svg text.mbs{font-size:17px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+svg .pos text.mbs{fill:var(--accent)} svg .neg text.mbs{fill:var(--warn)}
 @media (max-width:480px){h1{font-size:1.55rem}.calc{font-size:.85rem}}
 </style>
 
@@ -763,21 +774,22 @@ details[open] summary{margin-bottom:.3rem}
 
 <!-- ============ 8 ============ -->
 <h2 id="mob">8　Möbius 反演（了解）（幻灯片 286–288）</h2>
-<p class="tip">讲义只有 3 页，学习计划说了解即可：知道它是什么样子、知道容斥原理是它的特例就够了。</p>
+<p class="tip">这一节只要求了解。读完能做到两件事就够了：会用"符号规则"从 G 算出 F；知道容斥原理是它的一个特例。</p>
 
-<h3>先看最简单的"反演"：前缀和与差</h3>
-<p>第4课讲过偏序。最简单的偏序是一条链 1 &lt; 2 &lt; 3 &lt; …。在链上，如果 G(k) = F(1) + F(2) + … + F(k)（"把所有 ≤ k 的值加起来"），那么从 G 反推 F 很容易：F(k) = G(k) − G(k−1)。例：F = 3, 1, 4，则 G = 3, 4, 8；反过来 F(3) = 8 − 4 = 4。</p>
-<p>Möbius 反演回答同样的问题，只是把链换成别的偏序集。讲义用的是<b>子集按 ⊆ 排的偏序集</b>（第5课 Sperner 定理那里画过它的 Hasse 图）。</p>
+<h3>8.1 先看一条链：余额和每月存入</h3>
+<p>每个月往账户里存一笔钱。F(k) 是第 k 个月存入多少，G(k) 是第 k 个月月底的余额。</p>
+<div class="scroll"><table>
+<tr><th>月份 k</th><td class="mono">1</td><td class="mono">2</td><td class="mono">3</td><td class="mono">4</td></tr>
+<tr><th>存入 F(k)</th><td class="mono">3</td><td class="mono">1</td><td class="mono">4</td><td class="mono">2</td></tr>
+<tr><th>余额 G(k)</th><td class="mono">3</td><td class="mono">4</td><td class="mono">8</td><td class="mono">10</td></tr>
+</table></div>
+<p>从 F 算 G 是把前面的全加起来：G(k) = F(1) + … + F(k)。反过来，只看到余额，想知道某个月存了多少，就用这个月的余额减上个月的余额：F(k) = G(k) − G(k−1)。例如 F(3) = 8 − 4 = 4。</p>
+<p>Möbius 反演问的就是这个"反过来求"的问题，只是把"月份"换成<b>子集</b>，把"在它前面的月份"换成"<b>它的子集</b>"。</p>
 
-<h3>子集上的版本 (6.7)、(6.8)</h3>
-<div class="rule">
-<p>Xₙ = {1, …, n}，F 是给每个子集一个实数的函数。定义</p>
-<p class="mono">(6.7)　G(K) = Σ F(L)，对所有 L ⊆ K 求和</p>
-<p>那么 F 可以从 G 还原：</p>
-<p class="mono">(6.8)　F(K) = Σ (−1)^(|K|−|L|) G(L)，对所有 L ⊆ K 求和</p>
-</div>
-<p>小例子 n = 2：设 F(∅) = 3，F({1}) = 1，F({2}) = 4，F({1,2}) = 2。按 (6.7)：G(∅) = 3，G({1}) = 3 + 1 = 4，G({2}) = 3 + 4 = 7，G({1,2}) = 3 + 1 + 4 + 2 = 10。用 (6.8) 还原 F({1,2})：</p>
-<div class="calc">F({1,2}) = G({1,2}) − G({1}) − G({2}) + G(∅) = 10 − 4 − 7 + 3 = 2　✓</div>
+<h3>8.2 换成子集：F 和 G 各是什么</h3>
+<p>把 {1, 2} 的四个子集画成 Hasse 图（第5课 Sperner 定理那里见过）：小的在下，大的在上，有包含关系的连线。给每个子集 K 写一个数 F(K)，可以把它想成"K 这个格子自己装的数"。</p>
+<div class="rule"><p><b>G(K) = K 自己和它下面所有子集的 F 加起来。</b></p>
+<p class="mono">(6.7)　G(K) = Σ F(L)，对所有 L ⊆ K 求和</p></div>
 <div class="figs"><figure>
 <svg viewBox="0 0 300 190" style="max-width:360px" role="img" aria-label="{1,2} 的子集 Hasse 图，每个子集标出 F 和 G">
 <line class="edge" x1="150" y1="30" x2="70" y2="98"/><line class="edge" x1="150" y1="30" x2="230" y2="98"/>
@@ -791,17 +803,133 @@ details[open] summary{margin-bottom:.3rem}
 <text class="val" x="210" y="132">F=4，G=7</text>
 <text class="val" x="174" y="182">F=3，G=3</text>
 </svg>
-<figcaption>G(K) = K 和它下面所有子集的 F 之和</figcaption>
+<figcaption>G(K) = K 和它下面所有格子的 F 之和</figcaption>
 </figure></div>
-<p><b>为什么符号这样交错</b>：看某个 F(M) 在 (6.8) 右边出现几次。它出现在每个满足 M ⊆ L ⊆ K 的 G(L) 里。这样的 L 由"K − M 里的元素放不放进去"决定，设 K − M 有 t 个元素，L 比 M 多 j 个元素的有 C(t,j) 个，符号是 (−1)^(t−j)。加起来是 Σ C(t,j)(−1)^(t−j) = (1−1)ᵗ，t ≥ 1 时为 0，只有 M = K（t = 0）时是 1。<b>和第2节的理由完全一样</b>，又是第5课的交错和。</p>
+<p>例如 G({1}) = F(∅) + F({1}) = 3 + 1 = 4；G({1,2}) 是四个格子全加起来：3 + 1 + 4 + 2 = 10。</p>
 
-<h3>容斥原理是它的特例（幻灯片 287–288）</h3>
+<h3>8.3 反过来：只知道 G，怎么求 F</h3>
+<p>从下往上，一个一个求：</p>
 <ol class="steps">
-<li>A₁, …, Aₙ 是 S 的子集。对 K ⊆ Xₙ，令 F(K) = S 中"<b>恰好</b>属于那些下标不在 K 里的 Aᵢ"的元素个数：对 i ∈ K 不在 Aᵢ 里，对 j ∉ K 在 Aⱼ 里。</li>
-<li>那么 G(K) = Σ F(L)（L ⊆ K）数的是"至少属于所有下标不在 K 里的 Aⱼ"的元素，即 G(K) = |∩ⱼ∉K Aⱼ|（K = Xₙ 时是空交，约定为 S）。</li>
-<li>F(Xₙ) 就是一个 Aᵢ 都不属于的元素个数 = |Ā₁ ∩ … ∩ Āₙ|。代入 (6.8)，把 L 换成它的补集 J，得到 (6.11)：|Ā₁ ∩ … ∩ Āₙ| = Σ (−1)^|J| |∩ᵢ∈J Aᵢ|，对所有 J ⊆ Xₙ 求和，这正是容斥公式 (6.1)。</li>
+<li><b>F(∅)</b>：∅ 下面没有别的子集，G(∅) 里只有它自己，所以 F(∅) = G(∅) = 3。</li>
+<li><b>F({1})</b>：G({1}) = F(∅) + F({1})，把 F(∅) 去掉：F({1}) = G({1}) − G(∅) = 4 − 3 = 1。这和链上"这个月减上个月"完全一样。</li>
+<li><b>F({2})</b>：同理，F({2}) = G({2}) − G(∅) = 7 − 3 = 4。</li>
+<li><b>F({1,2})</b>：G({1,2}) 里装着全部四个 F，要把 F(∅)、F({1})、F({2}) 去掉，只留 F({1,2})。先减 G({1})，去掉了 F(∅) 和 F({1})；再减 G({2})，去掉了 F(∅) 和 F({2})。这时 F(∅) 被减了<b>两次</b>，多减了一次，所以把 G(∅) 加回来一次。</li>
 </ol>
-<p>用第1节的例子核对（1 到 20，A₁ = 2 的倍数，A₂ = 3 的倍数）：G({1,2}) = |S| = 20，G({1}) = |A₂| = 6，G({2}) = |A₁| = 10，G(∅) = |A₁∩A₂| = 3。F({1,2}) = 20 − 6 − 10 + 3 = 7，就是两个性质都没有的 7 个数。</p>
+<div class="calc">F({1,2}) = G({1,2}) − G({1}) − G({2}) + G(∅) = 10 − 4 − 7 + 3 = 2　✓</div>
+<p>最后一步就是第2节两个集合的容斥：G({1}) 和 G({2}) 有一块重叠 F(∅)，减了两次，就要加回一次。</p>
+
+<h3>8.4 符号规则</h3>
+<p>算 F(K) 时，用到的是 K 自己和 K 的所有子集 L 的 G(L)。每一项是加还是减，只看 <b>L 比 K 少几个元素</b>：</p>
+<div class="scroll"><table>
+<tr><th>L 比 K 少几个元素</th><th>0 个</th><th>1 个</th><th>2 个</th><th>3 个</th></tr>
+<tr><th>符号</th><td><b>+</b></td><td><b>−</b></td><td><b>+</b></td><td><b>−</b></td></tr>
+<tr><th>K = {1,2}</th><td>G({1,2})</td><td>G({1})、G({2})</td><td>G(∅)</td><td></td></tr>
+<tr><th>K = {1,2,3}</th><td>G({1,2,3})</td><td>G({1,2})、G({1,3})、G({2,3})</td><td>G({1})、G({2})、G({3})</td><td>G(∅)</td></tr>
+</table></div>
+<div class="rule"><p><b>少偶数个元素的取 +，少奇数个元素的取 −。</b>|K| − |L| 就是"少了几个"，所以写成公式是</p>
+<p class="mono">(6.8)　F(K) = Σ (−1)^(|K|−|L|) G(L)，对所有 L ⊆ K 求和</p></div>
+<p>K = {1,2,3} 时一共 8 项：</p>
+<div class="calc">F({1,2,3}) = G({1,2,3})<br>
+<span class="ind">− [ G({1,2}) + G({1,3}) + G({2,3}) ]</span><br>
+<span class="ind">+ [ G({1}) + G({2}) + G({3}) ]</span><br>
+<span class="ind">− G(∅)</span></div>
+
+<div class="machine" id="mbBox">
+<div class="head"><span class="title">点一个子集 K，看它用到哪些 G、各取什么符号</span><span class="count" id="mbCount"></span></div>
+<p class="tip" style="margin-top:0">下面是 {1,2,3} 的 8 个子集，每个格子写着一组示例数值 F 和由它算出的 G。绿色格子取 +，红色格子取 −，灰色的不用。</p>
+<svg id="mbSvg" viewBox="0 0 360 300" role="img" aria-label="{1,2,3} 的子集 Hasse 图，标出所选 K 用到的子集和符号"></svg>
+<div class="controls" id="mbBtns"><span class="tip">选 K：</span></div>
+<div class="caption" id="mbCap1"></div>
+<div class="caption" id="mbCap2"></div>
+</div>
+
+<h3>8.5 为什么这样刚好对</h3>
+<p>还是以 K = {1,2,3} 为例。右边每个 G(L) 都是一堆 F 的和。把 8 个 G 全拆开，数一数每个 F 一共被算了几次（加一次记 +1，减一次记 −1）：</p>
+<div class="scroll"><table>
+<tr><th>哪个 F</th><th>出现在哪些 G 里</th><th>被算的次数</th></tr>
+<tr><td>F(∅)</td><td>全部 8 个：1 个取 +，3 个取 −，3 个取 +，1 个取 −</td><td class="mono">1 − 3 + 3 − 1 = 0</td></tr>
+<tr><td>F({1})</td><td>G({1,2,3})；G({1,2})、G({1,3})；G({1})</td><td class="mono">1 − 2 + 1 = 0</td></tr>
+<tr><td>F({1,2})</td><td>G({1,2,3})；G({1,2})</td><td class="mono">1 − 1 = 0</td></tr>
+<tr><td>F({1,2,3})</td><td>只有 G({1,2,3})</td><td class="mono">1</td></tr>
+</table></div>
+<p class="tip">F({2})、F({3}) 和 F({1}) 一样，F({1,3})、F({2,3}) 和 F({1,2}) 一样。</p>
+<p>只有 F({1,2,3}) 留下一次，其余全部抵消，所以右边正好等于 F({1,2,3})。抵消的规律 1 − 3 + 3 − 1、1 − 2 + 1、1 − 1 就是第5课的交错和 C(t,0) − C(t,1) + C(t,2) − … = 0（t ≥ 1），这里 t 是这个 F 的格子比 K 少几个元素。换成别的 K 也是同一个道理，<b>和第2节证明容斥原理的理由完全一样</b>。</p>
+
+<h3>8.6 容斥原理是它的特例（幻灯片 287–288）</h3>
+<p>用第1节的例子：S = {1, 2, …, 20}，性质 1 是"2 的倍数"（集合 A₁），性质 2 是"3 的倍数"（集合 A₂）。要数两个性质都没有的数。</p>
+<p>对每个数，看它<b>缺哪些性质</b>：6 两个性质都有，缺的是 ∅；4 是 2 的倍数但不是 3 的倍数，缺 {2}；9 缺 {1}；5 两个都缺，缺 {1,2}。于是令</p>
+<ul>
+<li>F(K) = 缺的性质<b>恰好</b>是 K 的数有几个；</li>
+<li>G(K) = Σ F(L)（L ⊆ K）= 缺的性质<b>都在 K 里面</b>的数有几个。换句话说，K 以外的性质它全都有。</li>
+</ul>
+<div class="scroll"><table>
+<tr><th>K</th><th>F(K)：缺的恰好是 K</th><th>G(K) 的意思</th><th>G(K)</th></tr>
+<tr><td>∅</td><td>3 个：6, 12, 18</td><td>两个性质都有：A₁ ∩ A₂</td><td class="mono">3</td></tr>
+<tr><td>{1}</td><td>3 个：3, 9, 15</td><td>有性质 2：A₂</td><td class="mono">6</td></tr>
+<tr><td>{2}</td><td>7 个：2, 4, 8, 10, 14, 16, 20</td><td>有性质 1：A₁</td><td class="mono">10</td></tr>
+<tr><td>{1,2}</td><td>7 个：1, 5, 7, 11, 13, 17, 19</td><td>没有要求：整个 S</td><td class="mono">20</td></tr>
+</table></div>
+<p>每个 G 都是"有某几个性质的数有几个"，正是容斥里容易直接数的量。我们要的是 F({1,2})，直接套 8.3 的结果：</p>
+<div class="calc">F({1,2}) = G({1,2}) − G({1}) − G({2}) + G(∅)<br>
+<span class="ind">= |S| − |A₂| − |A₁| + |A₁ ∩ A₂|</span><br>
+<span class="ind">= 20 − 6 − 10 + 3 = 7</span></div>
+<p>第二行就是容斥公式。n 个性质时也一样：一个性质都没有的个数是 F(Xₙ)，用 (6.8) 展开，每一项 G(L) 是"L 以外的性质全都有"的个数，也就是那几个 Aⱼ 的交；L 少了几个元素，就是交了几个集合，符号也跟着定下来。这就是 (6.11)：</p>
+<p class="mono">|Ā₁ ∩ … ∩ Āₙ| = Σ (−1)^|J| |∩ᵢ∈J Aᵢ|，J 取遍 Xₙ 的所有子集（J = ∅ 时这个交约定为 S）</p>
+
+<div class="rule">
+<p><b>这一节记住三句话</b></p>
+<p>① G(K) = K 和它所有子集的 F 之和。</p>
+<p>② 反过来求 F(K)：把 K 所有子集的 G 加起来，少偶数个元素的取 +，少奇数个元素的取 −。</p>
+<p>③ 取 F(K) = "缺的性质恰好是 K 的个数"，②就变成容斥原理。</p>
+</div>
+
+<script>
+(function(){
+  var F=[1,2,0,1,3,2,1,4];               // 下标是子集的二进制：第0位=1，第1位=2，第2位=3
+  var G=F.map(function(_,k){var s=0;for(var l=0;l<8;l++)if((l&k)===l)s+=F[l];return s;});
+  function pop(m){return (m&1)+(m>>1&1)+(m>>2&1);}
+  function nm(m){if(!m)return "∅";var a=[];for(var i=0;i<3;i++)if(m>>i&1)a.push(i+1);return "{"+a.join(",")+"}";}
+  var X={0:180,1:70,2:180,4:290,3:70,5:180,6:290,7:180};
+  function Y(m){return 270-80*pop(m);}
+  var svg=document.getElementById("mbSvg"),btns=document.getElementById("mbBtns");
+  var NS="http://www.w3.org/2000/svg",K=7;
+  function el(t,a,txt){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+  for(var m=0;m<8;m++)(function(m){
+    var b=document.createElement("button");b.type="button";b.id="mbK"+m;b.textContent=nm(m);
+    b.addEventListener("click",function(){K=m;draw();});btns.appendChild(b);
+  })(m);
+  function draw(){
+    svg.textContent="";
+    for(var a=0;a<8;a++)for(var i=0;i<3;i++){var b=a|(1<<i);if(b===a)continue;
+      var on=(b&K)===b;
+      svg.appendChild(el("line",{"class":"edge"+(on?"":" mboff"),x1:X[a],y1:Y(a)-21,x2:X[b],y2:Y(b)+21}));}
+    for(var m=0;m<8;m++){
+      var inK=(m&K)===m,j=pop(K)-pop(m),cls=inK?(j%2?"neg":"pos"):"off";
+      var g=el("g",{"class":"mbx "+cls+(m===K?" top":"")});
+      g.appendChild(el("rect",{x:X[m]-46,y:Y(m)-21,width:92,height:42,rx:7}));
+      g.appendChild(el("text",{"class":"mbl",x:X[m],y:Y(m)-6},nm(m)));
+      g.appendChild(el("text",{"class":"mbv",x:X[m],y:Y(m)+11},"F="+F[m]+"  G="+G[m]));
+      if(inK)g.appendChild(el("text",{"class":"mbs",x:X[m]-36,y:Y(m)-5},j%2?"−":"+"));
+      g.style.cursor="pointer";
+      (function(m){g.addEventListener("click",function(){K=m;draw();});})(m);
+      svg.appendChild(g);
+    }
+    for(var m=0;m<8;m++)document.getElementById("mbK"+m).classList.toggle("sel",m===K);
+    var names=[],nums=[],cnt=[0,0,0,0];
+    for(var j=0;j<=pop(K);j++)for(var l=0;l<8;l++)if((l&K)===l&&pop(K)-pop(l)===j){
+      var s=j%2?" − ":" + ";cnt[j]++;
+      names.push((names.length?s:"")+"G("+nm(l)+")");nums.push((nums.length?s:"")+G[l]);}
+    var v=0;for(var l=0;l<8;l++)if((l&K)===l)v+=((pop(K)-pop(l))%2?-1:1)*G[l];
+    document.getElementById("mbCap1").innerHTML="F("+nm(K)+") = "+names.join("");
+    document.getElementById("mbCap2").innerHTML=(nums.length>1?"= "+nums.join("")+" = ":"= ")+v+
+      "，和格子里写的 <span class=\"hl\">F("+nm(K)+") = "+F[K]+"</span> 一致 ✓";
+    var parts=[];for(var j=0;j<=pop(K);j++)parts.push("少 "+j+" 个元素的 "+cnt[j]+" 项取 "+(j%2?"−":"+"));
+    document.getElementById("mbCount").textContent="K 有 "+pop(K)+" 个元素，用到 "+(1<<pop(K))+" 个子集";
+    svg.setAttribute("aria-label",nm(K)+" 用到的子集："+parts.join("，"));
+  }
+  draw();
+})();
+</script>
 
 <!-- ============ practice ============ -->
 <h2 id="practice">练习（Exercises.pdf 题号）</h2>
