@@ -1,6 +1,6 @@
 # 组合数学学习笔记
 
-郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。前6章均配有 HTML 交互笔记，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
+郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。前7章均配有 HTML 交互笔记，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
 
 | 章 | 主题 | 讲义 | 课程笔记 |
 |---|---|---|---|
@@ -10,7 +10,7 @@
 | 4 | [生成排列和组合](ch04-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88) | [04 Generating Permutations and Combinations.pdf](ch04-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88/04%20Generating%20Permutations%20and%20Combinations.pdf) | [第4课-生成排列和组合.html](ch04-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88/%E7%AC%AC4%E8%AF%BE-%E7%94%9F%E6%88%90%E6%8E%92%E5%88%97%E5%92%8C%E7%BB%84%E5%90%88.html) |
 | 5 | [二项式系数](ch05-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0) | [05 The Binomial Coefficients.pdf](ch05-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0/05%20The%20Binomial%20Coefficients.pdf) | [第5课-二项式系数.html](ch05-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0/%E7%AC%AC5%E8%AF%BE-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0.html) |
 | 6 | [容斥原理](ch06-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86) | [06 The Inclusion-Exclusion Principle and Applications.pdf](ch06-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86/06%20The%20Inclusion-Exclusion%20Principle%20and%20Applications.pdf) | [第6课-容斥原理.html](ch06-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86/%E7%AC%AC6%E8%AF%BE-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86.html) |
-| 7 | [递推与生成函数](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0) | [07 Recurrence Relations and Generating Functions.pdf](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0/07%20Recurrence%20Relations%20and%20Generating%20Functions.pdf) | 待写 |
+| 7 | [递推与生成函数](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0) | [07 Recurrence Relations and Generating Functions.pdf](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0/07%20Recurrence%20Relations%20and%20Generating%20Functions.pdf) | [第7课-递推关系和生成函数.html](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0/%E7%AC%AC7%E8%AF%BE-%E9%80%92%E6%8E%A8%E5%85%B3%E7%B3%BB%E5%92%8C%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0.html) |
 | 8 | [特殊计数序列](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97) | [08 Special Counting Sequences.pdf](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97/08%20Special%20Counting%20Sequences.pdf) | 待写 |
 | 9 | [二部图的匹配](ch09-%E4%BA%8C%E9%83%A8%E5%9B%BE%E7%9A%84%E5%8C%B9%E9%85%8D) | [09 Matchings in Bipartite Graphs.pdf](ch09-%E4%BA%8C%E9%83%A8%E5%9B%BE%E7%9A%84%E5%8C%B9%E9%85%8D/09%20Matchings%20in%20Bipartite%20Graphs.pdf) | 待写 |
 | 10 | [组合设计](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1) | [10 Combinatorial Designs.pdf](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1/10%20Combinatorial%20Designs.pdf) | 待写 |

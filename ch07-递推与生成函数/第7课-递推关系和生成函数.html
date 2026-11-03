@@ -1,0 +1,1365 @@
+<title>第7课 递推关系和生成函数</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; each idea starts with "why", then a small example, then the rule. Demos are "machine" panels with the reason for each step under them. */
+:root{
+  --paper:#f5f6f3; --surface:#ffffff; --ink:#1c2422; --muted:#5d6a66; --line:#d7ddd9;
+  --accent:#1f6f5c; --accent-soft:#e1efe9; --mark:#f3cf5b; --mark-ink:#3b2f00; --warn:#b4472f;
+  --g1:#1f6f5c; --g2:#2f6db5; --g3:#b4472f; --g4:#7d4fb0; --g5:#8a6400;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068;
+  --g1:#62c3a6; --g2:#78aeea; --g3:#e48068; --g4:#b99ae6; --g5:#e2bd4f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
+  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068;
+  --g1:#62c3a6; --g2:#78aeea; --g3:#e48068; --g4:#b99ae6; --g5:#e2bd4f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;margin:0}
+.wrap{max-width:46rem;margin:0 auto;padding-inline:16px;padding-block:2rem 4rem}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35}
+h1{font-size:1.9rem;margin:0 0 .4rem}
+h2{font-size:1.45rem;margin:3rem 0 .8rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.12rem;margin:1.8rem 0 .5rem}
+p{margin:.6rem 0}
+ul{padding-left:1.3rem}
+a{color:var(--accent)}
+.lede{color:var(--muted)}
+.meta{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+code,.mono{font-family:var(--mono);font-size:.95em}
+p.mono{overflow-x:auto}
+b,strong{font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.2rem 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;padding:.2rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:.9rem;background:var(--surface)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rule{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0;overflow-x:auto}
+.rule p{margin:.2rem 0}
+ol.steps{padding-left:1.4rem;margin:.6rem 0}
+ol.steps li{margin:.25rem 0}
+.tip{font-size:.95rem;color:var(--muted)}
+.tip b{color:var(--ink)}
+.calc{font-family:var(--mono);font-size:.92rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.5rem .8rem;margin:.6rem 0;overflow-x:auto;line-height:1.9}
+.calc .ind{padding-left:1.2em}
+.calc .sumln{color:var(--muted)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .1em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .2em}
+/* machine panel */
+.machine{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.2rem 0}
+.machine .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.machine .title{font-weight:700;font-size:.95rem}
+.machine .count{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.machine .calc{background:var(--paper)}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+button,select,input{font:inherit}
+button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.3rem .8rem;cursor:pointer;font-size:.9rem}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,.toc a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text]{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.25rem .5rem;font-size:.9rem;max-width:100%}
+input[type=text]{font-family:var(--mono);width:100%}
+.caption{margin-top:.7rem;padding:.6rem .8rem;background:var(--paper);border-radius:6px;font-size:.95rem;min-height:3.2em;overflow-x:auto}
+.caption .hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:3px}
+.caption + .caption{margin-top:.4rem}
+.regbtns{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.regbtns button{font-size:.8rem;padding:.15rem .5rem;font-family:var(--mono)}
+.facs{display:grid;gap:.45rem;margin:.4rem 0}
+.fac{display:grid;grid-template-columns:minmax(0,1fr);gap:.15rem;font-size:.9rem}
+.fac .nm{font-weight:600}
+.fac .pl{font-family:var(--mono);font-size:.85rem;color:var(--muted);overflow-x:auto;white-space:nowrap}
+.lst{font-family:var(--mono);font-size:.85rem;line-height:1.7;word-break:break-word}
+/* figures */
+.figs{display:flex;flex-wrap:wrap;gap:1rem;margin:.8rem 0}
+figure{margin:.8rem 0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem;flex:1 1 15rem;min-width:0}
+.figs figure{margin:0}
+figure svg,.machine svg{width:100%;height:auto;display:block;margin:0 auto}
+figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.3rem}
+svg text{fill:var(--ink);font-family:var(--mono);font-size:13px}
+svg text.mid{text-anchor:middle}
+svg text.sm{font-size:11px;fill:var(--muted)}
+svg text.lb{font-size:12px;font-family:var(--sans)}
+svg .cir{fill:var(--accent);fill-opacity:.07;stroke:var(--accent);stroke-width:1.6}
+svg .cellg{fill:none;stroke:var(--line);stroke-width:1}
+svg .tv{fill:var(--g2);fill-opacity:.28;stroke:var(--g2);stroke-width:1.5}
+svg .th{fill:var(--g1);fill-opacity:.28;stroke:var(--g1);stroke-width:1.5}
+svg .tm{fill:var(--g5);fill-opacity:.28;stroke:var(--g5);stroke-width:1.5}
+svg .rowhl{fill:none;stroke:var(--warn);stroke-width:1.6;stroke-dasharray:4 3}
+svg .arr{stroke:var(--muted);stroke-width:1.4;fill:none}
+svg .poly{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+svg .polyn{fill:none;stroke:var(--ink);stroke-width:1.5}
+svg .tri{fill:var(--mark);fill-opacity:.6}
+svg .k1{fill:var(--g2);fill-opacity:.18}
+svg .k2{fill:var(--g4);fill-opacity:.18}
+svg .base{stroke:var(--warn);stroke-width:3.5;stroke-linecap:round}
+svg .diag{stroke:var(--ink);stroke-width:1.3}
+svg .dg2{stroke:var(--g2);stroke-width:2}
+svg .seg{stroke:var(--warn);stroke-width:2;stroke-dasharray:5 4}
+svg .dot{fill:var(--warn)}
+svg text.f2{fill:var(--g2);font-weight:600}
+svg text.f4{fill:var(--g4);font-weight:600}
+svg text.fw{fill:var(--warn);font-weight:600}
+/* tables */
+.scroll{overflow-x:auto;margin:.8rem 0}
+table{border-collapse:collapse;font-size:.93rem;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:.35rem .7rem;text-align:left;white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:.85rem}
+td.mono{font-family:var(--mono)}
+td .hl,span.hl{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+table.num td,table.num th{text-align:right;padding:.3rem .5rem;font-family:var(--mono)}
+table.num td:first-child,table.num th:first-child{text-align:left;font-family:var(--sans)}
+tr.fin td{font-weight:700;color:var(--accent)}
+tr.new td{background:var(--accent-soft)}
+td.ok{color:var(--accent);font-weight:600}
+td.bad{color:var(--warn);font-weight:600}
+/* practice */
+.q{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600}
+.q .orig{font-size:.85rem;color:var(--muted)}
+details{margin-top:.5rem}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+details[open] summary{margin-bottom:.3rem}
+.ans{font-size:.95rem}
+@media (max-width:480px){h1{font-size:1.55rem}.calc{font-size:.85rem}.machine{padding:.8rem}}
+</style>
+
+<div class="wrap">
+<p class="meta">组合数学 · 讲义 07 · 幻灯片第 289–382 页 · Brualdi 第7章</p>
+<h1>第7课　递推关系和生成函数</h1>
+<p class="lede">第1课数 2×n 棋盘的铺法时，我们没有一个一个去数，而是发现 f(n) = f(n−1) + f(n−2)：大问题的答案可以用小问题的答案算出来。这种式子叫<b>递推关系</b>。这一课做两件事。第一，把递推关系"解开"，得到一个直接代 n 就能算的公式（特征方程、特解）。第二，引入<b>生成函数</b>：把整串数 h₀, h₁, h₂, … 写成 h₀ + h₁x + h₂x² + … 这样一个"多项式"，让多项式乘法替我们计数，也用它来解递推。最后是<b>指数生成函数</b>，专门用来数"有顺序"的排列。每个方法都先用一个小数字说明为什么需要它，再给一般规则；三个演示可以一项一项地对账。</p>
+<ul class="toc">
+  <li><a href="#seq">1 数列和递推</a></li>
+  <li><a href="#fib">2 Fibonacci 的公式</a></li>
+  <li><a href="#lin">3 特征方程</a></li>
+  <li><a href="#rep">4 重根</a></li>
+  <li><a href="#non">5 非齐次递推</a></li>
+  <li><a href="#gf">6 生成函数</a></li>
+  <li><a href="#rgf">7 用生成函数解递推</a></li>
+  <li><a href="#geo">8 几何例子</a></li>
+  <li><a href="#egf">9 指数生成函数</a></li>
+  <li><a href="#practice">练习</a></li>
+</ul>
+
+<!-- ============ 1 ============ -->
+<h2 id="seq">1　数列和递推关系（幻灯片 289–298）</h2>
+
+<h3>为什么要谈"数列"</h3>
+<p>计数问题的答案往往跟一个参数 n 有关：棋盘有多长、有几个盘子、有几种水果。所以答案不是一个数，而是"每个 n 一个数"。比如第1课 2×n 棋盘的铺法数，n = 0, 1, 2, 3, 4, 5 时是 1, 1, 2, 3, 5, 8。把它们按 n 排成一串，就是一个<b>数列</b>：</p>
+<p class="mono">h₀, h₁, h₂, …, hₙ, …　　（7.1）</p>
+<p>hₙ 叫<b>通项</b>（第 n 项）。下标从 0 开始，是因为 n = 0 的情形（空棋盘、零个盘子）通常也有意义。</p>
+
+<h3>两种最熟悉的数列（幻灯片 289–291）</h3>
+<p>先看例子：1, 3, 5, 7, … 每一项比前一项多 2；1, 2, 4, 8, … 每一项是前一项的 2 倍。</p>
+<ol class="steps">
+<li><b>等差数列</b>：每项比前一项多一个固定的数 q。例：正奇数 1, 3, 5, …（h₀ = 1，q = 2）；常数列 4, 4, 4, …（h₀ = 4，q = 0）；0, 1, 2, …（h₀ = 0，q = 1）。通项 hₙ = h₀ + nq，因为从 h₀ 走到 hₙ 加了 n 次 q。</li>
+<li><b>等比数列</b>：每项是前一项的固定倍数 q。例：2 的幂 1, 2, 4, …（h₀ = 1，q = 2）。通项 hₙ = qⁿh₀，因为乘了 n 次 q。</li>
+</ol>
+<p>讲义还举了一个计数出来的等比数列（幻灯片 291）：多重集 {4·a₀, 2·a₁, 2·a₂, …, 2·aₙ}（a₀ 有 4 个，后面 n 种各 2 个）有多少个子多重集？a₀ 可以取 0 到 4 个，5 种选法；其余每种取 0、1、2 个，各 3 种。乘法原理：hₙ = 5·3ⁿ。n = 1 时是 {4·a, 2·b}，5 × 3 = 15 个。<b>为什么是等比</b>：n 加 1 就是多一种可以取 0、1、2 个的东西，选法多乘一个 3。</p>
+<div class="rule">
+<p>等差：h₀, h₀+q, h₀+2q, …, h₀+nq, …　（7.2）</p>
+<p>等比：h₀, qh₀, q²h₀, …, qⁿh₀, …　（7.3）</p>
+<p>两种数列都由首项 h₀ 和 q 完全确定。</p>
+</div>
+
+<h3>部分和（幻灯片 292–293）</h3>
+<p>常常要的不是第 n 项，而是前面所有项的总和。例：1 + 3 + 5 + 7 = 16。把 h₀ 到 hₙ 的和记作 sₙ，s₀, s₁, s₂, … 又是一个新数列，叫<b>部分和</b>。</p>
+<div class="rule">
+<p>等差：sₙ = (h₀) + (h₀+q) + … + (h₀+nq) = (n+1)h₀ + q·n(n+1)/2</p>
+<p>等比：sₙ = h₀ + qh₀ + … + qⁿh₀ = h₀(qⁿ⁺¹ − 1)/(q − 1)（q ≠ 1）；q = 1 时 sₙ = (n+1)h₀</p>
+</div>
+<p><b>为什么</b>：等差的和里 h₀ 出现 n+1 次，q 一共出现 0 + 1 + … + n = n(n+1)/2 次。核对：1 + 3 + 5 + 7 是 n = 3，4·1 + 2·3·4/2 = 4 + 12 = 16。等比的和：sₙ 乘 q 再减 sₙ，中间的项全部抵消，只剩 qⁿ⁺¹h₀ − h₀，所以 (q−1)sₙ = (qⁿ⁺¹−1)h₀。核对：1 + 2 + 4 + 8 = (2⁴ − 1)/(2 − 1) = 15。</p>
+
+<h3>递推关系：用前面的项算下一项（幻灯片 294）</h3>
+<p>等差数列可以写成 hₙ = hₙ₋₁ + q，等比数列可以写成 hₙ = q·hₙ₋₁：只要知道前一项，就能算出这一项。这种"用前面的项表示后面的项"的式子叫<b>递推关系</b>。上面两个是最简单的递推关系；下面这个稍复杂一点。</p>
+
+<h3>例：n 个圆把平面分成几块（幻灯片 294–295）</h3>
+<p>平面上画 n 个圆，要求<b>两两相交</b>（任意两个圆都交于两个不同的点，不能相离也不能相切），并且<b>处于一般位置</b>（没有三个圆过同一个点）。这 n 个圆把平面分成 hₙ 块，求 hₙ。</p>
+<figure>
+<svg viewBox="0 0 440 140" role="img" aria-label="一、二、三、四个两两相交的圆，分别把平面分成 2、4、8、14 块">
+  <circle class="cir" cx="55" cy="60" r="30"/>
+  <circle class="cir" cx="150" cy="60" r="28"/><circle class="cir" cx="180" cy="60" r="28"/>
+  <circle class="cir" cx="260" cy="50" r="26"/><circle class="cir" cx="290" cy="50" r="26"/><circle class="cir" cx="275" cy="76" r="26"/>
+  <circle class="cir" cx="374" cy="49" r="24"/><circle class="cir" cx="396" cy="49" r="24"/><circle class="cir" cx="374" cy="71" r="24"/><circle class="cir" cx="396" cy="71" r="24"/>
+  <text class="mid" x="55" y="128">h₁ = 2</text><text class="mid" x="165" y="128">h₂ = 4</text><text class="mid" x="275" y="128">h₃ = 8</text><text class="mid" x="385" y="128">h₄ = 14</text>
+</svg>
+<figcaption>圆外面那一大块也算一块。h₀ = 1（没有圆，整个平面是一块）。</figcaption>
+</figure>
+<p>前几个：h₀ = 1，h₁ = 2，h₂ = 4，h₃ = 8。看起来像 2ⁿ，可是 h₄ = 14，不是 16。<b>只看前几项去猜规律是靠不住的</b>，要找到"为什么"。</p>
+<p><b>加第 n 个圆时多出几块</b>（n ≥ 2）：</p>
+<ol class="steps">
+<li>新圆和原来 n−1 个圆每个都交于 2 点，而且这些点互不相同（一般位置），所以新圆上一共有 2(n−1) 个交点。</li>
+<li>圆上有 m 个点（m ≥ 1）时，这些点把圆切成 m 段弧。所以新圆被切成 2(n−1) 段弧。</li>
+<li>每一段弧都在原来的某一块里面穿过，把那一块一分为二。所以每段弧让块数多 1。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = hₙ₋₁ + 2(n−1)　（n ≥ 2）　（7.4）</p></div>
+<p>核对：h₃ = h₂ + 4 = 8，h₄ = h₃ + 6 = 14。<b>为什么要 n ≥ 2</b>：n = 1 时新圆上没有交点，第 2 步"m 个点切成 m 段"不成立（一个点都没有的圆是一整圈，它把平面分成里外两块，多了 1 块而不是 0 块）。</p>
+<p>把递推一层层展开就得到公式：hₙ = h₁ + 2·1 + 2·2 + … + 2(n−1) = 2 + n(n−1)，即</p>
+<p class="mono">hₙ = n² − n + 2　（n ≥ 1）</p>
+<p>n = 1 时也对（1 − 1 + 2 = 2），但 n = 0 时给出 2，而 h₀ = 1，所以公式不包括 n = 0。</p>
+
+<h3>Fibonacci 的兔子（幻灯片 296–298）</h3>
+<p>问题：年初把一对刚出生的兔子（一公一母）放进围栏。从第二个月起，母兔每个月生一对兔子；每对新兔子也从它们的第二个月起每月生一对。一年后围栏里有几对兔子？</p>
+<p>设 fₙ = 第 n 个月<b>月初</b>的兔子对数。先手算：</p>
+<ol class="steps">
+<li>第 1 个月初：1 对（刚出生，这个月在长大）。f₁ = 1。</li>
+<li>第 2 个月初：还是这 1 对（第 1 个月没生）。f₂ = 1。</li>
+<li>第 2 个月里，这对生了一对。第 3 个月初：2 对。f₃ = 2。</li>
+<li>第 3 个月里，新生的那对还在长大，只有原来那对生。第 4 个月初：2 + 1 = 3 对。</li>
+</ol>
+<p><b>一般的理由</b>：第 n 个月初的兔子分成两部分。一部分是第 n−1 个月初就在的（兔子不会死），有 fₙ₋₁ 对；另一部分是第 n−1 个月里新生的。谁会在第 n−1 个月里生？已经长了至少一个月的兔子，也就是第 n−2 个月初就在的那 fₙ₋₂ 对，每对生一对。所以 fₙ = fₙ₋₁ + fₙ₋₂。</p>
+<div class="scroll"><table class="num">
+<tr><th>月份 n</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td></tr>
+<tr><th>月初对数 fₙ</th><td>1</td><td>1</td><td>2</td><td>3</td><td>5</td><td>8</td><td>13</td><td>21</td><td>34</td><td>55</td><td>89</td><td>144</td><td>233</td></tr>
+</table></div>
+<p>讲义没有写出最后的数。按"第 n 个月初有 fₙ 对"，一年过完就是第 13 个月初，有 f₁₃ = 233 对（第 12 个月初是 144 对）。</p>
+<div class="rule">
+<p><b>Fibonacci 数列</b>（7.5）：f₀ = 0，f₁ = 1，fₙ = fₙ₋₁ + fₙ₋₂（n ≥ 2）</p>
+</div>
+<p>补一个 f₀ = 0，是为了让 f₂ = f₁ + f₀ = 1 也符合递推。前 16 项：</p>
+<div class="scroll"><table class="num">
+<tr><th>n</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+<tr><th>fₙ</th><td>0</td><td>1</td><td>1</td><td>2</td><td>3</td><td>5</td><td>8</td><td>13</td><td>21</td><td>34</td><td>55</td><td>89</td><td>144</td><td>233</td><td>377</td><td>610</td></tr>
+</table></div>
+
+<h3>两个小性质（幻灯片 298）</h3>
+<p><b>部分和</b>：先算 n = 4：f₀ + f₁ + f₂ + f₃ + f₄ = 0 + 1 + 1 + 2 + 3 = 7，而 f₆ = 8，正好差 1。一般地</p>
+<div class="rule"><p class="mono">sₙ = f₀ + f₁ + … + fₙ = fₙ₊₂ − 1　（7.6）</p></div>
+<p><b>为什么</b>（归纳法）：n = 0 时 s₀ = 0 = f₂ − 1。若 sₙ₋₁ = fₙ₊₁ − 1，则 sₙ = sₙ₋₁ + fₙ = fₙ₊₁ + fₙ − 1 = fₙ₊₂ − 1，最后一步就是 Fibonacci 递推。</p>
+<p><b>奇偶性</b>：fₙ 是偶数当且仅当 n 是 3 的倍数。看奇偶：f₀, f₁, f₂, … 是 偶 奇 奇 偶 奇 奇 偶 奇 奇 …，三个一循环。<b>为什么会循环</b>：fₙ 的奇偶只由前两项的奇偶决定（奇 + 奇 = 偶，奇 + 偶 = 奇）。从 (偶, 奇) 出发，下一项是奇，得到 (奇, 奇)；再下一项是偶，得到 (奇, 偶)；再下一项是奇，又回到 (偶, 奇)。三步回到起点，以后就一直重复，偶数恰好出现在 n = 0, 3, 6, … 。</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="fib">2　Fibonacci 数的公式，以及几个计数问题（幻灯片 299–308）</h2>
+
+<h3>为什么想要一个公式</h3>
+<p>想知道 f₃₀，用递推得先把 f₂ 到 f₂₉ 全算一遍。能不能有一个公式，直接把 n = 30 代进去？</p>
+<p><b>想法</b>：等比数列 qⁿ 满足最简单的递推 hₙ = q·hₙ₋₁。那 Fibonacci 递推有没有等比形式的解？试 fₙ = qⁿ（q ≠ 0），代进 fₙ − fₙ₋₁ − fₙ₋₂ = 0（7.7）：</p>
+<p class="mono">qⁿ − qⁿ⁻¹ − qⁿ⁻² = qⁿ⁻²(q² − q − 1) = 0</p>
+<p>q ≠ 0，所以只要 <b>q² = q + 1</b>。先用数试试：q = 1 时左边 1、右边 2，小了；q = 2 时左边 4、右边 3，大了；所以有一个根在 1 和 2 之间。解二次方程：</p>
+<p class="mono">q₁ = (1+√5)/2 ≈ 1.618（记作 φ），　q₂ = (1−√5)/2 ≈ −0.618（记作 ψ）</p>
+<p>核对：φ² ≈ 2.618 = φ + 1。所以 φⁿ 和 ψⁿ 都满足 Fibonacci 递推。可是它们的初值不对：φ⁰ = 1、φ¹ ≈ 1.618，而我们要 f₀ = 0、f₁ = 1。</p>
+
+<h3>为什么可以把两个解"混合"（幻灯片 300）</h3>
+<p>先看整数的例子：aₙ = 0, 1, 1, 2, 3, 5, … 和 bₙ = 2, 1, 3, 4, 7, 11, … 都满足"每项等于前两项之和"。把它们相加：2, 2, 4, 6, 10, 16, …，还是满足（2 + 2 = 4，2 + 4 = 6，4 + 6 = 10）。乘一个常数也一样。</p>
+<p><b>为什么</b>：若 aₙ = aₙ₋₁ + aₙ₋₂，bₙ = bₙ₋₁ + bₙ₋₂，那么</p>
+<p class="mono">c₁aₙ + c₂bₙ = c₁(aₙ₋₁ + aₙ₋₂) + c₂(bₙ₋₁ + bₙ₋₂) = (c₁aₙ₋₁ + c₂bₙ₋₁) + (c₁aₙ₋₂ + c₂bₙ₋₂)</p>
+<p>这一步用到递推的两个特点：各项只是乘常数再相加（<b>线性</b>），而且没有多出来的常数项（<b>齐次</b>）。如果递推是 hₙ = hₙ₋₁ + hₙ₋₂ + 1，两个解相加后那个 1 会变成 2，就不行了。</p>
+<p>所以对任意常数 c₁、c₂，</p>
+<p class="mono">fₙ = c₁·φⁿ + c₂·ψⁿ　（7.8）</p>
+<p>都满足递推。剩下的事是选 c₁、c₂ 让初值对上（幻灯片 301）：</p>
+<ol class="steps">
+<li>n = 0：c₁ + c₂ = 0，所以 c₂ = −c₁。</li>
+<li>n = 1：c₁φ + c₂ψ = c₁(φ − ψ) = c₁·√5 = 1（φ − ψ = √5），所以 c₁ = 1/√5，c₂ = −1/√5。</li>
+</ol>
+<p><b>为什么初值对上就够了</b>：递推加上 f₀、f₁ 就把后面每一项都定死了。我们的公式满足同一个递推，又有同样的 f₀、f₁，所以每一项都一样。</p>
+<div class="rule">
+<p><b>定理</b>（7.9，幻灯片 302）：fₙ = (1/√5)·((1+√5)/2)ⁿ − (1/√5)·((1−√5)/2)ⁿ　（n ≥ 0）</p>
+</div>
+<p>核对 n = 2：(φ² − ψ²)/√5 = (φ − ψ)(φ + ψ)/√5 = √5 · 1/√5 = 1。核对 n = 10：φ¹⁰/√5 ≈ 55.0036，ψ¹⁰/√5 ≈ 0.0036，相减正好 55。式子里全是无理数，结果却总是整数，因为 √5 的部分正好抵消。又因为 |ψ| &lt; 1，ψⁿ/√5 很小，所以 fₙ 就是离 φⁿ/√5 最近的整数（这是习题 #305）。第3节的演示可以一项一项地对这个公式。</p>
+
+<h3>换一组初值（幻灯片 302–303）</h3>
+<p>同样的递推 gₙ = gₙ₋₁ + gₙ₋₂，但初值 g₀ = 2，g₁ = −1。前几项：2, −1, 1, 0, 1, 1, 2, 3, 5, 8, …（从 g₃ 开始又是 Fibonacci 数）。</p>
+<p>φ、ψ 不变（它们只由递推决定），只有 c₁、c₂ 要重新算：</p>
+<ol class="steps">
+<li>n = 0：c₁ + c₂ = 2。</li>
+<li>n = 1：c₁φ + c₂ψ = −1。</li>
+<li>第 2 式减去第 1 式的 ψ 倍：c₁(φ − ψ) = −1 − 2ψ = −1 − (1 − √5) = √5 − 2，所以 c₁ = (√5 − 2)/√5 ≈ 0.1056。</li>
+<li>c₂ = 2 − c₁ = (√5 + 2)/√5 ≈ 1.8944。</li>
+</ol>
+<p class="mono">gₙ = ((√5−2)/√5)·φⁿ + ((√5+2)/√5)·ψⁿ</p>
+<p>核对 n = 2：0.2764 + 0.7236 = 1 = g₂。<b>注意</b>：幻灯片 303 把 c₂ 也印成了 (√5−2)/√5，第一个方程印成了 "c₁ + c₁ = 2"，都是笔误。若 c₂ 也是 (√5−2)/√5，c₁ + c₂ ≈ 0.21，不等于 2。</p>
+
+<h3>铺砖问题又是 Fibonacci（幻灯片 303–305）</h3>
+<p><b>2×n 棋盘用多米诺骨牌铺满</b>：第1课已经推过，hₙ = hₙ₋₁ + hₙ₋₂（看左上角那块骨牌是竖放还是横放）。讲义规定 h₀ = 1：2×0 的棋盘是空的，"什么都不放"就是它唯一的完美覆盖。这样规定是为了让 h₂ = h₁ + h₀ = 1 + 1 = 2 也符合递推。数列 1, 1, 2, 3, 5, … 正是 f₁, f₂, f₃, …，所以 hₙ = fₙ₊₁，用上面的公式就有通项。</p>
+<p><b>1×n 棋盘用单格骨牌（1×1）和多米诺骨牌（1×2）铺满</b>，方法数记作 bₙ。n = 3 时有 3 种：1+1+1、1+2、2+1。讲义的论证：</p>
+<figure>
+<svg viewBox="0 0 330 150" role="img" aria-label="2×3 棋盘的三种骨牌铺法，以及各自的第一行对应的 1×3 铺法">
+  <g>
+    <rect class="tv" x="12" y="12" width="22" height="48" rx="4"/><rect class="tv" x="38" y="12" width="22" height="48" rx="4"/><rect class="tv" x="64" y="12" width="22" height="48" rx="4"/>
+    <rect class="rowhl" x="9" y="9" width="80" height="27" rx="3"/>
+    <path class="arr" d="M49 68 v14 m-4 -5 l4 5 l4 -5"/>
+    <rect class="tm" x="12" y="90" width="22" height="22" rx="4"/><rect class="tm" x="38" y="90" width="22" height="22" rx="4"/><rect class="tm" x="64" y="90" width="22" height="22" rx="4"/>
+    <text class="mid" x="49" y="136">1+1+1</text>
+  </g>
+  <g>
+    <rect class="tv" x="122" y="12" width="22" height="48" rx="4"/><rect class="th" x="148" y="12" width="48" height="22" rx="4"/><rect class="th" x="148" y="38" width="48" height="22" rx="4"/>
+    <rect class="rowhl" x="119" y="9" width="80" height="27" rx="3"/>
+    <path class="arr" d="M159 68 v14 m-4 -5 l4 5 l4 -5"/>
+    <rect class="tm" x="122" y="90" width="22" height="22" rx="4"/><rect class="th" x="148" y="90" width="48" height="22" rx="4"/>
+    <text class="mid" x="159" y="136">1+2</text>
+  </g>
+  <g>
+    <rect class="th" x="232" y="12" width="48" height="22" rx="4"/><rect class="th" x="232" y="38" width="48" height="22" rx="4"/><rect class="tv" x="284" y="12" width="22" height="48" rx="4"/>
+    <rect class="rowhl" x="229" y="9" width="80" height="27" rx="3"/>
+    <path class="arr" d="M269 68 v14 m-4 -5 l4 5 l4 -5"/>
+    <rect class="th" x="232" y="90" width="48" height="22" rx="4"/><rect class="tm" x="284" y="90" width="22" height="22" rx="4"/>
+    <text class="mid" x="269" y="136">2+1</text>
+  </g>
+</svg>
+<figcaption>上：2×3 的三种铺法（蓝 = 竖放，绿 = 横放），虚线框是第一行。下：只看第一行，竖放的骨牌在第一行只占一格，像单格骨牌；横放的像 1×2 骨牌。</figcaption>
+</figure>
+<ol class="steps">
+<li>2×n 的铺法只看第一行，就得到 1×n 的一种铺法。</li>
+<li>反过来，1×n 的每种铺法可以唯一地"补"成 2×n 的铺法：单格的位置放一块竖骨牌；1×2 的位置在它下面再放一块横骨牌。为什么第一行能看出全部：第1课推递推时见过，上面横放一块，它下面那两格只能也横放一块，所以横骨牌总是上下成对，第二行完全由第一行决定。</li>
+<li>所以两边一一对应，bₙ = hₙ，也是 Fibonacci 数（去掉 f₀）。</li>
+</ol>
+<p>也可以直接推：看最后一块是单格（剩下 1×(n−1)）还是 1×2（剩下 1×(n−2)），bₙ = bₙ₋₁ + bₙ₋₂。</p>
+
+<h3>Pascal 三角形的斜线和（幻灯片 306–308）</h3>
+<p>先算两个：</p>
+<div class="calc">C(4,0) + C(3,1) + C(2,2) = 1 + 3 + 1 = 5 = f₅<br>C(5,0) + C(4,1) + C(3,2) = 1 + 4 + 3 = 8 = f₆</div>
+<p>在 Pascal 三角形里，这些数排在一条从左下往右上的斜线上（第5课的三角形，从第 n−1 行最左边开始，每次上一行、右移一格）。</p>
+<div class="rule">
+<p><b>定理</b>（幻灯片 306）：fₙ = C(n−1, 0) + C(n−2, 1) + C(n−3, 2) + … + C(n−k, k−1)，k = ⌊(n+1)/2⌋</p>
+<p>因为下面比上面大的 C(p, q) = 0，也可以写成 fₙ = Σ C(n−1−k, k)，k 从 0 到 n−1。</p>
+</div>
+<p><b>为什么（计数的理由）</b>：C(n−1−k, k) 正好是 1×(n−1) 棋盘上<b>恰好用 k 块 1×2 骨牌</b>的铺法数。这样的铺法有 k 块 1×2 和 n−1−2k 块单格，一共 n−1−k 块排成一排，从中选哪 k 块是 1×2，C(n−1−k, k) 种。对 k 求和就是 1×(n−1) 的全部铺法 bₙ₋₁ = fₙ。例：1×4 棋盘，k = 0 有 1111（1 种），k = 1 有 211、121、112（3 种），k = 2 有 22（1 种），合计 5 = f₅。</p>
+<p><b>讲义的证明</b>（幻灯片 307–308）：设 gₙ = Σ C(n−1−k, k)，证明它满足 Fibonacci 递推、初值也一样。拿 n = 6 看那一步在干什么：</p>
+<div class="calc">g₅ + g₄ = [C(4,0) + C(3,1) + C(2,2)] + [C(3,0) + C(2,1)]<br>
+<span class="ind">= C(4,0) + [C(3,1) + C(3,0)] + [C(2,2) + C(2,1)]</span><br>
+<span class="ind">= C(5,0) + C(4,1) + C(3,2) = g₆</span></div>
+<p>中间两对用的是 Pascal 公式 C(m, j) + C(m, j−1) = C(m+1, j)；第一项 C(4,0) = 1 = C(5,0)。一般的 n 完全一样地两两配对。初值：g₀ 是空和，等于 0；g₁ = C(0,0) = 1。所以 gₙ 就是 fₙ。</p>
+
+<!-- ============ 3 ============ -->
+<h2 id="lin">3　常系数线性齐次递推：特征方程（幻灯片 309–318）</h2>
+
+<h3>先给递推关系分类（幻灯片 309–311）</h3>
+<p><b>为什么要分类</b>：第2节的办法（猜 qⁿ，再把几个解混合）对 Fibonacci 管用。那对第6课的错排数 Dₙ、对 n! 管不管用？要回答这个，先得说清楚 Fibonacci 递推是"哪一类"。先看几个已经见过的递推：</p>
+<ol class="steps">
+<li>Fibonacci：fₙ = fₙ₋₁ + fₙ₋₂。</li>
+<li>错排（第6课）：Dₙ = (n−1)Dₙ₋₁ + (n−1)Dₙ₋₂，还有 Dₙ = nDₙ₋₁ + (−1)ⁿ。</li>
+<li>阶乘 hₙ = n!：hₙ = n·hₙ₋₁。</li>
+<li>等比 hₙ = qⁿ：hₙ = q·hₙ₋₁。</li>
+</ol>
+<p>它们都是同一个样子：前面若干项各乘一个系数再相加，最后可能再加一个和 h 无关的项。</p>
+<div class="rule">
+<p><b>k 阶线性递推</b>（7.10）：hₙ = a₁hₙ₋₁ + a₂hₙ₋₂ + … + aₖhₙ₋ₖ + bₙ　（n ≥ k），aₖ ≠ 0</p>
+<p>a₁, …, aₖ 和 bₙ 都可以跟 n 有关。<b>bₙ = 0</b> 时叫<b>齐次</b>；<b>a₁, …, aₖ 都是常数</b>时叫<b>常系数</b>。</p>
+</div>
+<p>词的意思："线性"是说 h 只被乘上系数再相加，没有 hₙ₋₁·hₙ₋₂ 或 hₙ₋₁² 这种项；"k 阶"是说最远往回看 k 项。要求 aₖ ≠ 0，是因为 aₖ = 0 时实际上没有用到 hₙ₋ₖ，阶数其实更低。用这几个词给上面的例子归类（幻灯片 309–311）：</p>
+<ol class="steps">
+<li>Fibonacci：2 阶，a₁ = a₂ = 1，bₙ = 0。<b>齐次、常系数</b>。</li>
+<li>Dₙ = (n−1)Dₙ₋₁ + (n−1)Dₙ₋₂：2 阶，齐次，但系数 n−1 随 n 变，<b>不是常系数</b>。</li>
+<li>Dₙ = nDₙ₋₁ + (−1)ⁿ：1 阶，a₁ = n，bₙ = (−1)ⁿ ≠ 0，<b>不齐次</b>。</li>
+<li>hₙ = n·hₙ₋₁：1 阶，齐次，a₁ = n 不是常数。</li>
+<li>hₙ = q·hₙ₋₁：1 阶，齐次，常系数。</li>
+</ol>
+
+<h3>为什么"常系数"这么重要（幻灯片 312）</h3>
+<p>拿 n! 的递推试一下猜 qⁿ：qⁿ = n·qⁿ⁻¹，约掉得 q = n。q 必须随 n 变，可 q 应该是一个固定的数，所以猜不出来。</p>
+<p>换成常系数的 hₙ − a₁hₙ₋₁ − … − aₖhₙ₋ₖ = 0，代入 hₙ = qⁿ：</p>
+<p class="mono">qⁿ − a₁qⁿ⁻¹ − … − aₖqⁿ⁻ᵏ = qⁿ⁻ᵏ·(qᵏ − a₁qᵏ⁻¹ − … − aₖ) = 0</p>
+<p>括号里<b>没有 n</b>：只要 q 是括号这个多项式的根，对所有 n 都成立。这正是 Fibonacci 那一步的推广。</p>
+<div class="rule">
+<p><b>定理</b>（7.13–7.14）：q ≠ 0。hₙ = qⁿ 是 hₙ − a₁hₙ₋₁ − … − aₖhₙ₋ₖ = 0 的解，当且仅当 q 是</p>
+<p class="mono">xᵏ − a₁xᵏ⁻¹ − a₂xᵏ⁻² − … − aₖ = 0</p>
+<p>的根。这个方程叫递推的<b>特征方程</b>，它的根叫<b>特征根</b>。</p>
+</div>
+<p class="tip"><b>写特征方程的快办法</b>：把递推写成"hₙ − … = 0"，然后把 hₙ 换成 xᵏ，hₙ₋₁ 换成 xᵏ⁻¹，……，hₙ₋ₖ 换成 x⁰ = 1。下标往回退几步，x 的次数就降几次。因为 aₖ ≠ 0，常数项不为 0，所以 0 不是根，不用担心 q = 0。</p>
+
+<h3>k 个不同的根：通解（幻灯片 313）</h3>
+<div class="rule">
+<p>特征方程有 k 个<b>互不相同</b>的根 q₁, …, qₖ 时，</p>
+<p class="mono">hₙ = c₁q₁ⁿ + c₂q₂ⁿ + … + cₖqₖⁿ　（7.15）</p>
+<p>是<b>通解</b>：不管给什么初值 h₀, …, hₖ₋₁，总能找到常数 c₁, …, cₖ，使 (7.15) 就是满足递推和初值的那个唯一的数列。</p>
+</div>
+<p><b>为什么</b>，分三步：</p>
+<ol class="steps">
+<li>每个 qᵢⁿ 都是解，它们的线性组合也是解（理由和第2节"混合"一样）。</li>
+<li>把 n = 0, 1, …, k−1 代进去，得到 k 个未知数 c₁, …, cₖ 的 k 个一次方程。根互不相同时，这个方程组总有唯一解（它的系数矩阵是 Vandermonde 矩阵，行列式是所有 (qⱼ − qᵢ) 的乘积，不为 0）。所以任何初值都能对上。</li>
+<li>递推加上前 k 个值就决定了后面所有项，所以对上前 k 个值，整个数列就对上了。</li>
+</ol>
+<p>做题的步骤：① 写特征方程；② 求 k 个根；③ 写出通解；④ 代 n = 0, …, k−1 解出 c；⑤ 用递推多算一两项，和公式对一下。</p>
+
+<h3>完整的例子（幻灯片 314–315）</h3>
+<p>解 hₙ = 2hₙ₋₁ + hₙ₋₂ − 2hₙ₋₃（n ≥ 3），h₀ = 1，h₁ = 2，h₂ = 0。</p>
+<p><b>第 0 步：先用递推算几项</b>，最后拿来核对：</p>
+<div class="calc">h₃ = 2·0 + 2 − 2·1 = 0<br>h₄ = 2·0 + 0 − 2·2 = −4<br>h₅ = 2·(−4) + 0 − 2·0 = −8<br>h₆ = 2·(−8) + (−4) − 2·0 = −20</div>
+<ol class="steps">
+<li><b>特征方程</b>：hₙ − 2hₙ₋₁ − hₙ₋₂ + 2hₙ₋₃ = 0，换成 x³ − 2x² − x + 2 = 0。</li>
+<li><b>求根</b>：整数根一定整除常数项 2（若 r 是根，则 r·(r² − 2r − 1) = −2，r 是 2 的因数），所以只试 ±1、±2：x = 1 得 1 − 2 − 1 + 2 = 0；x = −1 得 −1 − 2 + 1 + 2 = 0；x = 2 得 8 − 8 − 2 + 2 = 0。三个根 1、−1、2。（也可以分组：x²(x−2) − (x−2) = (x−2)(x−1)(x+1)。）</li>
+<li><b>通解</b>：hₙ = c₁·1ⁿ + c₂(−1)ⁿ + c₃·2ⁿ = c₁ + c₂(−1)ⁿ + c₃·2ⁿ。</li>
+<li><b>代初值</b>：
+<div class="calc">(n=0)　c₁ + c₂ + c₃ = 1<br>(n=1)　c₁ − c₂ + 2c₃ = 2<br>(n=2)　c₁ + c₂ + 4c₃ = 0</div>
+第 3 式减第 1 式：3c₃ = −1，c₃ = −1/3。第 1 式减第 2 式：2c₂ − c₃ = −1，所以 2c₂ = −1 + c₃ = −4/3，c₂ = −2/3。最后 c₁ = 1 − c₂ − c₃ = 1 + 2/3 + 1/3 = 2。</li>
+<li><b>结果并核对</b>：hₙ = 2 − (2/3)(−1)ⁿ − (1/3)·2ⁿ。n = 4：2 − 2/3 − 16/3 = 2 − 6 = −4；n = 5：2 + 2/3 − 32/3 = 2 − 10 = −8。和第 0 步一样。</li>
+</ol>
+<p class="tip">公式里有分数，结果却总是整数：hₙ = (6 − 2(−1)ⁿ − 2ⁿ)/3。把 2ⁿ 写成 (3 − 1)ⁿ 用二项式定理展开，除了最后一项 (−1)ⁿ，每一项都含因子 3，所以 2ⁿ − (−1)ⁿ 是 3 的倍数，2ⁿ + 2(−1)ⁿ = [2ⁿ − (−1)ⁿ] + 3(−1)ⁿ 也是。</p>
+
+<div class="machine" id="rcBox">
+  <div class="head"><span class="title">演示：递推和通项逐项对账</span><span class="count" id="rcCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="rcSel">递推：</label>
+    <select id="rcSel"></select>
+  </div>
+  <div class="calc" id="rcHead"></div>
+  <div class="scroll"><table class="num" id="rcTable"></table></div>
+  <div class="caption" id="rcCap"></div>
+  <div class="controls">
+    <button id="rcNext" class="primary">下一项</button>
+    <button id="rcAll">一直算到 n = 12</button>
+    <button id="rcReset">重置</button>
+  </div>
+</div>
+<p class="tip">"用递推算"那一列只用表里前面已经算好的项；"用通项算"那一列直接把 n 代进公式，和前面的项无关。两列每一行都相等，就说明公式对。含 √ 的公式电脑只能算近似值，所以显示成小数，四舍五入后和递推一致。下拉菜单里还有后面几节的例子。</p>
+
+<h3>应用：不许出现两个连续 a 的词（幻灯片 315–318）</h3>
+<p>只用字母 a、b、c 组成长度为 n 的词，要求<b>没有两个 a 挨在一起</b>。有多少个？设为 hₙ。</p>
+<p>先数小的：h₀ = 1（空词）；h₁ = 3（a、b、c）；长度 2 的词一共 3² = 9 个，去掉 aa，h₂ = 8。</p>
+<p><b>按第一个字母分类</b>（n ≥ 2）：</p>
+<ol class="steps">
+<li>第一个字母是 b 或 c（2 种）：后面 n−1 个字母只要自己没有 aa 就行，hₙ₋₁ 种。小计 2hₙ₋₁。</li>
+<li>第一个字母是 a：第二个字母不能是 a，只能是 b 或 c（2 种）；再后面 n−2 个字母随便组成合法的词，hₙ₋₂ 种。小计 2hₙ₋₂。为什么后面可以随便：两个 a 相邻的危险只出在第 1、2 位之间，第 2 位已经是 b 或 c，后面的词以 a 开头也没关系。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = 2hₙ₋₁ + 2hₙ₋₂（n ≥ 2），h₀ = 1，h₁ = 3</p></div>
+<p>核对 h₂ = 2·3 + 2·1 = 8，和直接数的一样。再算 h₃ = 2·8 + 2·3 = 22。</p>
+<ol class="steps">
+<li>特征方程 x² − 2x − 2 = 0，根 q₁ = 1 + √3，q₂ = 1 − √3（不同的两个根）。</li>
+<li>通解 hₙ = c₁(1+√3)ⁿ + c₂(1−√3)ⁿ。</li>
+<li>n = 0：c₁ + c₂ = 1。n = 1：c₁(1+√3) + c₂(1−√3) = 3，减去第一式得 (c₁ − c₂)√3 = 2，c₁ − c₂ = 2/√3。</li>
+<li>解出 c₁ = (2+√3)/(2√3)，c₂ = (−2+√3)/(2√3)。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = ((2+√3)/(2√3))·(1+√3)ⁿ + ((−2+√3)/(2√3))·(1−√3)ⁿ　（n ≥ 0）</p></div>
+<p>前几项 1, 3, 8, 22, 60, 164, 448, …（演示里选"不许 aa 的词"可以对账；我们也用程序把长度 ≤ 8 的词全部列出来数过）。</p>
+
+<!-- ============ 4 ============ -->
+<h2 id="rep">4　特征根有重根（幻灯片 319–324）</h2>
+
+<h3>出问题了：两个根一样（幻灯片 319–320）</h3>
+<p>解 hₙ = 4hₙ₋₁ − 4hₙ₋₂，h₀ = 1，h₁ = 3。用递推算：1, 3, 8, 20, 48, 112, …</p>
+<p>特征方程 x² − 4x + 4 = (x − 2)² = 0，两个根都是 2（叫<b>二重根</b>）。照第3节的做法写通解：</p>
+<p class="mono">hₙ = c₁·2ⁿ + c₂·2ⁿ = (c₁ + c₂)·2ⁿ = c·2ⁿ</p>
+<p>看起来有两个常数，其实合并成了一个 c。代初值：n = 0 得 c = 1，n = 1 得 2c = 3，c = 3/2。<b>矛盾</b>。原因：两个初值需要两个真正不同的"积木"来拼，两个根重合，我们就少了一块积木。</p>
+
+<h3>缺的那一块是 n·2ⁿ（幻灯片 321）</h3>
+<p>讲义说 n·2ⁿ 也是解。先直接代进去验证：右边</p>
+<p class="mono">4(n−1)·2ⁿ⁻¹ − 4(n−2)·2ⁿ⁻² = 2ⁿ·[2(n−1) − (n−2)] = 2ⁿ·n</p>
+<p>正好等于左边 n·2ⁿ。</p>
+<p><b>为什么偏偏重根时乘 n 能行</b>：对一般的 2 阶递推 hₙ = a₁hₙ₋₁ + a₂hₙ₋₂，q 是特征根，代入 hₙ = n·qⁿ，把左边减右边整理：</p>
+<p class="mono">n·qⁿ − a₁(n−1)qⁿ⁻¹ − a₂(n−2)qⁿ⁻² = qⁿ⁻²·[ n·(q² − a₁q − a₂) + (a₁q + 2a₂) ]</p>
+<ol class="steps">
+<li>第一部分 q² − a₁q − a₂ = 0，因为 q 是特征根。</li>
+<li>剩下 a₁q + 2a₂。q 是<b>二重根</b>时特征多项式是 (x − q)² = x² − 2qx + q²，即 a₁ = 2q，a₂ = −q²，于是 a₁q + 2a₂ = 2q² − 2q² = 0。这个例子里 4·2 + 2·(−4) = 0。</li>
+<li>如果 q 只是单根，这一项一般不为 0。例：hₙ = 3hₙ₋₁ − 2hₙ₋₂（根 1 和 2），取 q = 2 得 3·2 + 2·(−2) = 2 ≠ 0，所以 n·2ⁿ 不是它的解。</li>
+</ol>
+<p>所以"乘 n"恰好是二重根才允许的事。第7节用生成函数还会看到另一个解释：1/(1−2x)² 展开后 xⁿ 的系数是 (n+1)·2ⁿ，n 自己就冒出来了。</p>
+<p>回到例子，通解 hₙ = c₁·2ⁿ + c₂·n·2ⁿ（7.17）：</p>
+<ol class="steps">
+<li>n = 0：c₁ = 1。</li>
+<li>n = 1：2c₁ + 2c₂ = 3，所以 c₂ = 1/2。</li>
+<li>hₙ = 2ⁿ + n·2ⁿ⁻¹ = (n+2)·2ⁿ⁻¹。核对：n = 3 时 5·4 = 20，n = 4 时 6·8 = 48。</li>
+</ol>
+
+<h3>一般规则（幻灯片 322）</h3>
+<div class="rule">
+<p><b>定理</b>（7.18–7.19）：设特征方程的不同的根是 q₁, …, qₜ，其中 qᵢ 是 sᵢ 重根。qᵢ 在通解里对应的部分是</p>
+<p class="mono">Hₙ⁽ⁱ⁾ = (c₁ + c₂n + c₃n² + … + c<sub>sᵢ</sub>·n<sup>sᵢ−1</sup>)·qᵢⁿ</p>
+<p>通解是 hₙ = Hₙ⁽¹⁾ + Hₙ⁽²⁾ + … + Hₙ⁽ᵗ⁾。</p>
+</div>
+<p><b>为什么常数的个数刚好够</b>：sᵢ 重根贡献 sᵢ 个常数，所有 sᵢ 加起来是特征方程的次数 k，正好等于初值的个数。三重根时多出来的 n²·qⁿ 也是解，理由和上面一样，只是要多验证一层（三重根让下一个余项也变成 0）。</p>
+<p class="tip">幻灯片 322 的递推印成了 "hₙ = a₁bₙ₋₁ + …"，应为 a₁hₙ₋₁。</p>
+
+<h3>例：一个三重根（幻灯片 323–324）</h3>
+<p>解 hₙ = −hₙ₋₁ + 3hₙ₋₂ + 5hₙ₋₃ + 2hₙ₋₄（n ≥ 4），h₀ = 1，h₁ = 0，h₂ = 1，h₃ = 2。先用递推算两项：h₄ = −2 + 3·1 + 5·0 + 2·1 = 3，h₅ = −3 + 3·2 + 5·1 + 2·0 = 8。</p>
+<ol class="steps">
+<li>特征方程 x⁴ + x³ − 3x² − 5x − 2 = 0。试常数项 −2 的因数：x = −1 得 1 − 1 − 3 + 5 − 2 = 0；x = 2 得 16 + 8 − 12 − 10 − 2 = 0。把 (x+1) 除尽，得到 x⁴ + x³ − 3x² − 5x − 2 = (x + 1)³(x − 2)。展开核对：(x³ + 3x² + 3x + 1)(x − 2) = x⁴ + x³ − 3x² − 5x − 2。所以 −1 是三重根，2 是单根。</li>
+<li>通解 hₙ = (c₁ + c₂n + c₃n²)(−1)ⁿ + c₄·2ⁿ。</li>
+<li>代 n = 0, 1, 2, 3：
+<div class="calc">(n=0)　 c₁　　　　　　　 + c₄ = 1<br>(n=1)　−c₁ −  c₂ −  c₃ + 2c₄ = 0<br>(n=2)　 c₁ + 2c₂ + 4c₃ + 4c₄ = 1<br>(n=3)　−c₁ − 3c₂ − 9c₃ + 8c₄ = 2</div>
+解是 c₁ = 7/9，c₂ = −3/9，c₃ = 0，c₄ = 2/9。解完一定要代回去检查：(n=1) −7/9 + 3/9 − 0 + 4/9 = 0；(n=2) 7/9 − 6/9 + 0 + 8/9 = 1；(n=3) −7/9 + 9/9 − 0 + 16/9 = 2。都对。</li>
+<li>hₙ = (7/9)(−1)ⁿ − (3/9)·n(−1)ⁿ + (2/9)·2ⁿ。核对 h₄ = (7 − 12 + 32)/9 = 3，h₅ = (−7 + 15 + 64)/9 = 8。</li>
+</ol>
+
+<!-- ============ 5 ============ -->
+<h2 id="non">5　非齐次递推（幻灯片 325–335）</h2>
+
+<h3>汉诺塔（幻灯片 325–327）</h3>
+<p>三根柱子，一根上套着 n 个大小不同的圆盘，大的在下。每次移动一个盘子，任何时候都不能把大盘子放在小盘子上面。把整摞移到另一根柱子上，至少要几步？设为 hₙ。</p>
+<p>小的情形：h₀ = 0；h₁ = 1；h₂ = 3（小的挪到中间，大的挪到目标，小的再放上去）。</p>
+<p><b>递推的理由</b>：最大的盘子总得动一次。它动的那一刻，它上面不能有盘子，它要去的柱子也必须是空的，所以其余 n−1 个盘子全在第三根柱子上。于是：先把上面 n−1 个移开（hₙ₋₁ 步），再移最大的（1 步），再把 n−1 个移回到它上面（hₙ₋₁ 步）。</p>
+<div class="rule"><p class="mono">h₀ = 0，hₙ = 2hₙ₋₁ + 1　（n ≥ 1）　（7.20）</p></div>
+<p>这里多了一个 "+1"，bₙ = 1 ≠ 0，是<b>非齐次</b>递推。这个简单的可以一层层代下去（迭代）：</p>
+<div class="calc">hₙ = 2hₙ₋₁ + 1 = 2(2hₙ₋₂ + 1) + 1 = 2²hₙ₋₂ + 2 + 1<br>
+<span class="ind">= 2³hₙ₋₃ + 2² + 2 + 1 = … = 2ⁿ⁻¹ + 2ⁿ⁻² + … + 2 + 1 = 2ⁿ − 1　（7.21）</span></div>
+<p>h₃ = 7，h₄ = 15。64 个盘子要 2⁶⁴ − 1 ≈ 1.8 × 10¹⁹ 步。讲义还提到：柱子有 4 根或更多时，最少要几步是一个没有解决的问题（这是课本写作时的说法；4 根柱子的情形后来在 2014 年被证明，5 根及以上仍未解决）。</p>
+
+<h3>迭代算不动的时候：齐次通解 + 特解（幻灯片 327–330）</h3>
+<p>例：hₙ = 3hₙ₋₁ − 4n（n ≥ 1），h₀ = 2。迭代会得到 3ⁿh₀ − 4[n + 3(n−1) + 3²(n−2) + …]，括号里的和不好算。换个思路。先用递推算几项：</p>
+<div class="calc">h₀ = 2，h₁ = 3·2 − 4 = 2，h₂ = 3·2 − 8 = −2，h₃ = 3·(−2) − 12 = −18，h₄ = 3·(−18) − 16 = −70</div>
+<p>假设有人告诉你 pₙ = 2n + 3 也满足这个递推（验证：3·(2(n−1) + 3) − 4n = 6n + 3 − 4n = 2n + 3），只是初值 p₀ = 3 不对。把两串数相减：</p>
+<div class="calc">hₙ − pₙ：2 − 3, 2 − 5, −2 − 7, −18 − 9, −70 − 11 = −1, −3, −9, −27, −81</div>
+<p>差是一个公比为 3 的等比数列，也就是<b>齐次</b>递推 hₙ = 3hₙ₋₁ 的解。<b>为什么</b>：(3hₙ₋₁ − 4n) − (3pₙ₋₁ − 4n) = 3(hₙ₋₁ − pₙ₋₁)，那个 −4n 被减掉了。</p>
+<p>所以：<b>任何一个解 = 一个特解 + 齐次递推的某个解</b>。方法是（幻灯片 330）：</p>
+<ol class="steps">
+<li>求对应齐次递推的通解。这里 hₙ = 3hₙ₋₁，特征方程 x − 3 = 0，通解 c·3ⁿ（7.23）。</li>
+<li>求非齐次递推的<b>一个</b>特解。</li>
+<li>两者相加，最后才用初值定出常数。</li>
+</ol>
+<p><b>特解 2n + 3 是怎么找到的</b>（幻灯片 328–329）：bₙ = −4n 是 n 的一次式。把一次式 rn + s 放进 hₙ − 3hₙ₋₁，出来的还是一次式，所以有希望凑出 −4n。代入：</p>
+<p class="mono">rn + s = 3(r(n−1) + s) − 4n = (3r − 4)n + (3s − 3r)</p>
+<p>对所有 n 都相等，所以 n 的系数、常数项分别相等：r = 3r − 4，得 r = 2；s = 3s − 3r，得 2s = 3r = 6，s = 3。特解 hₙ = 2n + 3（7.26）。</p>
+<p>合起来 hₙ = c·3ⁿ + 2n + 3（7.27）。h₀ = 2：c + 3 = 2，c = −1。</p>
+<div class="rule"><p class="mono">hₙ = −3ⁿ + 2n + 3　（n ≥ 0）</p></div>
+<p>核对 h₃ = −27 + 6 + 3 = −18。<b>为什么初值放在最后用</b>：特解只负责凑出 −4n，它不管初值；能调节的只有齐次部分的常数 c。如果先拿初值去定 c、再加特解，加上特解后初值就又不对了。</p>
+
+<h3>特解该猜成什么样子（幻灯片 330–331）</h3>
+<div class="rule">
+<p>bₙ 是 n 的 k 次多项式，就猜一个 k 次多项式：</p>
+<p>　bₙ = d（常数）→ 试 hₙ = r；bₙ = dn + e → 试 rn + s；bₙ = fn² + dn + e → 试 rn² + sn + t</p>
+<p>bₙ 是指数 dⁿ，就猜 hₙ = p·dⁿ。</p>
+</div>
+<p><b>为什么</b>：hₙ − a·hₙ₋₁ 把 k 次多项式变成 k 次多项式（a ≠ 1 时最高次项不会抵消），把 dⁿ 变成 dⁿ 的倍数（dⁿ − a·dⁿ⁻¹ = (1 − a/d)·dⁿ）。所以"同样形状"的猜测放进去，出来的还是同样形状，只要调系数去配 bₙ。</p>
+<p><b>例</b>（幻灯片 331–332）：hₙ = 2hₙ₋₁ + 3ⁿ，h₀ = 2。</p>
+<ol class="steps">
+<li>齐次部分：特征根 2，通解 c·2ⁿ。</li>
+<li>特解试 p·3ⁿ：p·3ⁿ = 2p·3ⁿ⁻¹ + 3ⁿ，两边除以 3ⁿ⁻¹ 得 3p = 2p + 3，p = 3。</li>
+<li>hₙ = c·2ⁿ + 3·3ⁿ，h₀ = 2：c + 3 = 2，c = −1。</li>
+</ol>
+<p class="mono">hₙ = 3ⁿ⁺¹ − 2ⁿ　（n ≥ 0）</p>
+<p>核对：h₁ = 2·2 + 3 = 7 = 9 − 2；h₂ = 2·7 + 9 = 23 = 27 − 4。</p>
+
+<h3>两种"撞车"的情况（幻灯片 332–335）</h3>
+<p><b>情况一：a = 1</b>，即 hₙ = hₙ₋₁ + bₙ（7.28）。这时猜多项式不灵：比如 bₙ = d，试 hₙ = r，得 r = r + d，不可能。原因是 hₙ − hₙ₋₁ 会把多项式的次数<b>降一次</b>（常数减常数是 0）。好在这种递推直接迭代就行：</p>
+<p class="mono">hₙ = h₀ + b₁ + b₂ + … + bₙ</p>
+<p>解递推就变成了求和。例（幻灯片 333）：hₙ = hₙ₋₁ + n³，h₀ = 0，于是</p>
+<p class="mono">hₙ = 0³ + 1³ + 2³ + … + n³ = [n(n+1)/2]² = n²(n+1)²/4</p>
+<p>核对：h₁ = 1，h₂ = 1 + 8 = 9 = 4·9/4。<b>注意</b>：幻灯片 333 印的是 (n+1)²(n+2)²/4，下标错了一位：n = 1 时它给出 4·9/4 = 9，而 h₁ = 1。</p>
+<p><b>情况二：bₙ = dⁿ，而 d 恰好是特征根</b>。例（幻灯片 334–335）：hₙ = 3hₙ₋₁ + 3ⁿ，h₀ = 2。</p>
+<ol class="steps">
+<li>试 p·3ⁿ：p·3ⁿ = 3p·3ⁿ⁻¹ + 3ⁿ，除以 3ⁿ 得 p = p + 1，不可能。<b>为什么</b>：3ⁿ 本身就是齐次递推 hₙ = 3hₙ₋₁ 的解，把 p·3ⁿ 放进 hₙ − 3hₙ₋₁ 只会得到 0，永远凑不出 3ⁿ。</li>
+<li>改试 p·n·3ⁿ（和重根一样"乘 n"）：p·n·3ⁿ = 3p(n−1)·3ⁿ⁻¹ + 3ⁿ，除以 3ⁿ 得 pn = p(n−1) + 1，p = 1。</li>
+<li>通解 hₙ = c·3ⁿ + n·3ⁿ，h₀ = 2 得 c = 2。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = 2·3ⁿ + n·3ⁿ = (n+2)·3ⁿ　（n ≥ 0）</p></div>
+<p>核对：h₁ = 3·2 + 3 = 9 = 3·3；h₂ = 3·9 + 9 = 36 = 4·9。</p>
+<p class="tip"><b>两种情况其实是一回事</b>：a = 1 时特征根是 1，而多项式可以看成"乘了 1ⁿ"；bₙ 和齐次解撞车，就要把猜测乘上 n（所以 a = 1 时常数要猜成 rn，一次式要猜成二次式）。上面演示的下拉菜单里有汉诺塔和这一节的三个例子。</p>
+
+<!-- ============ 6 ============ -->
+<h2 id="gf">6　生成函数（幻灯片 336–347）</h2>
+
+<h3>为什么需要新工具</h3>
+<p>前面的问题都先找出递推，再解递推。可是像"从苹果、香蕉、橘子、梨里拿 n 个水果，苹果偶数个、香蕉奇数个、橘子最多 4 个、梨至少 1 个，有几种拿法"这种问题，递推很难找，手工列举又太多。生成函数把"每种东西拿几个"变成<b>多项式乘法</b>，让乘法替我们数。</p>
+<p><b>先看一个能手数的小例子</b>。苹果最多拿 2 个，香蕉最多拿 1 个（同种水果之间没有区别）。一共拿 n 个有几种？把 (苹果数, 香蕉数) 列出来：</p>
+<ol class="steps">
+<li>n = 0：(0, 0)，1 种。</li>
+<li>n = 1：(1, 0)、(0, 1)，2 种。</li>
+<li>n = 2：(2, 0)、(1, 1)，2 种。</li>
+<li>n = 3：(2, 1)，1 种。</li>
+</ol>
+<p>现在算 (1 + x + x²)(1 + x)。展开就是从每个括号里各挑一项相乘，一共 3 × 2 = 6 种挑法：</p>
+<div class="calc">1·1 = 1　　1·x = x　　x·1 = x　　x·x = x²　　x²·1 = x²　　x²·x = x³<br>合并同类项：1 + 2x + 2x² + x³</div>
+<p>系数 1, 2, 2, 1，和上面数出来的一样。<b>这不是巧合</b>：</p>
+<ol class="steps">
+<li>第一个括号里的 xᵃ 表示"拿 a 个苹果"（a = 0, 1, 2），第二个括号里的 xᵇ 表示"拿 b 个香蕉"。括号里写的正是每种水果<b>允许的个数</b>。</li>
+<li>从每个括号各挑一项，就是给每种水果各做一个决定。例如挑 x² 和 x，就是"2 个苹果、1 个香蕉"。</li>
+<li>xᵃ·xᵇ = xᵃ⁺ᵇ：指数相加，所以乘出来的指数正好是水果总数。</li>
+<li>合并同类项就是把"总数相同"的拿法放在一起数，所以 xⁿ 的系数 = 一共拿 n 个的拿法数。</li>
+</ol>
+<p><b>"x 只是一个占位符"是什么意思</b>：我们从来不给 x 代具体的数。xⁿ 像一个贴着标签"第 n 号"的格子，系数是格子里装的数。把整串数写成 h₀ + h₁x + h₂x² + … 只是一种记账方式，好处是乘法会自动把"挑法"按总数归类。</p>
+<div class="rule">
+<p><b>定义</b>（幻灯片 336）：数列 h₀, h₁, h₂, … 的<b>生成函数</b>是无穷级数</p>
+<p class="mono">g(x) = h₀ + h₁x + h₂x² + … + hₙxⁿ + …</p>
+<p>xⁿ 的系数就是 hₙ，xⁿ 是给 hₙ 占位置的。</p>
+</div>
+
+<h3>几个常用的生成函数（幻灯片 336–338）</h3>
+<ol class="steps">
+<li><b>1, 1, 1, … 的生成函数是 1/(1−x)</b>。为什么：(1 − x)(1 + x + x² + …) = 1 + x + x² + … − x − x² − … = 1，所以 1 + x + x² + … 就是 1/(1−x)。计数意思：一种东西，拿几个都行，每个个数恰好 1 种拿法。</li>
+<li><b>C(m,0), C(m,1), …, C(m,m) 的生成函数是 (1+x)ᵐ</b>（第5课的二项式定理）。计数意思：m 个不同的东西，每个一个括号 (1 + x)：不拿（1）或拿（x）。</li>
+<li><b>C(α,0), C(α,1), C(α,2), … 的生成函数是 (1+x)<sup>α</sup></b>（第5课的 Newton 二项式定理，α 是实数）。</li>
+<li><b>hₙ = C(n+k−1, n) 的生成函数是 1/(1−x)ᵏ</b>。下面推一下。</li>
+</ol>
+<p><b>1/(1−x)ᵏ 的推导</b>（幻灯片 337–338）：1/(1−x)ᵏ 是 k 个 (1 + x + x² + …) 相乘。从第 i 个括号挑 x<sup>eᵢ</sup>，乘起来是 x<sup>e₁+e₂+…+eₖ</sup>。要得到 xⁿ，就要 e₁ + e₂ + … + eₖ = n（7.30）。所以 xⁿ 的系数 = 这个方程的非负整数解的个数 = C(n+k−1, n)（第3课的隔板法）。小例子 k = 2、n = 2：解是 (0,2)、(1,1)、(2,0)，3 个 = C(3,2)；而 1/(1−x)² = 1 + 2x + 3x² + …，x² 的系数正是 3。</p>
+
+<h3>每种东西一个括号（幻灯片 338–342）</h3>
+<p><b>例 1</b>（幻灯片 338）：(1 + x + x² + x³ + x⁴ + x⁵)(1 + x + x²)(1 + x + x² + x³ + x⁴) 是什么数列的生成函数？</p>
+<p>按上面的读法：三个括号代表三种东西，分别能取 0–5、0–2、0–4 个。xⁿ 的系数 hₙ 就是 e₁ + e₂ + e₃ = n、0 ≤ e₁ ≤ 5、0 ≤ e₂ ≤ 2、0 ≤ e₃ ≤ 4 的整数解个数。最多 5 + 2 + 4 = 11，所以 n &gt; 11 时 hₙ = 0。乘出来：</p>
+<div class="scroll"><table class="num">
+<tr><th>n</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>
+<tr><th>hₙ</th><td>1</td><td>3</td><td>6</td><td>9</td><td>12</td><td>14</td><td>14</td><td>12</td><td>9</td><td>6</td><td>3</td><td>1</td></tr>
+</table></div>
+<p>核对 n = 1：(1,0,0)、(0,1,0)、(0,0,1)，3 个。全部加起来是 90 = 6 × 3 × 5，就是每种东西选法数相乘，也就是三个括号都代 x = 1 的结果。下面的演示可以看每乘一个括号系数怎么变，点一个 n 还能把对应的解全部列出来。</p>
+
+<div class="machine" id="cfBox">
+  <div class="head"><span class="title">演示：每种东西一个括号，乘出来读系数</span><span class="count" id="cfCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="cfSel">例子：</label>
+    <select id="cfSel"></select>
+  </div>
+  <div class="facs" id="cfFacs"></div>
+  <div class="scroll"><table class="num" id="cfTable"></table></div>
+  <p class="tip" style="margin:.3rem 0 0">点一个 n，列出所有总数为 n 的拿法：</p>
+  <div class="regbtns" id="cfNs"></div>
+  <div class="caption" id="cfCap"></div>
+</div>
+<p class="tip">表的每一行是"前几个括号乘起来"的系数，最后一行就是 hₙ。可以在输入框里改某种东西允许的个数（用逗号隔开，比如 0,2,4），表格马上重算。无穷多项的括号只写到 xᴺ 为止：<b>为什么可以截断</b>：指数比 N 大的项乘上别的项，指数只会更大，不会影响 x⁰ 到 xᴺ 的系数。</p>
+
+<p><b>例 2</b>（幻灯片 339–341）：苹果偶数个、香蕉奇数个、橘子 0 到 4 个、梨至少 1 个，拿 n 个的方法数 hₙ 的生成函数。每种水果一个括号，括号里的指数就是允许的个数：</p>
+<div class="calc">g(x) = (1 + x² + x⁴ + …)(x + x³ + x⁵ + …)(1 + x + x² + x³ + x⁴)(x + x² + x³ + …)</div>
+<p>每个括号都有简单的写法（幻灯片 340）：</p>
+<ol class="steps">
+<li>1 + x² + x⁴ + … = 1/(1−x²)：把 1/(1−y) = 1 + y + y² + … 里的 y 换成 x²。</li>
+<li>x + x³ + x⁵ + … = x(1 + x² + x⁴ + …) = x/(1−x²)。</li>
+<li>1 + x + x² + x³ + x⁴ = (1−x⁵)/(1−x)：因为 (1−x)(1 + x + … + x⁴) = 1 − x⁵，中间全抵消。</li>
+<li>x + x² + x³ + … = x/(1−x)。</li>
+</ol>
+<div class="rule"><p class="mono">g(x) = (1/(1−x²))·(x/(1−x²))·((1−x⁵)/(1−x))·(x/(1−x)) = x²(1−x⁵) / ((1−x²)²(1−x)²)</p></div>
+<p>这个分式展开后的系数就是答案（讲义说"Taylor 级数的系数数的正是这种组合"）。前几项 0, 0, 1, 2, 5, 8, 14, 19, 28, …。核对 h₂ = 1：至少 1 个香蕉、至少 1 个梨，2 个水果只能是"1 香蕉 + 1 梨"。h₃ = 2："1 香蕉 + 2 梨"和"1 香蕉 + 1 橘子 + 1 梨"。</p>
+
+<p><b>例 3</b>（幻灯片 341–342）：苹果偶数个、香蕉是 5 的倍数、橘子最多 4 个、梨 0 或 1 个。先把 n ≤ 3 的情形全列出来（讲义表格里每一列就是一袋）：</p>
+<ol class="steps">
+<li>n = 0：空袋子。1 种。</li>
+<li>n = 1：1 梨；1 橘子。2 种。</li>
+<li>n = 2：2 苹果；2 橘子；1 橘子 + 1 梨。3 种。</li>
+<li>n = 3：2 苹果 + 1 梨；2 苹果 + 1 橘子；3 橘子；2 橘子 + 1 梨。4 种。</li>
+</ol>
+<p>看起来 hₙ = n + 1。用生成函数证明：</p>
+<div class="calc">g(x) = (1 + x² + …)(1 + x⁵ + x¹⁰ + …)(1 + x + … + x⁴)(1 + x)<br>
+<span class="ind">= (1/(1−x²)) · (1/(1−x⁵)) · ((1−x⁵)/(1−x)) · (1+x)</span><br>
+<span class="ind">= 1/(1−x)² = Σ C(n+1, n)xⁿ = Σ (n+1)xⁿ</span></div>
+<p>化简的两步：1−x⁵ 上下约掉；1−x² = (1−x)(1+x)，所以 (1+x)/(1−x²) = 1/(1−x)。于是 hₙ = n + 1。</p>
+
+<h3>方程的解也是"拿东西"（幻灯片 343–347）</h3>
+<p><b>奇数解</b>（幻灯片 343–344）：e₁ + e₂ + … + eₖ = n，每个 eᵢ 都是正奇数。每个变量一个括号 (x + x³ + x⁵ + …) = x/(1−x²)，所以</p>
+<p class="mono">g(x) = (x/(1−x²))ᵏ = xᵏ/(1−x²)ᵏ</p>
+<p>核对 k = 2、n = 4：奇数解 (1,3)、(3,1)，2 个；x²/(1−x²)² = x²(1 + 2x² + 3x⁴ + …)，x⁴ 的系数是 2。</p>
+<p><b>带系数的方程</b>（幻灯片 345–346）：3e₁ + 4e₂ + 2e₃ + 5e₄ = n 的非负整数解个数。<b>为什么可以换元</b>：令 f₁ = 3e₁，f₁ 就是"第一个变量贡献的量"，只能是 0, 3, 6, …；同理 f₂ 是 4 的倍数，f₃ 是偶数，f₄ 是 5 的倍数。问题变成 f₁ + f₂ + f₃ + f₄ = n、每个 fᵢ 在各自允许的集合里，每个变量一个括号：</p>
+<p class="mono">g(x) = (1 + x³ + x⁶ + …)(1 + x⁴ + x⁸ + …)(1 + x² + x⁴ + …)(1 + x⁵ + x¹⁰ + …) = 1/((1−x³)(1−x⁴)(1−x²)(1−x⁵))</p>
+<p><b>找零钱</b>（幻灯片 347）：1 分、5 分、10 分、25 分、50 分硬币都有无限多个，凑出 n 分有几种方法？这就是 e₁ + 5e₂ + 10e₃ + 25e₄ + 50e₅ = n 的解数：</p>
+<p class="mono">g(x) = 1/((1−x)(1−x⁵)(1−x¹⁰)(1−x²⁵)(1−x⁵⁰))</p>
+<p>例：10 分有 4 种（10 个 1 分；1 个 5 分 + 5 个 1 分；2 个 5 分；1 个 10 分）。25 分有 13 种，1 元（100 分）有 292 种。上面演示里选"找零钱"可以看 25 分以内的每一种。</p>
+
+<!-- ============ 7 ============ -->
+<h2 id="rgf">7　用生成函数解递推（幻灯片 348–360）</h2>
+
+<h3>两个工具（幻灯片 348–349）</h3>
+<p>把第5课的 (5.14) 里的 z 换成 rx，就得到</p>
+<div class="rule"><p class="mono">1/(1−rx)ⁿ = Σ C(n+k−1, k)·rᵏxᵏ　（k 从 0 到 ∞，|x| &lt; 1/|r|）　（7.31）</p>
+<p>最常用的两个：1/(1−rx) = Σ rᵏxᵏ；1/(1−rx)² = Σ (k+1)rᵏxᵏ。</p></div>
+<p><b>例：平方数 0, 1, 4, 9, … 的生成函数</b>。想法是从 1/(1−x)² = 1 + 2x + 3x² + … 出发，用两种操作把系数变成 n²：</p>
+<ol class="steps">
+<li><b>乘 x 是"整体右移一格"</b>：x/(1−x)² = x + 2x² + 3x³ + … = Σ n·xⁿ。每个系数挪到下一号格子，于是 xⁿ 的系数变成 n。</li>
+<li><b>求导再乘 x 是"第 n 项乘 n"</b>：(xⁿ)′ = n·xⁿ⁻¹，再乘 x 回到 xⁿ，所以 xⁿ 的系数被乘上 n。对 x/(1−x)² 求导：
+<div class="calc">(x/(1−x)²)′ = [(1−x)² + 2x(1−x)]/(1−x)⁴ = [(1−x) + 2x]/(1−x)³ = (1+x)/(1−x)³<br>= 1 + 2²x + 3²x² + … + n²xⁿ⁻¹ + …</div></li>
+<li>再乘 x：<b>x(1+x)/(1−x)³ = x + 2²x² + 3²x³ + … + n²xⁿ + …</b></li>
+</ol>
+<p>核对：x(1+x)/(1−x)³ = (x + x²)(1 + 3x + 6x² + 10x³ + …) = x + (3+1)x² + (6+3)x³ + (10+6)x⁴ + … = x + 4x² + 9x³ + 16x⁴ + …。</p>
+
+<h3>完整的例子（幻灯片 350–352）</h3>
+<p><b>为什么还要另一种解法</b>：第3、4节要先知道"该猜 qⁿ，重根时猜 nqⁿ"。生成函数的方法是机械的，不用猜，重根的情形也会自己冒出来。</p>
+<p>解 hₙ = 5hₙ₋₁ − 6hₙ₋₂（n ≥ 2），h₀ = 1，h₁ = −2。用递推算：1, −2, −16, −68, −244, …</p>
+<p>设 g(x) = h₀ + h₁x + h₂x² + …。把 g、−5x·g、6x²·g 按 x 的次数对齐写出来（乘 x 就是右移一格），先用真实的数看：</p>
+<div class="scroll"><table class="num">
+<tr><th></th><th>x⁰</th><th>x¹</th><th>x²</th><th>x³</th><th>xⁿ</th></tr>
+<tr><td>g(x)</td><td>1</td><td>−2</td><td>−16</td><td>−68</td><td>hₙ</td></tr>
+<tr><td>−5x·g(x)</td><td>0</td><td>−5</td><td>10</td><td>80</td><td>−5hₙ₋₁</td></tr>
+<tr><td>6x²·g(x)</td><td>0</td><td>0</td><td>6</td><td>−12</td><td>6hₙ₋₂</td></tr>
+<tr class="fin"><td>三行相加</td><td>1</td><td>−7</td><td>0</td><td>0</td><td>0</td></tr>
+</table></div>
+<p><b>为什么从 x² 起全是 0</b>：xⁿ 那一列加起来是 hₙ − 5hₙ₋₁ + 6hₙ₋₂，按递推正好是 0。只有前两列（还没"凑齐"三项，只涉及初值）留下来：h₀ = 1 和 h₁ − 5h₀ = −7。所以</p>
+<p class="mono">(1 − 5x + 6x²)·g(x) = 1 − 7x，　g(x) = (1 − 7x)/(1 − 5x + 6x²)</p>
+<p><b>拆成部分分式</b>（幻灯片 351）：1 − 5x + 6x² = (1 − 2x)(1 − 3x)，设</p>
+<p class="mono">(1 − 7x)/((1−2x)(1−3x)) = A/(1−2x) + B/(1−3x)，即 1 − 7x = A(1−3x) + B(1−2x)</p>
+<ol class="steps">
+<li>代 x = 1/2（让 B 那项消失）：1 − 7/2 = A(1 − 3/2)，−5/2 = −A/2，A = 5。</li>
+<li>代 x = 1/3（让 A 那项消失）：1 − 7/3 = B(1 − 2/3)，−4/3 = B/3，B = −4。</li>
+<li>为什么可以随便代 x：这是两个多项式相等的恒等式，对所有 x 都成立，挑能消掉一项的 x 最省事。</li>
+</ol>
+<p>于是 g(x) = 5/(1−2x) − 4/(1−3x) = 5Σ2ⁿxⁿ − 4Σ3ⁿxⁿ，读出系数：</p>
+<div class="rule"><p class="mono">hₙ = 5·2ⁿ − 4·3ⁿ</p></div>
+<p>核对 h₂ = 20 − 36 = −16，h₃ = 40 − 108 = −68。</p>
+<p><b>和特征方程的联系</b>：分母 1 − 5x + 6x² 和特征多项式 x² − 5x + 6 的系数正好倒过来（1 − 5x + 6x² = x²·((1/x)² − 5(1/x) + 6)）。特征根 2、3 就以 1 − 2x、1 − 3x 的形式出现在分母里，最后变成 2ⁿ、3ⁿ。</p>
+
+<h3>重根会自己冒出来（幻灯片 352–355）</h3>
+<p>解 hₙ + hₙ₋₁ − 16hₙ₋₂ + 20hₙ₋₃ = 0（n ≥ 3），h₀ = 0，h₁ = 1，h₂ = −1。用递推算：0, 1, −1, 17, −53, 345, −1533, …</p>
+<ol class="steps">
+<li>同样对齐 g、x·g、−16x²·g、20x³·g 四行。x⁰ 列：h₀ = 0；x¹ 列：h₁ + h₀ = 1；x² 列：h₂ + h₁ − 16h₀ = −1 + 1 − 0 = 0；x³ 起每列按递推是 0。所以 (1 + x − 16x² + 20x³)·g(x) = x。</li>
+<li>分母因式分解：1 + x − 16x² + 20x³ = (1 − 2x)²(1 + 5x)。展开核对：(1 − 4x + 4x²)(1 + 5x) = 1 + x − 16x² + 20x³。（对应特征方程 x³ + x² − 16x + 20 = (x−2)²(x+5)，2 是二重根。）</li>
+<li>部分分式要写成 A/(1−2x) + B/(1−2x)² + C/(1+5x)。<b>为什么平方因子要配两项</b>：(1−2x)² 在分母里，拆开后可能同时有 1/(1−2x) 和 1/(1−2x)² 两部分，少写一项就凑不出来。两边乘分母：
+<div class="calc">x = A(1−2x)(1+5x) + B(1+5x) + C(1−2x)²<br>
+x = 1/2：1/2 = B·(7/2)，B = 1/7 = 7/49<br>
+x = −1/5：−1/5 = C·(7/5)² = 49C/25，C = −5/49<br>
+x = 0：0 = A + B + C，A = −2/49</div></li>
+<li>展开：1/(1−2x) = Σ2ⁿxⁿ，<b>1/(1−2x)² = Σ(n+1)2ⁿxⁿ</b>，1/(1+5x) = Σ(−5)ⁿxⁿ。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = −(2/49)·2ⁿ + (7/49)·(n+1)·2ⁿ − (5/49)·(−5)ⁿ　（n ≥ 0）</p></div>
+<p>核对 h₃ = (−16 + 7·4·8 + 625)/49 = 833/49 = 17。<b>这就是重根时出现 n·qⁿ 的另一个解释</b>：分母里的 (1 − 2x)² 展开后系数是 (n+1)·2ⁿ = n·2ⁿ + 2ⁿ。</p>
+
+<h3>一般结论（幻灯片 356–360）</h3>
+<p>上面两个例子的做法对任何常系数线性齐次递推都适用。注意讲义这里把系数移到了左边：</p>
+<div class="rule">
+<p>递推 hₙ + a₁hₙ₋₁ + … + aₖhₙ₋ₖ = 0（n ≥ k，aₖ ≠ 0）的生成函数是 g(x) = p(x)/q(x)，其中</p>
+<p class="mono">q(x) = 1 + a₁x + a₂x² + … + aₖxᵏ（k 次，常数项 1）</p>
+<p class="mono">p(x) = h₀ + (h₁ + a₁h₀)x + (h₂ + a₁h₁ + a₂h₀)x² + … + (hₖ₋₁ + a₁hₖ₋₂ + … + aₖ₋₁h₀)xᵏ⁻¹（次数 &lt; k）</p>
+</div>
+<p><b>p(x) 从哪来</b>：就是对齐表格里前 k 列的列和（这些列还没"凑齐"，所以不为 0）。核对第一个例子：那里 a₁ = −5，a₂ = 6，q(x) = 1 − 5x + 6x²，p(x) = h₀ + (h₁ + a₁h₀)x = 1 + (−2 − 5)x = 1 − 7x。</p>
+<p><b>反过来也对</b>（幻灯片 357–359）：给一个分式 p(x)/q(x)，q(x) = b₀ + b₁x + … + bₖxᵏ 是 k 次、b₀ ≠ 0，p(x) 次数 &lt; k。用部分分式和 (7.31) 能展开成 h₀ + h₁x + …。把 p(x) = q(x)·(h₀ + h₁x + …) 两边比较 xⁿ 的系数：</p>
+<ol class="steps">
+<li>n &lt; k 时（7.32）：b₀h₀ = d₀，b₀h₁ + b₁h₀ = d₁，……。因为 b₀ ≠ 0，可以依次解出 h₀, h₁, …, hₖ₋₁（每个方程只多一个新未知数，叫"三角形方程组"）。</li>
+<li>n ≥ k 时（7.33）：p(x) 没有 xⁿ 项，所以 b₀hₙ + b₁hₙ₋₁ + … + bₖhₙ₋ₖ = 0。除以 b₀，就是一个 k 阶常系数线性齐次递推。</li>
+</ol>
+<p>小例子：1/(1 − x − x²)。b₀ = 1，b₁ = b₂ = −1，p = 1。h₀ = 1；h₁ − h₀ = 0，h₁ = 1；以后 hₙ − hₙ₋₁ − hₙ₋₂ = 0。得到 1, 1, 2, 3, 5, 8, …，是 Fibonacci 数 fₙ₊₁。</p>
+<div class="rule">
+<p><b>定理</b>（7.34–7.35，幻灯片 360）：满足 k 阶常系数线性齐次递推的数列，生成函数是 p(x)/q(x)，q(x) 是常数项不为 0 的 k 次多项式，p(x) 次数小于 k。反之，任何这样的 p(x)/q(x) 都是某个这种递推的数列的生成函数。</p>
+</div>
+<p class="tip">作业 #333 用这个方法解了六个递推（链接见"练习"开头）。演示里选"5·2ⁿ − 4·3ⁿ"和"重根 (1−2x)²"两项可以对账。</p>
+
+<!-- ============ 8 ============ -->
+<h2 id="geo">8　一个几何例子：凸多边形的三角剖分（幻灯片 361–369）</h2>
+<p>这一节的递推<b>不是线性的</b>（里面有两项相乘），特征方程用不上；但生成函数照样能解，最后还要用到第5课的 Newton 二项式定理。答案是下一章的主角 Catalan 数。</p>
+
+<h3>凸区域和对角线（幻灯片 361–362）</h3>
+<p>平面上的一个点集 K 叫<b>凸的</b>，如果 K 里任意两点 p、q 之间的整条线段都还在 K 里。下图 (a) 有一个凹进去的口子，p、q 都在里面，线段却跑到了外面，所以不是凸的。</p>
+<figure>
+<svg viewBox="0 0 340 160" role="img" aria-label="(a) 一个凹多边形，p 和 q 之间的线段跑到外面；(b) 一个凸六边形，从一个角出发画出 3 条对角线">
+  <polygon class="poly" points="20,20 150,20 150,130 20,130 85,75"/>
+  <line class="seg" x1="35" y1="27" x2="35" y2="124"/>
+  <circle class="dot" cx="35" cy="27" r="3.5"/><circle class="dot" cx="35" cy="124" r="3.5"/>
+  <text x="42" y="36">p</text><text x="42" y="126">q</text>
+  <text class="mid lb" x="85" y="152">(a) 不是凸的</text>
+  <polygon class="poly" points="310,75 282.5,122.6 227.5,122.6 200,75 227.5,27.4 282.5,27.4"/>
+  <line class="dg2" x1="200" y1="75" x2="282.5" y2="122.6"/><line class="dg2" x1="200" y1="75" x2="310" y2="75"/><line class="dg2" x1="200" y1="75" x2="282.5" y2="27.4"/>
+  <circle class="dot" cx="200" cy="75" r="3.5"/>
+  <text class="mid lb" x="255" y="152">(b) 凸六边形</text>
+</svg>
+<figcaption>(b) 里从左边那个角出发有 6 − 3 = 3 条对角线（蓝色）：不能连自己，也不能连两个邻居（那是边）。</figcaption>
+</figure>
+<p>边界由有限条线段组成的区域叫<b>多边形区域</b>，这些线段叫<b>边</b>，边的交点叫<b>角</b>（顶点）。连接两个<b>不相邻</b>的角的线段叫<b>对角线</b>。n 边形有几条对角线？以六边形为例，讲义给了两种数法：</p>
+<ol class="steps">
+<li><b>从每个角数</b>：每个角连出 6 − 3 = 3 条对角线，6 个角共 6·3 = 18，但每条对角线有两个端点，被数了两次，所以是 9 条。一般是 n(n−3)/2。</li>
+<li><b>反着数</b>：6 个角两两相连共 C(6,2) = 15 条线段，其中 6 条是边，剩下 15 − 6 = 9 条是对角线。一般是 n(n−1)/2 − n = n(n−3)/2。</li>
+</ol>
+
+<h3>三角剖分：先数小的（幻灯片 363–364）</h3>
+<p>K 是凸的，所以每条对角线都整个在 K 里面，把 K 分成两个较小的凸多边形。不断加入<b>在内部互不相交</b>的对角线，直到全部分成三角形，这叫一个<b>三角剖分</b>。n 边形要用 n − 3 条对角线，分成 n − 2 个三角形。</p>
+<p>讲义的记号：<b>hₙ = 凸 (n+1) 边形的三角剖分数</b>。（用 n+1 而不用 n，是为了让最后的公式整齐。）</p>
+<ol class="steps">
+<li>h₂ = 1：三角形（3 条边）没有对角线，本身就是剖分。</li>
+<li>h₃ = 2：四边形，两条对角线选一条。</li>
+<li>h₄ = 5：五边形，见下图。</li>
+<li><b>规定 h₁ = 1</b>：把一条线段看成"只有 2 条边、没有内部的多边形"，它什么都不用做，算 1 种。下面会看到为什么要这样规定。</li>
+</ol>
+
+<h3>递推：看底边所在的三角形（幻灯片 364–367）</h3>
+<p><b>先用五边形手算</b>。挑一条边 AB 当<b>底边</b>（下图红色）。不管怎么剖分，AB 一定是某一个三角形 T 的边（黄色），T 的第三个顶点只能是 C、D、E 之一。按这个顶点分类：</p>
+<figure>
+<svg viewBox="0 0 330 272" role="img" aria-label="五边形的 5 种三角剖分，按底边 AB 所在三角形的顶点 C、D、E 分成 2、1、2 种" style="max-width:460px">
+<g transform="translate(4,8)"><polygon class="tri" points="26.5,82.4 73.5,82.4 88,37.6"/><line class="diag" x1="26.5" y1="82.4" x2="88" y2="37.6"/><line class="diag" x1="26.5" y1="82.4" x2="50" y2="10"/><polygon class="polyn" points="26.5,82.4 73.5,82.4 88,37.6 50,10 12,37.6"/><line class="base" x1="26.5" y1="82.4" x2="73.5" y2="82.4"/><text class="sm" x="16" y="96">A</text><text class="sm" x="76" y="96">B</text><text class="sm" x="92" y="40">C</text><text class="sm mid" x="50" y="6">D</text><text class="sm" x="1" y="40">E</text></g>
+<g transform="translate(108,8)"><polygon class="tri" points="26.5,82.4 73.5,82.4 88,37.6"/><line class="diag" x1="26.5" y1="82.4" x2="88" y2="37.6"/><line class="diag" x1="88" y1="37.6" x2="12" y2="37.6"/><polygon class="polyn" points="26.5,82.4 73.5,82.4 88,37.6 50,10 12,37.6"/><line class="base" x1="26.5" y1="82.4" x2="73.5" y2="82.4"/><text class="sm" x="16" y="96">A</text><text class="sm" x="76" y="96">B</text><text class="sm" x="92" y="40">C</text><text class="sm mid" x="50" y="6">D</text><text class="sm" x="1" y="40">E</text></g>
+<g transform="translate(220,8)"><polygon class="tri" points="26.5,82.4 73.5,82.4 50,10"/><line class="diag" x1="26.5" y1="82.4" x2="50" y2="10"/><line class="diag" x1="73.5" y1="82.4" x2="50" y2="10"/><polygon class="polyn" points="26.5,82.4 73.5,82.4 88,37.6 50,10 12,37.6"/><line class="base" x1="26.5" y1="82.4" x2="73.5" y2="82.4"/><text class="sm" x="16" y="96">A</text><text class="sm" x="76" y="96">B</text><text class="sm" x="92" y="40">C</text><text class="sm mid" x="50" y="6">D</text><text class="sm" x="1" y="40">E</text></g>
+<g transform="translate(56,140)"><polygon class="tri" points="26.5,82.4 73.5,82.4 12,37.6"/><line class="diag" x1="73.5" y1="82.4" x2="12" y2="37.6"/><line class="diag" x1="73.5" y1="82.4" x2="50" y2="10"/><polygon class="polyn" points="26.5,82.4 73.5,82.4 88,37.6 50,10 12,37.6"/><line class="base" x1="26.5" y1="82.4" x2="73.5" y2="82.4"/><text class="sm" x="16" y="96">A</text><text class="sm" x="76" y="96">B</text><text class="sm" x="92" y="40">C</text><text class="sm mid" x="50" y="6">D</text><text class="sm" x="1" y="40">E</text></g>
+<g transform="translate(160,140)"><polygon class="tri" points="26.5,82.4 73.5,82.4 12,37.6"/><line class="diag" x1="73.5" y1="82.4" x2="12" y2="37.6"/><line class="diag" x1="88" y1="37.6" x2="12" y2="37.6"/><polygon class="polyn" points="26.5,82.4 73.5,82.4 88,37.6 50,10 12,37.6"/><line class="base" x1="26.5" y1="82.4" x2="73.5" y2="82.4"/><text class="sm" x="16" y="96">A</text><text class="sm" x="76" y="96">B</text><text class="sm" x="92" y="40">C</text><text class="sm mid" x="50" y="6">D</text><text class="sm" x="1" y="40">E</text></g>
+<text class="mid lb" x="108" y="122">顶点 C：h₁·h₃ = 2</text>
+<text class="mid lb" x="270" y="122">顶点 D：h₂·h₂ = 1</text>
+<text class="mid lb" x="160" y="254">顶点 E：h₃·h₁ = 2</text>
+</svg>
+<figcaption>五边形一共 5 种三角剖分。黄色是含底边 AB 的那个三角形 T。</figcaption>
+</figure>
+<ol class="steps">
+<li><b>顶点是 C</b>：T = ABC。T 的右边只剩边 BC，是一条"线段"（2 条边，h₁ = 1 种）；左边剩四边形 ACDE，有 h₃ = 2 种。共 1 × 2 = 2 种。</li>
+<li><b>顶点是 D</b>：T = ABD。两边各剩一个三角形 ADE、BCD，各 h₂ = 1 种。共 1 × 1 = 1 种。</li>
+<li><b>顶点是 E</b>：T = ABE。左边是线段 EA（h₁ = 1），右边是四边形 BCDE（h₃ = 2）。共 2 种。</li>
+</ol>
+<p>合计 h₄ = h₁h₃ + h₂h₂ + h₃h₁ = 2 + 1 + 2 = 5。<b>现在能看出为什么规定 h₁ = 1</b>：顶点紧挨着底边时，一侧什么都没剩，"什么都不做"是 1 种方法；规定 h₁ = 1，这种情况就和别的情况用同一个乘积公式。</p>
+<p><b>一般情形</b>：凸 (n+1) 边形，挑一条底边。三角形 T 把剩下的部分分成 K₁ 和 K₂，K₁ 有 k+1 条边，K₂ 有 n−k+1 条边，k = 1, 2, …, n−1（下图）。</p>
+<figure>
+<svg viewBox="0 0 240 180" role="img" aria-label="一个凸八边形，底边上的三角形 T 把它分成左边的 K1 和右边的 K2" style="max-width:340px">
+  <polygon class="k1" points="60,150 25,115 30,60 85,20 150,15"/>
+  <polygon class="k2" points="160,150 205,110 210,55 150,15"/>
+  <polygon class="tri" points="60,150 160,150 150,15"/>
+  <polygon class="polyn" points="60,150 160,150 205,110 210,55 150,15 85,20 30,60 25,115"/>
+  <line class="diag" x1="60" y1="150" x2="150" y2="15"/><line class="diag" x1="160" y1="150" x2="150" y2="15"/>
+  <line class="base" x1="60" y1="150" x2="160" y2="150"/>
+  <text class="f2" x="48" y="92">K₁</text><text class="sm" x="34" y="108">k+1 条边</text>
+  <text class="f4" x="168" y="80">K₂</text><text class="sm" x="160" y="96">n−k+1</text>
+  <text class="mid" x="125" y="118">T</text>
+  <text class="mid fw" x="110" y="170">底边</text>
+</svg>
+<figcaption>这个八边形 n+1 = 8，n = 7。T 的顶点选在这里时，K₁ 有 5 条边（k = 4），K₂ 有 4 条边（n−k+1 = 4）。</figcaption>
+</figure>
+<ol class="steps">
+<li>K₁、K₂ 接下来各自独立地三角剖分，分别有 hₖ、hₙ₋ₖ 种（K₁ 有 k+1 条边，按记号就是 hₖ）。乘法原理：这个顶点下有 hₖ·hₙ₋ₖ 种。</li>
+<li>不同的顶点给出不同的剖分（T 由剖分唯一决定），所以对 k 相加（加法原理）。</li>
+</ol>
+<div class="rule">
+<p><b>定理</b>（7.36，幻灯片 364）：h₁ = 1，</p>
+<p class="mono">hₙ = h₁hₙ₋₁ + h₂hₙ₋₂ + … + hₙ₋₁h₁ = Σ hₖhₙ₋ₖ（k 从 1 到 n−1）　（n ≥ 2）</p>
+<p>它的解是 hₙ = (1/n)·C(2n−2, n−1)　（7.37）</p>
+</div>
+<p>核对 n = 2：h₁h₁ = 1 = h₂。n = 5：h₁h₄ + h₂h₃ + h₃h₂ + h₄h₁ = 5 + 2 + 2 + 5 = 14，六边形有 14 种。</p>
+
+<h3>用生成函数解（幻灯片 367–369）</h3>
+<p>设 g(x) = h₁x + h₂x² + h₃x³ + …（从 h₁ 开始，没有常数项）。</p>
+<p><b>为什么要算 g(x)²</b>：g(x)·g(x) 里 xⁿ 的系数，是从第一个 g 挑 hₖxᵏ、从第二个 g 挑 hₙ₋ₖxⁿ⁻ᵏ，对所有 k 相加，也就是 h₁hₙ₋₁ + h₂hₙ₋₂ + … + hₙ₋₁h₁，正好是递推右边。这和"左边 K₁ 选一种、右边 K₂ 选一种"是同一回事。例：x⁴ 的系数是 h₁h₃ + h₂h₂ + h₃h₁ = 5 = h₄。</p>
+<ol class="steps">
+<li>所以 g² = h₂x² + h₃x³ + h₄x⁴ + …（g² 的 x² 系数是 h₁h₁ = 1 = h₂，以后各项用递推）。这正是 g 去掉第一项：g² = g − h₁x = g − x。</li>
+<li>g² − g + x = 0，把 g 当未知数解二次方程：g = (1 + √(1−4x))/2 或 g = (1 − √(1−4x))/2。</li>
+<li><b>选哪个</b>：g 没有常数项，g(0) = 0。前一个在 x = 0 时等于 1，后一个等于 0，所以 g(x) = 1/2 − (1/2)(1 − 4x)<sup>1/2</sup>。</li>
+<li>第5课的 Newton 二项式定理（幻灯片 239）：(1+z)<sup>1/2</sup> = 1 + Σ (−1)ⁿ⁻¹/(n·2²ⁿ⁻¹)·C(2n−2, n−1)·zⁿ（n 从 1 起）。</li>
+<li>把 z 换成 −4x：(−4x)ⁿ = (−1)ⁿ·4ⁿ·xⁿ。符号 (−1)ⁿ⁻¹·(−1)ⁿ = −1；4ⁿ/2²ⁿ⁻¹ = 2²ⁿ/2²ⁿ⁻¹ = 2。所以 (1−4x)<sup>1/2</sup> = 1 − Σ (2/n)·C(2n−2, n−1)·xⁿ。</li>
+<li>代回：g(x) = 1/2 − (1/2)[1 − Σ (2/n)C(2n−2, n−1)xⁿ] = Σ (1/n)·C(2n−2, n−1)·xⁿ（7.38）。</li>
+</ol>
+<p>读出系数，hₙ = C(2n−2, n−1)/n。核对 h₄ = C(6,3)/4 = 20/4 = 5，h₅ = C(8,4)/5 = 70/5 = 14。前几项：</p>
+<div class="scroll"><table class="num">
+<tr><th>n</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+<tr><th>(n+1) 边形</th><td>线段</td><td>三角形</td><td>四边形</td><td>五边形</td><td>六边形</td><td>七边形</td><td>八边形</td><td>九边形</td></tr>
+<tr><th>hₙ</th><td>1</td><td>1</td><td>2</td><td>5</td><td>14</td><td>42</td><td>132</td><td>429</td></tr>
+</table></div>
+<p class="tip">这些数（错开一位）就是第8章的 Catalan 数。第3节的演示里选"三角剖分"可以对账（我们也用程序直接枚举过 3 到 9 边形的剖分数）。</p>
+
+<!-- ============ 9 ============ -->
+<h2 id="egf">9　指数生成函数（幻灯片 370–382）</h2>
+
+<h3>为什么要除以 n!（幻灯片 370）</h3>
+<p>第6节的生成函数数的是"每种拿几个"，不管顺序。如果要数<b>排成一列</b>的方法，它就不对了。小例子：用最多 2 个 a、最多 1 个 b 排成长度为 n 的词。直接列：</p>
+<ol class="steps">
+<li>n = 1：a、b，2 个。</li>
+<li>n = 2：aa、ab、ba，3 个。</li>
+<li>n = 3：aab、aba、baa，3 个。</li>
+</ol>
+<p>用第6节的方法：(1 + x + x²)(1 + x) = 1 + 2x + 2x² + x³，x² 的系数是 2，可实际有 3 个词。<b>错在哪</b>：2 数的是两种<b>组合</b> {a, a} 和 {a, b}；但 {a, b} 能排成 ab、ba 两种，{a, a} 只有 1 种。一般地，m₁ 个 a 和 m₂ 个 b 的排列数是 (m₁+m₂)!/(m₁!·m₂!)（第3课多重集的排列）。</p>
+<p><b>修正的办法</b>：每个括号里写 xᵐ/m!，而不是 xᵐ：</p>
+<div class="calc">(1 + x + x²/2!)(1 + x/1!) = 1 + 2x + (1/2 + 1)x² + (1/2)x³ = 1 + 2x + (3/2)x² + (1/2)x³</div>
+<p>选 m₁ 个 a、m₂ 个 b 得到的那一项是 x<sup>m₁+m₂</sup>/(m₁!m₂!)，记 n = m₁ + m₂，它等于 <b>[n!/(m₁!m₂!)]·xⁿ/n!</b>：方括号里正好是排列数。所以要读 <b>xⁿ/n! 的系数</b>（也就是 xⁿ 的系数再乘 n!）：n = 2 时 (3/2)·2! = 3，n = 3 时 (1/2)·3! = 3，n = 1 时 2·1! = 2。全对了。</p>
+<div class="rule">
+<p><b>定义</b>（幻灯片 370）：数列 h₀, h₁, h₂, … 的<b>指数生成函数</b>是</p>
+<p class="mono">g⁽ᵉ⁾(x) = Σ hₙ·xⁿ/n! = h₀ + h₁x + h₂x²/2! + … + hₙxⁿ/n! + …</p>
+<p>名字来自 eˣ = 1 + x + x²/2! + … + xⁿ/n! + …。</p>
+</div>
+
+<h3>几个例子（幻灯片 371–372）</h3>
+<ol class="steps">
+<li><b>P(n,0), P(n,1), …, P(n,n)</b>：Σ P(n,k)·xᵏ/k! = Σ C(n,k)·xᵏ = (1+x)ⁿ。为什么：P(n,k)/k! = C(n,k)，有顺序的个数除以 k! 就是没顺序的个数。所以 (1+x)ⁿ 既是 C(n,k) 的普通生成函数，又是 P(n,k) 的指数生成函数。</li>
+<li><b>1, 1, 1, …</b>：Σ xⁿ/n! = eˣ。</li>
+<li><b>1, a, a², …</b>：Σ aⁿxⁿ/n! = Σ (ax)ⁿ/n! = e<sup>ax</sup>。</li>
+<li><b>kⁿ</b>（k 种字母、每种无限多个，长度 n 的词的个数）：e<sup>kx</sup>。核对 k = 2、n = 2：aa、ab、ba、bb，4 = 2² 个。每种字母一个括号 1 + x + x²/2! + … = eˣ，k 个相乘正是 e<sup>kx</sup>。</li>
+</ol>
+
+<h3>一般定理（幻灯片 373–376）</h3>
+<div class="rule">
+<p><b>定理</b>（7.39–7.40）：S = {n₁·a₁, n₂·a₂, …, nₖ·aₖ}，hₙ = S 的 n-排列数。则</p>
+<p class="mono">g⁽ᵉ⁾(x) = f<sub>n₁</sub>(x)·f<sub>n₂</sub>(x)···f<sub>nₖ</sub>(x)，其中 f<sub>nᵢ</sub>(x) = 1 + x + x²/2! + … + x<sup>nᵢ</sup>/nᵢ!</p>
+</div>
+<p><b>为什么</b>，和上面的小例子一模一样，只是字母多了：</p>
+<ol class="steps">
+<li>乘开后，每一项是从每个括号挑一个 x<sup>mᵢ</sup>/mᵢ!（0 ≤ mᵢ ≤ nᵢ）相乘：x<sup>m₁+…+mₖ</sup>/(m₁!···mₖ!)（7.41）。</li>
+<li>记 n = m₁ + … + mₖ，这一项 = [n!/(m₁!···mₖ!)]·xⁿ/n!。</li>
+<li>xⁿ/n! 的系数是所有这种 n!/(m₁!···mₖ!) 之和（7.42），对所有 m₁ + … + mₖ = n、0 ≤ mᵢ ≤ nᵢ 求和。</li>
+<li>n!/(m₁!···mₖ!) 正是"m₁ 个 a₁、……、mₖ 个 aₖ"排成一列的方法数。n-排列按"每种用了几个"分类，每类就是一项，所以总和就是 hₙ。</li>
+</ol>
+<p><b>做题的规则</b>：每种东西一个括号，括号里放 xᵐ/m!（m 取所有允许的个数），乘起来，读 xⁿ/n! 的系数。限制条件只改括号里留哪些项，和第6节一样。</p>
+
+<h3>"偶数个"用 eˣ 和 e⁻ˣ 来写（幻灯片 376–382）</h3>
+<p><b>例 1</b>（幻灯片 376–377）：由数字 1、2、3 组成的 n 位数，1 出现偶数次，2 至少出现 3 次，3 至多出现 4 次。</p>
+<p class="mono">g⁽ᵉ⁾(x) = (1 + x²/2! + x⁴/4! + …)·(x³/3! + x⁴/4! + x⁵/5! + …)·(1 + x + x²/2! + x³/3! + x⁴/4!)</p>
+<p>讲义只写到这里。可以手数几个检查：h₃ = 1（222）；h₄ = 5（2222，以及 2223 的 4 种排法：3 放在 4 个位置之一）；h₅ = 26。下面的演示可以把每一类列出来。</p>
+<p><b>例 2</b>（幻灯片 377–378）：用红、白、蓝给 1×n 棋盘的格子涂色，红色格子要有偶数个。先手数 n = 2：红红、白白、白蓝、蓝白、蓝蓝，5 种。</p>
+<ol class="steps">
+<li>红色的括号只留偶数次项：1 + x²/2! + x⁴/4! + …；白、蓝没有限制，各是 eˣ。</li>
+<li><b>偶数项怎么写成 e 的式子</b>：e⁻ˣ = 1 − x + x²/2! − x³/3! + …，奇数次项带负号。和 eˣ 相加，奇数次项抵消、偶数次项加倍，所以 1 + x²/2! + x⁴/4! + … = (eˣ + e⁻ˣ)/2。（相减得奇数项：x + x³/3! + … = (eˣ − e⁻ˣ)/2。）</li>
+<li>g⁽ᵉ⁾(x) = ((eˣ + e⁻ˣ)/2)·eˣ·eˣ = (e³ˣ + eˣ)/2 = (1/2)Σ(3ⁿ + 1)xⁿ/n!。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = (3ⁿ + 1)/2</p></div>
+<p>核对 n = 2：(9 + 1)/2 = 5。</p>
+<p><b>例 3</b>（幻灯片 379–380）：每位数字都是奇数（1、3、5、7、9）的 n 位数，1 和 3 都出现偶数次。规定 h₀ = 1。</p>
+<div class="calc">g⁽ᵉ⁾(x) = ((eˣ + e⁻ˣ)/2)²·e³ˣ = ((e²ˣ + 2 + e⁻²ˣ)/4)·e³ˣ = (e⁵ˣ + 2e³ˣ + eˣ)/4</div>
+<div class="rule"><p class="mono">hₙ = (5ⁿ + 2·3ⁿ + 1)/4　（n ≥ 0）</p></div>
+<p>核对 n = 1：(5 + 6 + 1)/4 = 3（5、7、9）；n = 2：(25 + 18 + 1)/4 = 11（11、33，以及 5、7、9 组成的 9 个）。作业 #350 用递推的办法重新推了这个公式。</p>
+<p><b>例 4</b>（幻灯片 381–382）：红、白、蓝涂 1×n 棋盘，红色偶数个，并且<b>至少有一个蓝色</b>。</p>
+<ol class="steps">
+<li>蓝色括号去掉常数项：x + x²/2! + … = eˣ − 1。</li>
+<li>g⁽ᵉ⁾(x) = ((eˣ + e⁻ˣ)/2)·eˣ·(eˣ − 1) = (e²ˣ + 1)(eˣ − 1)/2 = (e³ˣ − e²ˣ + eˣ − 1)/2。</li>
+<li>展开：−1/2 + Σ ((3ⁿ − 2ⁿ + 1)/2)·xⁿ/n!。那个单独的 −1/2 只影响 n = 0 那一项：h₀ = (1 − 1 + 1)/2 − 1/2 = 0（长度 0 没有格子，不可能有蓝色）。</li>
+</ol>
+<div class="rule"><p class="mono">hₙ = (3ⁿ − 2ⁿ + 1)/2（n ≥ 1），h₀ = 0</p></div>
+<p>核对 n = 1：(3 − 2 + 1)/2 = 1（只有"蓝"）；n = 2：(9 − 4 + 1)/2 = 3（白蓝、蓝白、蓝蓝；红红没有蓝）。</p>
+
+<div class="machine" id="egBox">
+  <div class="head"><span class="title">演示：指数生成函数的每一项是一类排列</span><span class="count" id="egCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="egSel">例子：</label>
+    <select id="egSel"></select>
+  </div>
+  <div class="controls">
+    <span>长度 n：</span><span class="regbtns" id="egNs" style="margin-top:0"></span>
+  </div>
+  <div class="calc" id="egHead"></div>
+  <div class="scroll"><table class="num" id="egTable"></table></div>
+  <div class="caption" id="egCap"></div>
+</div>
+<p class="tip">表里每一行是一种"每个字母用几个"的分法 (m₁, m₂, …)，也就是乘开后的一项；右边是这一类的排法数 n!/(m₁!m₂!…)。把所有行加起来就是 xⁿ/n! 的系数。下面的"逐个检查"是程序把所有 kⁿ 个串列出来，一个个看是否满足条件，和表格总和应该一样。</p>
+
+<!-- ============ practice ============ -->
+<h2 id="practice">练习（Exercises.pdf 题号）</h2>
+<p class="tip">先自己做，再点开答案。第7章的 #333（用生成函数解六个递推）、#340（C(n,2) 的生成函数）、#350（用递推重推 (5ⁿ + 2·3ⁿ + 1)/4）已经在<a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/%E4%BD%9C%E4%B8%9A/%E4%BD%9C%E4%B8%9A-333-340-350-352-355-365.md">作业解答</a>里，这里不再重复。下面所有数值答案都用程序核对过：递推题把公式和递推算出的前 16 项逐项比较；计数题把所有串（或所有解）枚举出来数；生成函数题把分式展开成级数，和逐个枚举的结果比较。</p>
+
+<div class="q"><span class="src">#304　第1节</span>
+<p>f₀, f₁, f₂, … 是 Fibonacci 数列。对下面每个式子先算几个小的 n，猜出一般公式，再用数学归纳法和 Fibonacci 递推证明：(i) f₁ + f₃ + … + f₂ₙ₋₁；(ii) f₀ + f₂ + … + f₂ₙ；(iii) f₀ − f₁ + f₂ − … + (−1)ⁿfₙ；(iv) f₀² + f₁² + … + fₙ²。</p>
+<p class="orig">By evaluating each of the following expressions for small values of n, conjecture a general formula and then prove it, using mathematical induction and the Fibonacci recurrence.</p>
+<details><summary>提示</summary><div class="ans"><p>把算出来的和跟 Fibonacci 表比一比，看是不是某个 f 或者某个 f 减 1。归纳时，从 n 到 n+1 只是多加一项，再用一次 fₖ₊₁ + fₖ = fₖ₊₂。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>(i) n = 1, 2, 3：1、1 + 2 = 3、1 + 2 + 5 = 8，是 f₂、f₄、f₆。猜 <b>f₂ₙ</b>。归纳：f₂ₙ + f₂ₙ₊₁ = f₂ₙ₊₂。</li>
+<li>(ii) n = 1, 2：0 + 1 = 1、0 + 1 + 3 = 4，比 f₃ = 2、f₅ = 5 少 1。猜 <b>f₂ₙ₊₁ − 1</b>。n = 0 时 0 = f₁ − 1。归纳：(f₂ₙ₊₁ − 1) + f₂ₙ₊₂ = f₂ₙ₊₃ − 1。</li>
+<li>(iii) n = 1, 2, 3, 4：−1、0、−2、1。猜 <b>(−1)ⁿfₙ₋₁ − 1</b>（n ≥ 1）：n = 1 时 −f₀ − 1 = −1，n = 3 时 −f₂ − 1 = −2。归纳：(−1)ⁿfₙ₋₁ − 1 + (−1)ⁿ⁺¹fₙ₊₁ = (−1)ⁿ⁺¹(fₙ₊₁ − fₙ₋₁) − 1 = (−1)ⁿ⁺¹fₙ − 1。</li>
+<li>(iv) n = 1, 2, 3：1、2、6，分别是 1·1、1·2、2·3。猜 <b>fₙfₙ₊₁</b>。归纳：fₙfₙ₊₁ + fₙ₊₁² = fₙ₊₁(fₙ + fₙ₊₁) = fₙ₊₁fₙ₊₂。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#311　第2节</span>
+<p>用红、蓝两色给 1×n 棋盘的每格涂色，要求没有两个红格相邻。设方法数为 hₙ，找出并验证 hₙ 满足的递推，再求 hₙ 的公式。</p>
+<p class="orig">Consider a 1-by-n chessboard. Suppose we color each square with one of the two colors red and blue. Let hₙ be the number of colorings in which no two squares that are colored red are adjacent.</p>
+<details><summary>提示</summary><div class="ans"><p>和"不许 aa 的词"一样，按第一格的颜色分类。第一格红，第二格只能是什么？</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>第一格蓝：后面 n−1 格随便合法地涂，hₙ₋₁ 种。</li>
+<li>第一格红：第二格必须蓝，后面 n−2 格合法地涂，hₙ₋₂ 种。</li>
+<li>hₙ = hₙ₋₁ + hₙ₋₂（n ≥ 2）。h₁ = 2（红、蓝），h₂ = 3（红蓝、蓝红、蓝蓝），h₀ = 1。</li>
+<li>数列 1, 2, 3, 5, 8, … = f₂, f₃, f₄, …，所以 <b>hₙ = fₙ₊₂ = (1/√5)[((1+√5)/2)ⁿ⁺² − ((1−√5)/2)ⁿ⁺²]</b>。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#317　第3节</span>
+<p>解递推 hₙ = hₙ₋₁ + 9hₙ₋₂ − 9hₙ₋₃（n ≥ 3），初值 h₀ = 0，h₁ = 1，h₂ = 2。</p>
+<p class="orig">Solve the recurrence relation hₙ = hₙ₋₁ + 9hₙ₋₂ − 9hₙ₋₃ (n ≥ 3) with the initial values h₀ = 0, h₁ = 1, and h₂ = 2.</p>
+<details><summary>提示</summary><div class="ans"><p>特征方程 x³ − x² − 9x + 9 = 0，试常数项 9 的因数，或者分组：x²(x − 1) − 9(x − 1)。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>x³ − x² − 9x + 9 = (x − 1)(x² − 9) = (x − 1)(x − 3)(x + 3)，根 1、3、−3。</li>
+<li>通解 hₙ = c₁ + c₂·3ⁿ + c₃·(−3)ⁿ。</li>
+<li>c₁ + c₂ + c₃ = 0；c₁ + 3c₂ − 3c₃ = 1；c₁ + 9c₂ + 9c₃ = 2。第 3 式减第 1 式：8(c₂ + c₃) = 2；第 2 式减第 1 式：2c₂ − 4c₃ = 1。解得 c₂ = 1/3，c₃ = −1/12，c₁ = −1/4。</li>
+<li><b>hₙ = −1/4 + (1/3)·3ⁿ − (1/12)·(−3)ⁿ</b>。核对：h₃ = 2 + 9 − 0 = 11，公式 −1/4 + 9 + 9/4 = 11；h₄ = 11 + 18 − 9 = 20，公式 −1/4 + 27 − 27/4 = 20。</li>
+</ol>
+<p>同一个递推在作业 #333(iii) 里用生成函数解过，可以对照两种方法。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#321　第3节</span>
+<p>由 0、1、2 组成的长度为 n 的串，不含两个连续的 0，也不含两个连续的 1。求个数 aₙ 满足的递推，再求 aₙ 的公式。</p>
+<p class="orig">Determine a recurrence relation for the number aₙ of ternary strings of length n that do not contain two consecutive 0's or two consecutive 1's. Then find a formula for aₙ.</p>
+<details><summary>提示</summary><div class="ans"><p>再设一个辅助量 bₙ = 以 0 开头的合法串个数（以 1 开头的也是 bₙ 个，因为 0、1 地位对称）。分别写出 aₙ 和 bₙ 的关系，再消掉 bₙ。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>按第一个字符分：以 2 开头，后面随便合法，aₙ₋₁ 个；以 0 或 1 开头，各 bₙ 个。aₙ = aₙ₋₁ + 2bₙ。</li>
+<li>以 0 开头的串，第二个字符是 2（后面 aₙ₋₂ 个）或 1（从第二位起是以 1 开头的合法串，bₙ₋₁ 个）：bₙ = aₙ₋₂ + bₙ₋₁。</li>
+<li>由第 1 步，2bₙ₋₁ = aₙ₋₁ − aₙ₋₂。所以 2bₙ = 2aₙ₋₂ + 2bₙ₋₁ = aₙ₋₁ + aₙ₋₂，代回得 <b>aₙ = 2aₙ₋₁ + aₙ₋₂</b>（n ≥ 2），a₀ = 1，a₁ = 3。前几项 1, 3, 7, 17, 41, 99（a₂ = 9 − 2 = 7，去掉 00、11）。</li>
+<li>特征方程 x² − 2x − 1 = 0，根 1 ± √2。c₁ + c₂ = 1，(c₁ − c₂)√2 = 3 − 1 = 2，c₁ = (1+√2)/2，c₂ = (1−√2)/2。</li>
+<li><b>aₙ = [(1+√2)ⁿ⁺¹ + (1−√2)ⁿ⁺¹]/2</b>。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#326　第5节</span>
+<p>解非齐次递推 hₙ = 4hₙ₋₁ + 3·2ⁿ（n ≥ 1），h₀ = 1。</p>
+<p class="orig">Solve the nonhomogeneous recurrence relation hₙ = 4hₙ₋₁ + 3 × 2ⁿ (n ≥ 1), h₀ = 1.</p>
+<details><summary>提示</summary><div class="ans"><p>2 不是特征根（特征根是 4），所以特解直接试 p·2ⁿ。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>齐次通解 c·4ⁿ。</li>
+<li>p·2ⁿ = 4p·2ⁿ⁻¹ + 3·2ⁿ，除以 2ⁿ：p = 2p + 3，p = −3。</li>
+<li>hₙ = c·4ⁿ − 3·2ⁿ，h₀ = 1：c − 3 = 1，c = 4。<b>hₙ = 4ⁿ⁺¹ − 3·2ⁿ</b>。</li>
+<li>核对：h₁ = 4 + 6 = 10 = 16 − 6；h₂ = 40 + 12 = 52 = 64 − 12。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#329　第4、5节</span>
+<p>解非齐次递推 hₙ = 6hₙ₋₁ − 9hₙ₋₂ + 2n（n ≥ 2），h₀ = 1，h₁ = 0。</p>
+<p class="orig">Solve the nonhomogeneous recurrence relation hₙ = 6hₙ₋₁ − 9hₙ₋₂ + 2n (n ≥ 2), h₀ = 1, h₁ = 0.</p>
+<details><summary>提示</summary><div class="ans"><p>齐次部分的特征根是二重根 3。bₙ = 2n 是一次式，1 不是特征根，特解试 rn + s。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>x² − 6x + 9 = (x − 3)²，齐次通解 (c₁ + c₂n)·3ⁿ。</li>
+<li>特解 rn + s：rn + s = 6(r(n−1) + s) − 9(r(n−2) + s) + 2n = (−3r + 2)n + (12r − 3s)。比较 n 的系数：r = −3r + 2，r = 1/2；常数项：s = 12r − 3s，4s = 6，s = 3/2。</li>
+<li>hₙ = (c₁ + c₂n)·3ⁿ + n/2 + 3/2。n = 0：c₁ + 3/2 = 1，c₁ = −1/2。n = 1：3(c₁ + c₂) + 2 = 0，c₁ + c₂ = −2/3，c₂ = −1/6。</li>
+<li><b>hₙ = −(1/2 + n/6)·3ⁿ + (n + 3)/2 = (n + 3)(1 − 3ⁿ⁻¹)/2</b>。</li>
+<li>核对：h₂ = 6·0 − 9·1 + 4 = −5，公式 5·(1 − 3)/2 = −5；h₃ = 6·(−5) − 0 + 6 = −24，公式 6·(1 − 9)/2 = −24。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#334　第5节</span>
+<p>解非齐次递推 hₙ = 4hₙ₋₁ + 4ⁿ（n ≥ 1），h₀ = 3。</p>
+<p class="orig">Solve the nonhomogeneous recurrence relation hₙ = 4hₙ₋₁ + 4ⁿ (n ≥ 1), h₀ = 3.</p>
+<details><summary>提示</summary><div class="ans"><p>4 是特征根，"撞车"了，特解要乘 n。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>试 p·4ⁿ 得 p = p + 1，不行。改试 p·n·4ⁿ：pn·4ⁿ = 4p(n−1)·4ⁿ⁻¹ + 4ⁿ，除以 4ⁿ：pn = p(n − 1) + 1，p = 1。</li>
+<li>hₙ = c·4ⁿ + n·4ⁿ，h₀ = 3 得 c = 3。<b>hₙ = (n + 3)·4ⁿ</b>。</li>
+<li>核对：h₁ = 12 + 4 = 16 = 4·4；h₂ = 64 + 16 = 80 = 5·16。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#332　第6节</span>
+<p>S = {∞·e₁, ∞·e₂, ∞·e₃, ∞·e₄}。hₙ 是 S 的满足下列附加条件的 n-组合数，分别求 h₀, h₁, … 的生成函数：(i) 每个 eᵢ 出现奇数次；(ii) 每个 eᵢ 出现 3 的倍数次；(iii) e₁ 不出现，e₂ 至多出现一次；(iv) e₁ 出现 1、3 或 11 次，e₂ 出现 2、4 或 5 次；(v) 每个 eᵢ 至少出现 10 次。</p>
+<p class="orig">Determine the generating function for the sequence h₀, h₁, …, where hₙ is the number of n-combinations of S with the following added restrictions.</p>
+<details><summary>提示</summary><div class="ans"><p>每个 eᵢ 一个括号，括号里放允许的次数作指数；没提到的元素没有限制，括号是 1/(1−x)。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<ol class="steps">
+<li>(i) (x + x³ + x⁵ + …)⁴ = <b>x⁴/(1 − x²)⁴</b>。</li>
+<li>(ii) (1 + x³ + x⁶ + …)⁴ = <b>1/(1 − x³)⁴</b>。</li>
+<li>(iii) e₁ 的括号是 1，e₂ 的是 1 + x，e₃、e₄ 各 1/(1−x)：<b>(1 + x)/(1 − x)²</b>。</li>
+<li>(iv) <b>(x + x³ + x¹¹)(x² + x⁴ + x⁵)/(1 − x)²</b>。</li>
+<li>(v) (x¹⁰ + x¹¹ + …)⁴ = (x¹⁰/(1−x))⁴ = <b>x⁴⁰/(1 − x)⁴</b>。</li>
+</ol>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#338　第6节</span>
+<p>一袋水果由苹果、橘子、香蕉、梨组成：苹果偶数个，橘子至多 2 个，香蕉是 3 的倍数个，梨至多 1 个。求 n 个水果的袋数 hₙ 的生成函数，并由它求 hₙ 的公式。</p>
+<p class="orig">Determine the generating function for the number hₙ of bags of fruit of apples, oranges, bananas, and pears in which there are an even number of apples, at most two oranges, a multiple of three number of bananas, and at most one pear. Then find a formula for hₙ from the generating function.</p>
+<details><summary>提示</summary><div class="ans"><p>和幻灯片 341–342 的例子一样，写出四个括号后找能约掉的因子：1 − x³ = (1 − x)(1 + x + x²)。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<div class="calc">g(x) = (1/(1−x²))·(1 + x + x²)·(1/(1−x³))·(1 + x)<br>
+<span class="ind">(1 + x + x²)/(1 − x³) = 1/(1 − x)，(1 + x)/(1 − x²) = 1/(1 − x)</span><br>
+<span class="ind">g(x) = 1/(1 − x)² = Σ (n + 1)xⁿ</span></div>
+<p><b>hₙ = n + 1</b>。核对 n = 2：2 苹果；2 橘子；1 橘子 + 1 梨，3 袋。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#335　第7节</span>
+<p>求立方数列 0, 1, 8, …, n³, … 的生成函数。</p>
+<p class="orig">Determine the generating function for the sequence of cubes 0, 1, 8, …, n³, ….</p>
+<details><summary>提示</summary><div class="ans"><p>从平方数的结果 x(1+x)/(1−x)³ = Σ n²xⁿ 出发，再做一次"求导、乘 x"，系数就再乘一个 n。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<div class="calc">(x(1+x)/(1−x)³)′ = (1+2x)/(1−x)³ + 3x(1+x)/(1−x)⁴<br>
+<span class="ind">= [(1+2x)(1−x) + 3x + 3x²]/(1−x)⁴ = (1 + 4x + x²)/(1−x)⁴ = Σ n³xⁿ⁻¹</span></div>
+<p>再乘 x：<b>x(1 + 4x + x²)/(1 − x)⁴</b>。核对：x(1 + 4x + x²)(1 + 4x + 10x² + …) = x + (4+4)x² + (10+16+1)x³ + … = x + 8x² + 27x³ + …。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#343　第9节</span>
+<p>求阶乘数列 0!, 1!, 2!, …, n!, … 的指数生成函数。</p>
+<p class="orig">Determine the exponential generating function for the sequence of factorials: 0!, 1!, 2!, 3!, …, n!, ….</p>
+<details><summary>提示</summary><div class="ans"><p>直接写定义，n! 和 1/n! 会约掉。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<p>Σ n!·xⁿ/n! = Σ xⁿ = <b>1/(1 − x)</b>。（n! 是 n 个不同的东西的排列数；1/(1−x) 作为普通生成函数是 1, 1, 1, …，作为指数生成函数就是 n!。）</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#347　第9节</span>
+<p>用红、蓝、绿、橙给 1×n 棋盘涂色，红色格子偶数个，绿色格子也偶数个。有多少种涂法？</p>
+<p class="orig">Determine the number of ways to color the squares of a 1-by-n chessboard, using the colors red, blue, green, and orange if an even number of squares is to be colored red and an even number is to be colored green.</p>
+<details><summary>提示</summary><div class="ans"><p>红、绿的括号是 (eˣ + e⁻ˣ)/2，蓝、橙是 eˣ。展开后注意 n = 0 那一项。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<div class="calc">g⁽ᵉ⁾(x) = ((eˣ + e⁻ˣ)/2)²·e²ˣ = ((e²ˣ + 2 + e⁻²ˣ)/4)·e²ˣ = (e⁴ˣ + 2e²ˣ + 1)/4</div>
+<p>xⁿ/n! 的系数是 (4ⁿ + 2·2ⁿ)/4，n = 0 时还要加上常数 1/4。所以 <b>hₙ = 4ⁿ⁻¹ + 2ⁿ⁻¹（n ≥ 1），h₀ = 1</b>。前几项 1, 2, 6, 20, 72。核对 n = 1：只能蓝或橙，2 种；n = 2：红红、绿绿，加上蓝、橙任意 4 种，共 6 种。</p>
+</div></details>
+</div>
+
+<div class="q"><span class="src">#348　第9节</span>
+<p>各位数字都是奇数的 n 位数中，1 和 3 都出现<b>非零的</b>偶数次，这样的数有多少个？</p>
+<p class="orig">Determine the number of n digit numbers with all digits odd, such that 1 and 3 each occur a nonzero, even number of times.</p>
+<details><summary>提示</summary><div class="ans"><p>和例 3（幻灯片 379–380）比，只是 1、3 的括号去掉了常数项 1：x²/2! + x⁴/4! + … = (eˣ + e⁻ˣ)/2 − 1。</p></div></details>
+<details><summary>看答案</summary><div class="ans">
+<div class="calc">g⁽ᵉ⁾(x) = ((eˣ + e⁻ˣ)/2 − 1)²·e³ˣ<br>
+<span class="ind">((eˣ + e⁻ˣ)/2 − 1)² = (e²ˣ + 2 + e⁻²ˣ)/4 − (eˣ + e⁻ˣ) + 1</span><br>
+<span class="ind">乘 e³ˣ：e⁵ˣ/4 − e⁴ˣ + (3/2)e³ˣ − e²ˣ + eˣ/4</span></div>
+<p><b>hₙ = (5ⁿ − 4·4ⁿ + 6·3ⁿ − 4·2ⁿ + 1)/4</b>。n = 0, 1, 2, 3 时都是 0（至少要两个 1 和两个 3）。核对 n = 4：(625 − 1024 + 486 − 64 + 1)/4 = 6，就是 1133 的 4!/(2!2!) = 6 种排法。n = 5 时是 90。</p>
+</div></details>
+</div>
+
+<p class="tip">更多同类题：#305（fₙ 是离 φⁿ/√5 最近的整数，见第2节）、#319、#320（重根）、#327、#330（非齐次）、#339（带系数的方程）、#346（红偶白奇）。</p>
+</div>
+
+<script>
+/* shared helpers */
+var L7 = (function(){
+  var MINUS = '−';
+  var SUPD = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  var SUBD = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+  function fm(v){ if (v === 0) return '0'; return v < 0 ? MINUS + String(-v) : String(v); }
+  function par(v){ return v < 0 ? '(' + fm(v) + ')' : fm(v); }
+  function fd(x, d){ var s = x.toFixed(d); if (/^-0\.?0*$/.test(s)) s = s.slice(1); return s.replace('-', MINUS); }
+  function sup(k){ return String(k).split('').map(function(c){ return SUPD[c]; }).join(''); }
+  function sub(k){ return String(k).split('').map(function(c){ return SUBD[c]; }).join(''); }
+  function pw(base, e){ return e === 0 ? 'x⁰' : (e === 1 ? base : base + sup(e)); }
+  function fact(n){ var r = 1; for (var i = 2; i <= n; i++) r *= i; return r; }
+  function binom(n, k){ if (k < 0 || k > n) return 0; var r = 1; for (var i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); }
+  return {MINUS:MINUS, fm:fm, par:par, fd:fd, sup:sup, sub:sub, pw:pw, fact:fact, binom:binom, $:function(id){ return document.getElementById(id); }};
+})();
+
+/* ---------- Demo A: recurrence vs closed form ---------- */
+(function(){
+  var fm = L7.fm, par = L7.par, fd = L7.fd, sup = L7.sup, sub = L7.sub, $ = L7.$, M = L7.MINUS;
+  var phi = (1 + Math.sqrt(5)) / 2, psi = (1 - Math.sqrt(5)) / 2, s3 = Math.sqrt(3);
+  var A3 = (2 + s3) / (2 * s3), B3 = (-2 + s3) / (2 * s3);
+  var MAXN = 12;
+  function linStep(co, b){
+    return function(h, n){
+      var v = 0, s = '';
+      co.forEach(function(a, i){
+        var x = h[n - 1 - i]; v += a * x;
+        var ab = Math.abs(a), body = (ab === 1 ? par(x) : ab + '·' + par(x));
+        if (i === 0) s += (a < 0 ? M : '') + body; else s += (a < 0 ? ' ' + M + ' ' : ' + ') + body;
+      });
+      if (b){ var bb = b(n); v += bb[0]; s += bb[1]; }
+      return {v: v, s: s};
+    };
+  }
+  function sgnTerm(v){ return v < 0 ? ' ' + M + ' ' + fm(-v) : ' + ' + fm(v); }
+  var P = [
+    {name:'Fibonacci（第2节）', sym:'f', rec:'fₙ = fₙ₋₁ + fₙ₋₂', init:[0,1], step:linStep([1,1]), approx:true,
+      cf:'fₙ = (φⁿ − ψⁿ)/√5，φ ≈ 1.6180，ψ ≈ −0.6180',
+      val:function(n){ return (Math.pow(phi,n) - Math.pow(psi,n)) / Math.sqrt(5); },
+      sub:function(n, v){ var b = Math.pow(psi,n); return '(' + fd(Math.pow(phi,n),4) + (b < 0 ? ' + ' + fd(-b,4) : ' ' + M + ' ' + fd(b,4)) + ')/√5 ≈ ' + fd(v,4); }},
+    {name:'幻灯片 314：hₙ = 2hₙ₋₁ + hₙ₋₂ − 2hₙ₋₃', sym:'h', rec:'hₙ = 2hₙ₋₁ + hₙ₋₂ − 2hₙ₋₃', init:[1,2,0], step:linStep([2,1,-2]),
+      cf:'hₙ = 2 − (2/3)(−1)ⁿ − (1/3)·2ⁿ = (6 − 2(−1)ⁿ − 2ⁿ)/3',
+      val:function(n){ return (6 - 2*Math.pow(-1,n) - Math.pow(2,n)) / 3; },
+      sub:function(n, v){ var e = Math.pow(-1,n); return '(6' + (e > 0 ? ' ' + M + ' 2' : ' + 2') + ' ' + M + ' ' + Math.pow(2,n) + ')/3 = ' + fm(6 - 2*e - Math.pow(2,n)) + '/3 = ' + fm(v); }},
+    {name:'不许 aa 的词（幻灯片 316–318）', sym:'h', rec:'hₙ = 2hₙ₋₁ + 2hₙ₋₂', init:[1,3], step:linStep([2,2]), approx:true,
+      cf:'hₙ = ((2+√3)/(2√3))(1+√3)ⁿ + ((−2+√3)/(2√3))(1−√3)ⁿ',
+      val:function(n){ return A3*Math.pow(1+s3,n) + B3*Math.pow(1-s3,n); },
+      sub:function(n, v){ return fd(A3,4) + '·' + fd(1+s3,4) + sup(n) + ' ' + M + ' ' + fd(-B3,4) + '·(' + fd(1-s3,4) + ')' + sup(n) + ' ≈ ' + fd(v,4); }},
+    {name:'二重根：hₙ = 4hₙ₋₁ − 4hₙ₋₂（第4节）', sym:'h', rec:'hₙ = 4hₙ₋₁ − 4hₙ₋₂', init:[1,3], step:linStep([4,-4]),
+      cf:'hₙ = 2ⁿ + n·2ⁿ⁻¹ = (n+2)·2ⁿ⁻¹',
+      val:function(n){ return (n + 2) * Math.pow(2, n - 1); },
+      sub:function(n, v){ return '(' + n + '+2)·2' + sup(n - 1) + ' = ' + (n + 2) + '·' + (n === 0 ? '1/2' : Math.pow(2, n - 1)) + ' = ' + fm(v); }},
+    {name:'三重根：幻灯片 323', sym:'h', rec:'hₙ = −hₙ₋₁ + 3hₙ₋₂ + 5hₙ₋₃ + 2hₙ₋₄', init:[1,0,1,2], step:linStep([-1,3,5,2]),
+      cf:'hₙ = (7/9)(−1)ⁿ − (3/9)·n(−1)ⁿ + (2/9)·2ⁿ',
+      val:function(n){ var e = Math.pow(-1,n); return (7*e - 3*n*e + 2*Math.pow(2,n)) / 9; },
+      sub:function(n, v){ var e = Math.pow(-1,n), a = 7*e, b = -3*n*e, c = 2*Math.pow(2,n); return '[' + fm(a) + sgnTerm(b) + ' + ' + c + ']/9 = ' + fm(a + b + c) + '/9 = ' + fm(v); }},
+    {name:'汉诺塔：hₙ = 2hₙ₋₁ + 1（第5节）', sym:'h', rec:'hₙ = 2hₙ₋₁ + 1', init:[0], step:linStep([2], function(){ return [1, ' + 1']; }),
+      cf:'hₙ = 2ⁿ − 1',
+      val:function(n){ return Math.pow(2,n) - 1; },
+      sub:function(n, v){ return '2' + sup(n) + ' ' + M + ' 1 = ' + Math.pow(2,n) + ' ' + M + ' 1 = ' + fm(v); }},
+    {name:'hₙ = 3hₙ₋₁ − 4n（幻灯片 327–330）', sym:'h', rec:'hₙ = 3hₙ₋₁ − 4n', init:[2], step:linStep([3], function(n){ return [-4*n, ' ' + M + ' 4·' + n]; }),
+      cf:'hₙ = −3ⁿ + 2n + 3',
+      val:function(n){ return -Math.pow(3,n) + 2*n + 3; },
+      sub:function(n, v){ return M + '3' + sup(n) + ' + 2·' + n + ' + 3 = ' + M + Math.pow(3,n) + ' + ' + (2*n) + ' + 3 = ' + fm(v); }},
+    {name:'hₙ = 2hₙ₋₁ + 3ⁿ（幻灯片 331–332）', sym:'h', rec:'hₙ = 2hₙ₋₁ + 3ⁿ', init:[2], step:linStep([2], function(n){ return [Math.pow(3,n), ' + 3' + sup(n)]; }),
+      cf:'hₙ = 3ⁿ⁺¹ − 2ⁿ',
+      val:function(n){ return Math.pow(3,n+1) - Math.pow(2,n); },
+      sub:function(n, v){ return '3' + sup(n + 1) + ' ' + M + ' 2' + sup(n) + ' = ' + Math.pow(3,n+1) + ' ' + M + ' ' + Math.pow(2,n) + ' = ' + fm(v); }},
+    {name:'撞车：hₙ = 3hₙ₋₁ + 3ⁿ（幻灯片 334–335）', sym:'h', rec:'hₙ = 3hₙ₋₁ + 3ⁿ', init:[2], step:linStep([3], function(n){ return [Math.pow(3,n), ' + 3' + sup(n)]; }),
+      cf:'hₙ = (n+2)·3ⁿ',
+      val:function(n){ return (n + 2) * Math.pow(3,n); },
+      sub:function(n, v){ return '(' + n + '+2)·3' + sup(n) + ' = ' + (n + 2) + '·' + Math.pow(3,n) + ' = ' + fm(v); }},
+    {name:'生成函数解：hₙ = 5hₙ₋₁ − 6hₙ₋₂（第7节）', sym:'h', rec:'hₙ = 5hₙ₋₁ − 6hₙ₋₂', init:[1,-2], step:linStep([5,-6]),
+      cf:'hₙ = 5·2ⁿ − 4·3ⁿ',
+      val:function(n){ return 5*Math.pow(2,n) - 4*Math.pow(3,n); },
+      sub:function(n, v){ return '5·2' + sup(n) + ' ' + M + ' 4·3' + sup(n) + ' = ' + (5*Math.pow(2,n)) + ' ' + M + ' ' + (4*Math.pow(3,n)) + ' = ' + fm(v); }},
+    {name:'重根 (1−2x)²：hₙ = −hₙ₋₁ + 16hₙ₋₂ − 20hₙ₋₃（第7节）', sym:'h', rec:'hₙ + hₙ₋₁ − 16hₙ₋₂ + 20hₙ₋₃ = 0', init:[0,1,-1], step:linStep([-1,16,-20]),
+      cf:'hₙ = [−2·2ⁿ + 7(n+1)·2ⁿ − 5·(−5)ⁿ]/49',
+      val:function(n){ return (-2*Math.pow(2,n) + 7*(n+1)*Math.pow(2,n) - 5*Math.pow(-5,n)) / 49; },
+      sub:function(n, v){ var a = -2*Math.pow(2,n), b = 7*(n+1)*Math.pow(2,n), c = -5*Math.pow(-5,n); return '[' + fm(a) + ' + ' + b + sgnTerm(c) + ']/49 = ' + fm(a + b + c) + '/49 = ' + fm(v); }},
+    {name:'三角剖分：hₙ = Σ hₖhₙ₋ₖ（第8节）', sym:'h', rec:'hₙ = h₁hₙ₋₁ + h₂hₙ₋₂ + … + hₙ₋₁h₁，h₁ = 1', init:[1], start:1,
+      step:function(h, n){ var v = 0, parts = []; for (var k = 1; k < n; k++){ v += h[k]*h[n-k]; parts.push(h[k] + '·' + h[n-k]); } return {v: v, s: parts.join(' + ')}; },
+      cf:'hₙ = C(2n−2, n−1)/n',
+      val:function(n){ return L7.binom(2*n-2, n-1) / n; },
+      sub:function(n, v){ return 'C(' + (2*n-2) + ', ' + (n-1) + ')/' + n + ' = ' + L7.binom(2*n-2, n-1) + '/' + n + ' = ' + fm(v); }}
+  ];
+  var sel = $('rcSel');
+  P.forEach(function(p, i){ var o = document.createElement('option'); o.value = i; o.textContent = p.name; sel.appendChild(o); });
+  var st = {p: P[0], h: [], cur: 0};
+  function start(p){ return p.start || 0; }
+  function reset(){
+    var p = st.p; st.h = []; var s0 = start(p);
+    p.init.forEach(function(v, i){ st.h[s0 + i] = v; });
+    st.cur = s0 + p.init.length - 1; render();
+  }
+  function closeTo(a, b){ return Math.abs(a - b) < 1e-6; }
+  function shownVal(p, n){ var v = p.val(n); return p.approx ? fd(v, 4) : fm(Math.round(v)); }
+  function rowInfo(n){
+    var p = st.p, s0 = start(p), isInit = n < s0 + p.init.length;
+    var r = isInit ? null : p.step(st.h, n);
+    var v = p.val(n);
+    return {isInit: isInit, r: r, v: v, ok: closeTo(v, st.h[n])};
+  }
+  function render(){
+    var p = st.p, s0 = start(p), sy = p.sym;
+    $('rcHead').innerHTML = '递推：' + p.rec + '<br>初值：' + p.init.map(function(v, i){ return sy + sub(s0 + i) + ' = ' + fm(v); }).join('，') + '<br>通项：' + p.cf;
+    var html = '<tr><th>n</th><th>用递推算（只用前面的项）</th><th>用通项算</th><th>对上了吗</th></tr>';
+    for (var n = s0; n <= st.cur; n++){
+      var ri = rowInfo(n);
+      html += '<tr' + (n === st.cur ? ' class="new"' : '') + '><td>' + n + '</td><td>' + (ri.isInit ? '初值 ' + fm(st.h[n]) : ri.r.s + ' = <b>' + fm(st.h[n]) + '</b>') + '</td><td>' + shownVal(p, n) + '</td><td class="' + (ri.ok ? 'ok' : 'bad') + '">' + (ri.ok ? '✓ 一致' : '✗ 不一致') + '</td></tr>';
+    }
+    $('rcTable').innerHTML = html;
+    var n = st.cur, ri = rowInfo(n), c;
+    var cfs = sy + sub(n) + ' = ' + p.sub(n, ri.v);
+    if (ri.isInit) c = '<b>n = ' + n + '</b> 是初值，不用递推。通项代 n = ' + n + '：' + cfs + '。通项里的常数就是为了让初值对上而解出来的，所以这几行一定一致。';
+    else c = '<b>n = ' + n + '</b>：递推用表里前面的数，' + sy + sub(n) + ' = ' + ri.r.s + ' = <span class="hl">' + fm(st.h[n]) + '</span>。通项直接代 n：' + cfs + (p.approx ? '，四舍五入是 ' + fm(Math.round(ri.v)) : '') + '。' + (ri.ok ? '两边相等。' : '两边不相等（不应该发生）。');
+    $('rcCap').innerHTML = c;
+    $('rcCount').textContent = '已算到 n = ' + st.cur;
+    $('rcNext').disabled = st.cur >= MAXN; $('rcAll').disabled = st.cur >= MAXN;
+  }
+  function next(){ if (st.cur >= MAXN) return; var n = st.cur + 1; st.h[n] = st.p.step(st.h, n).v; st.cur = n; render(); }
+  $('rcNext').addEventListener('click', next);
+  $('rcAll').addEventListener('click', function(){ while (st.cur < MAXN){ var n = st.cur + 1; st.h[n] = st.p.step(st.h, n).v; st.cur = n; } render(); });
+  $('rcReset').addEventListener('click', reset);
+  sel.addEventListener('change', function(){ st.p = P[+sel.value]; reset(); });
+  st.p = P[1]; sel.value = '1'; reset();
+})();
+
+/* ---------- Demo B: coefficient extractor ---------- */
+(function(){
+  var fm = L7.fm, sup = L7.sup, $ = L7.$;
+  function T(){ return true; }
+  var P = [
+    {name:'入门：苹果 0–2 个，香蕉 0–1 个', N:3, kinds:[{nm:'苹果', ok:function(e){ return e <= 2; }}, {nm:'香蕉', ok:function(e){ return e <= 1; }}]},
+    {name:'幻灯片 338：e₁ ≤ 5，e₂ ≤ 2，e₃ ≤ 4', N:11, kinds:[{nm:'e₁', ok:function(e){ return e <= 5; }}, {nm:'e₂', ok:function(e){ return e <= 2; }}, {nm:'e₃', ok:function(e){ return e <= 4; }}]},
+    {name:'幻灯片 339–341：苹果偶数，香蕉奇数，橘子 ≤ 4，梨 ≥ 1', N:10, kinds:[{nm:'苹果', ok:function(e){ return e % 2 === 0; }, inf:true}, {nm:'香蕉', ok:function(e){ return e % 2 === 1; }, inf:true}, {nm:'橘子', ok:function(e){ return e <= 4; }}, {nm:'梨', ok:function(e){ return e >= 1; }, inf:true}]},
+    {name:'幻灯片 341–342：苹果偶数，香蕉 5 的倍数，橘子 ≤ 4，梨 0 或 1', N:10, kinds:[{nm:'苹果', ok:function(e){ return e % 2 === 0; }, inf:true}, {nm:'香蕉', ok:function(e){ return e % 5 === 0; }, inf:true}, {nm:'橘子', ok:function(e){ return e <= 4; }}, {nm:'梨', ok:function(e){ return e <= 1; }}]},
+    {name:'幻灯片 347：找零钱，1、5、10、25 分（50 分在 25 分以内用不上）', N:25, kinds:[{nm:'1 分', ok:T, inf:true, unit:1}, {nm:'5 分', ok:function(e){ return e % 5 === 0; }, inf:true, unit:5}, {nm:'10 分', ok:function(e){ return e % 10 === 0; }, inf:true, unit:10}, {nm:'25 分', ok:function(e){ return e % 25 === 0; }, inf:true, unit:25}]}
+  ];
+  var sel = $('cfSel');
+  P.forEach(function(p, i){ var o = document.createElement('option'); o.value = i; o.textContent = p.name; sel.appendChild(o); });
+  var st = {p: null, N: 0, sets: [], inf: [], n: 0};
+  function load(i){
+    var p = P[i]; st.p = p; st.N = p.N; st.n = Math.min(st.N, i === 4 ? 10 : 2);
+    st.sets = p.kinds.map(function(k){ var s = []; for (var e = 0; e <= p.N; e++) if (k.ok(e)) s.push(e); return s; });
+    st.inf = p.kinds.map(function(k){ return !!k.inf; });
+    buildFacs(); render();
+  }
+  function polyStr(s, inf){
+    if (!s.length) return '0（一个都不允许）';
+    var t = s.map(function(e){ return e === 0 ? '1' : (e === 1 ? 'x' : 'x' + sup(e)); }).join(' + ');
+    return '(' + t + (inf ? ' + …' : '') + ')';
+  }
+  function buildFacs(){
+    var box = $('cfFacs'); box.innerHTML = '';
+    st.p.kinds.forEach(function(k, i){
+      var d = document.createElement('div'); d.className = 'fac';
+      var id = 'cfIn' + i;
+      d.innerHTML = '<label class="nm" for="' + id + '">' + k.nm + (k.unit ? '（指数 = 凑出的分数）' : '') + ' 允许的个数：</label><input type="text" id="' + id + '" autocomplete="off" spellcheck="false"><div class="pl" id="cfPl' + i + '"></div>';
+      box.appendChild(d);
+      var inp = d.querySelector('input'); inp.value = st.sets[i].join(',');
+      inp.addEventListener('change', function(){
+        var seen = {}, out = [];
+        inp.value.split(/[,，\s]+/).forEach(function(x){ if (x === '') return; var v = Number(x); if (Number.isInteger(v) && v >= 0 && v <= st.N && !seen[v]){ seen[v] = 1; out.push(v); } });
+        out.sort(function(a, b){ return a - b; });
+        st.sets[i] = out; st.inf[i] = false; inp.value = out.join(','); render();
+      });
+    });
+  }
+  function mul(a, b, N){ var c = []; for (var i = 0; i <= N; i++) c.push(0); for (i = 0; i <= N; i++){ if (!a[i]) continue; for (var j = 0; i + j <= N; j++) if (b[j]) c[i + j] += a[i] * b[j]; } return c; }
+  function enumAll(n){
+    var out = [], K = st.sets.length;
+    (function rec(i, left, cur){
+      if (i === K){ if (left === 0) out.push(cur.slice()); return; }
+      st.sets[i].forEach(function(e){ if (e <= left){ cur.push(e); rec(i + 1, left - e, cur); cur.pop(); } });
+    })(0, n, []);
+    return out;
+  }
+  function render(){
+    var N = st.N, K = st.sets.length, kinds = st.p.kinds;
+    kinds.forEach(function(k, i){ $('cfPl' + i).textContent = polyStr(st.sets[i], st.inf[i]); });
+    var rows = [], cur = null;
+    for (var i = 0; i < K; i++){
+      var f = []; for (var e = 0; e <= N; e++) f.push(0);
+      st.sets[i].forEach(function(e){ f[e] = 1; });
+      cur = cur ? mul(cur, f, N) : f; rows.push(cur);
+    }
+    var html = '<tr><th>乘到第几个括号</th>';
+    for (var n = 0; n <= N; n++) html += '<th>x' + (n === 0 ? '⁰' : (n === 1 ? '¹' : sup(n))) + '</th>';
+    html += '</tr>';
+    rows.forEach(function(r, i){
+      var lab = kinds.slice(0, i + 1).map(function(k){ return k.nm; }).join(' × ');
+      html += '<tr' + (i === K - 1 ? ' class="fin"' : '') + '><td>' + lab + (i === K - 1 ? '　= hₙ' : '') + '</td>' + r.map(function(v, n){ return '<td>' + (n === st.n && i === K - 1 ? '<span class="hl">' + v + '</span>' : v) + '</td>'; }).join('') + '</tr>';
+    });
+    $('cfTable').innerHTML = html;
+    var nb = $('cfNs'); nb.innerHTML = '';
+    for (n = 0; n <= N; n++){
+      var b = document.createElement('button'); b.textContent = 'n = ' + n; b.dataset.n = n;
+      if (n === st.n) b.className = 'sel';
+      b.setAttribute('aria-pressed', n === st.n ? 'true' : 'false');
+      nb.appendChild(b);
+    }
+    var last = rows[K - 1], list = enumAll(st.n), coef = last[st.n];
+    var c = '<b>n = ' + st.n + '</b>：逐个列出总数为 ' + st.n + ' 的拿法，共 <b>' + list.length + '</b> 种；表里 x' + (st.n === 0 ? '⁰' : (st.n === 1 ? '¹' : sup(st.n))) + ' 的系数是 <span class="hl">' + coef + '</span>，' + (list.length === coef ? '一样。' : '不一样（不应该发生）。');
+    if (list.length){
+      var show = list.slice(0, 60).map(function(t){
+        var parts = [];
+        t.forEach(function(e, i){
+          var k = kinds[i];
+          if (k.unit){ if (e) parts.push((e / k.unit) + ' 枚' + k.nm); }
+          else parts.push(k.nm + ' ' + e);
+        });
+        return parts.length ? parts.join('，') : '什么都不拿';
+      });
+      c += '<div class="lst">' + show.map(function(s, j){ return (j + 1) + '. ' + s; }).join('<br>') + (list.length > 60 ? '<br>……只列出前 60 种' : '') + '</div>';
+    }
+    $('cfCap').innerHTML = c;
+    $('cfCount').textContent = K + ' 个括号，算到 x' + sup(N);
+  }
+  $('cfNs').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; st.n = +b.dataset.n; render(); });
+  sel.addEventListener('change', function(){ load(+sel.value); });
+  load(0);
+})();
+
+/* ---------- Demo C: exponential generating functions ---------- */
+(function(){
+  var fm = L7.fm, sup = L7.sup, sub = L7.sub, fact = L7.fact, $ = L7.$;
+  function even(m){ return m % 2 === 0; }
+  function any(){ return true; }
+  var P = [
+    {name:'入门：最多 2 个 a、最多 1 个 b', L:['a','b'], ok:[function(m){ return m <= 2; }, function(m){ return m <= 1; }], fac:['1 + x + x²/2!', '1 + x'], maxN:4, f:null},
+    {name:'幻灯片 376–377：数字 1、2、3，1 偶数次，2 至少 3 次，3 至多 4 次', L:['1','2','3'], ok:[even, function(m){ return m >= 3; }, function(m){ return m <= 4; }], fac:['1 + x²/2! + x⁴/4! + …', 'x³/3! + x⁴/4! + …', '1 + x + x²/2! + x³/3! + x⁴/4!'], maxN:7, f:null},
+    {name:'幻灯片 377–378：红白蓝涂色，红色偶数个', L:['红','白','蓝'], ok:[even, any, any], fac:['(eˣ + e⁻ˣ)/2', 'eˣ', 'eˣ'], maxN:7, f:function(n){ return (Math.pow(3,n) + 1) / 2; }, ft:'(3ⁿ + 1)/2'},
+    {name:'幻灯片 379–380：奇数数字，1 和 3 各出现偶数次', L:['1','3','5','7','9'], ok:[even, even, any, any, any], fac:['(eˣ + e⁻ˣ)/2', '(eˣ + e⁻ˣ)/2', 'eˣ', 'eˣ', 'eˣ'], maxN:6, f:function(n){ return (Math.pow(5,n) + 2*Math.pow(3,n) + 1) / 4; }, ft:'(5ⁿ + 2·3ⁿ + 1)/4'},
+    {name:'幻灯片 381–382：红色偶数个，至少一个蓝', L:['红','白','蓝'], ok:[even, any, function(m){ return m >= 1; }], fac:['(eˣ + e⁻ˣ)/2', 'eˣ', 'eˣ − 1'], maxN:7, f:function(n){ return n === 0 ? 0 : (Math.pow(3,n) - Math.pow(2,n) + 1) / 2; }, ft:'(3ⁿ − 2ⁿ + 1)/2（n ≥ 1），h₀ = 0'}
+  ];
+  var sel = $('egSel');
+  P.forEach(function(p, i){ var o = document.createElement('option'); o.value = i; o.textContent = p.name; sel.appendChild(o); });
+  var st = {p: P[0], n: 2};
+  function comps(n, k){
+    var out = [];
+    (function rec(i, left, cur){
+      if (i === k - 1){ cur.push(left); out.push(cur.slice()); cur.pop(); return; }
+      for (var m = 0; m <= left; m++){ cur.push(m); rec(i + 1, left - m, cur); cur.pop(); }
+    })(0, n, []);
+    return out;
+  }
+  function brute(n){
+    var p = st.p, k = p.L.length, total = Math.pow(k, n), cnt = 0, words = [];
+    for (var x = 0; x < total; x++){
+      var y = x, c = [], w = '';
+      for (var j = 0; j < k; j++) c.push(0);
+      for (var t = 0; t < n; t++){ var d = y % k; y = (y - d) / k; c[d]++; w = p.L[d] + w; }
+      var good = true; for (j = 0; j < k; j++) if (!p.ok[j](c[j])) { good = false; break; }
+      if (good){ cnt++; if (words.length < 40) words.push(w); }
+    }
+    return {cnt: cnt, words: words, total: total};
+  }
+  function render(){
+    var p = st.p, n = st.n, k = p.L.length;
+    $('egHead').innerHTML = p.L.map(function(l, i){ return l + ' 的括号：' + p.fac[i]; }).join('<br>') + '<br>g⁽ᵉ⁾(x) 是这 ' + k + ' 个括号的乘积';
+    var rows = comps(n, k).filter(function(ms){ return ms.every(function(m, i){ return p.ok[i](m); }); });
+    var html = '<tr>' + p.L.map(function(l){ return '<th>' + l + ' 用几个</th>'; }).join('') + '<th>这一类的排法数</th></tr>';
+    var tot = 0;
+    rows.forEach(function(ms){
+      var v = fact(n); ms.forEach(function(m){ v /= fact(m); }); v = Math.round(v); tot += v;
+      html += '<tr>' + ms.map(function(m){ return '<td>' + m + '</td>'; }).join('') + '<td>' + n + '!/(' + ms.map(function(m){ return m + '!'; }).join('·') + ') = ' + v + '</td></tr>';
+    });
+    html += '<tr class="fin"><td colspan="' + k + '">合计 hₙ</td><td>' + tot + '</td></tr>';
+    $('egTable').innerHTML = html;
+    var b = brute(n);
+    var c = '<b>n = ' + n + '</b>：表里有 ' + rows.length + ' 行，每行是一种"每个字母用几个"（这是不计顺序的组合数，普通生成函数数出来的就是它）。把每行的排法数加起来，得 xⁿ/n! 的系数 <span class="hl">' + tot + '</span>。';
+    c += '<br>逐个检查全部 ' + k + sup(n) + ' = ' + b.total + ' 个长度为 ' + n + ' 的串，满足条件的有 <b>' + b.cnt + '</b> 个' + (b.cnt === tot ? '，一样' : '，不一样（不应该发生）') + '。';
+    if (p.f){ var fv = Math.round(p.f(n)); c += '<br>公式 ' + p.ft + ' 给出 ' + fv + (fv === tot ? '，也一样。' : '，不一样（不应该发生）。'); }
+    if (b.cnt > 0 && b.cnt <= 30) c += '<div class="lst">全部列出：' + b.words.map(function(w){ return w === '' ? '（空串）' : w; }).join('、') + '</div>';
+    if (b.cnt === 0) c += '<br>没有满足条件的串。';
+    $('egCap').innerHTML = c;
+    var nb = $('egNs'); nb.innerHTML = '';
+    for (var m = 0; m <= p.maxN; m++){
+      var bt = document.createElement('button'); bt.textContent = m; bt.dataset.n = m;
+      if (m === n) bt.className = 'sel';
+      bt.setAttribute('aria-pressed', m === n ? 'true' : 'false');
+      bt.setAttribute('aria-label', 'n = ' + m);
+      nb.appendChild(bt);
+    }
+    $('egCount').textContent = k + ' 种字母';
+  }
+  $('egNs').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; st.n = +b.dataset.n; render(); });
+  sel.addEventListener('change', function(){ st.p = P[+sel.value]; if (st.n > st.p.maxN) st.n = st.p.maxN; render(); });
+  render();
+})();
+</script>
