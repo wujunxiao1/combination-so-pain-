@@ -1,6 +1,6 @@
 # 组合数学学习笔记
 
-郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。前7章均配有 HTML 交互笔记，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
+郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。前8章均配有 HTML 交互笔记，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
 
 | 章 | 主题 | 讲义 | 课程笔记 |
 |---|---|---|---|
@@ -11,7 +11,7 @@
 | 5 | [二项式系数](ch05-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0) | [05 The Binomial Coefficients.pdf](ch05-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0/05%20The%20Binomial%20Coefficients.pdf) | [第5课-二项式系数.html](ch05-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0/%E7%AC%AC5%E8%AF%BE-%E4%BA%8C%E9%A1%B9%E5%BC%8F%E7%B3%BB%E6%95%B0.html) |
 | 6 | [容斥原理](ch06-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86) | [06 The Inclusion-Exclusion Principle and Applications.pdf](ch06-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86/06%20The%20Inclusion-Exclusion%20Principle%20and%20Applications.pdf) | [第6课-容斥原理.html](ch06-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86/%E7%AC%AC6%E8%AF%BE-%E5%AE%B9%E6%96%A5%E5%8E%9F%E7%90%86.html) |
 | 7 | [递推与生成函数](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0) | [07 Recurrence Relations and Generating Functions.pdf](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0/07%20Recurrence%20Relations%20and%20Generating%20Functions.pdf) | [第7课-递推关系和生成函数.html](ch07-%E9%80%92%E6%8E%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0/%E7%AC%AC7%E8%AF%BE-%E9%80%92%E6%8E%A8%E5%85%B3%E7%B3%BB%E5%92%8C%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0.html) |
-| 8 | [特殊计数序列](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97) | [08 Special Counting Sequences.pdf](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97/08%20Special%20Counting%20Sequences.pdf) | 待写 |
+| 8 | [特殊计数序列](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97) | [08 Special Counting Sequences.pdf](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97/08%20Special%20Counting%20Sequences.pdf) | [第8课-特殊计数序列.html](ch08-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97/%E7%AC%AC8%E8%AF%BE-%E7%89%B9%E6%AE%8A%E8%AE%A1%E6%95%B0%E5%BA%8F%E5%88%97.html) |
 | 9 | [二部图的匹配](ch09-%E4%BA%8C%E9%83%A8%E5%9B%BE%E7%9A%84%E5%8C%B9%E9%85%8D) | [09 Matchings in Bipartite Graphs.pdf](ch09-%E4%BA%8C%E9%83%A8%E5%9B%BE%E7%9A%84%E5%8C%B9%E9%85%8D/09%20Matchings%20in%20Bipartite%20Graphs.pdf) | 待写 |
 | 10 | [组合设计](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1) | [10 Combinatorial Designs.pdf](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1/10%20Combinatorial%20Designs.pdf) | 待写 |
 | 11 | [图论导引](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95) | [11 Introduction to Graph Theory.pdf](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/11%20Introduction%20to%20Graph%20Theory.pdf) | 待写 |
@@ -24,4 +24,5 @@
 - [学习计划.md](%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92.md)：分阶段学习安排、讲义与教材对照、每章推荐题号
 - [Exercises.pdf](Exercises.pdf)：课程习题集（703 题），笔记里的"题 #n"都按这里的编号
 - [作业/作业-83-95-104-126-131-141.md](%E4%BD%9C%E4%B8%9A/%E4%BD%9C%E4%B8%9A-83-95-104-126-131-141.md)：作业解答
+- [作业/作业-333-340-350-352-355-365.md](%E4%BD%9C%E4%B8%9A/%E4%BD%9C%E4%B8%9A-333-340-350-352-355-365.md)：作业解答（第7、8章）
 - [每日一练/](%E6%AF%8F%E6%97%A5%E4%B8%80%E7%BB%83)：每天一个知识点 1～2 道题，按日期一个文件（题目、我的作答、答案与讲解）；[掌握情况.md](%E6%AF%8F%E6%97%A5%E4%B8%80%E7%BB%83/%E6%8E%8C%E6%8F%A1%E6%83%85%E5%86%B5.md) 记录各知识点的掌握程度
