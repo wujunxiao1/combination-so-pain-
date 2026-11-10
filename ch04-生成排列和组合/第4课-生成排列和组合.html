@@ -200,19 +200,8 @@ button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
 <p>没有可移动的数时停止，这时 <span class="nw">\(n!\)</span> 个排列刚好全部列完。</p>
 </div>
 
-<h3>为什么要引入可移动数？它和"把 <span class="nw">\(n\)</span> 插进去"是什么关系</h3>
-<p><b>问题出在"插进去"要先有整张表。</b>上面 <span class="nw">\(n=3\)</span> 的做法，得先把 <span class="nw">\(n=2\)</span> 的全部排列（12、21）列好，3 才能在它们上面来回扫；而 <span class="nw">\(n=2\)</span> 的表又要从 <span class="nw">\(n=1\)</span> 的表来。这是一层套一层的递归。我们想要的是：<b>手上只有当前这一个排列，就能直接算出下一个</b>。</p>
-<p>只看 <span class="mono">312</span> 这一行，你说不出下一步该干什么：3 是正在往左走，还是刚走完要回头？谁该动？缺的信息有两样，可移动数的概念正好把它们补上：</p>
-<ol class="steps">
-<li><b>箭头 = 这个数正在往哪个方向扫。</b>"插进去"的图里，3 先从右往左扫、再从左往右扫，箭头就是把这个方向记在数头上。</li>
-<li><b>可移动 = 这一趟还没扫完，还能再走一步。</b>数 <span class="nw">\(k\)</span> 只负责在比它小的数<span class="nw">（\(1\ldots k-1\)</span> 的排列）中间穿行。箭头指着比它小的数，说明前面还有空位可以走。箭头指到边界外，说明这一趟走到头了。箭头指着比它大的数，那一步不归它管：<span class="nw">\(k\)</span> 和更大的数交换位置，属于那个更大的数自己的扫动。</li>
-</ol>
-<p>有了这两个概念，算法的三条规则就是"插进去"的白话翻译：</p>
-<ul>
-<li><b>选最大的可移动数</b>：<span class="nw">\(n\)</span> 最优先，只要 <span class="nw">\(n\)</span> 还没扫到头，就一直是 <span class="nw">\(n\)</span> 在走。这就是<span class="nw">"\(n\)</span> 扫过一个排列"。</li>
-<li><b><span class="nw">\(n\)</span> 扫到头、不可移动了</b>，才轮到比它小的数动一步。忽略 <span class="nw">\(n\)</span> 看，这一步正好把 <span class="nw">\(n-1\)</span> 个数的排列换成表里的下一个，也就是"换下一个排列给 <span class="nw">\(n\)</span> 扫"。</li>
-<li><b>把比 <span class="nw">\(m\)</span> 大的数的箭头反向</b>：下面的排列换了，<span class="nw">\(n\)</span> 掉头往回扫。</li>
-</ul>
+<h3>可移动数在记什么</h3>
+<p>"插进去"要先有上一层的整张表。箭头和"可移动"让你手上只有当前这一行，也能直接算出下一行：<b>箭头</b>记录这个数正在往哪个方向扫，<b>可移动</b>表示这一趟还没扫到头。</p>
 <p>拿 <span class="nw">\(n=3\)</span> 一步步对照（括号里是忽略 3 之后的样子）：</p>
 <ol class="steps">
 <li><span class="mono">←1 ←2 ←3</span> 即 123：最大可移动是 3，往左走 → <span class="mono">1<span class="hl">3</span>2</span> → <span class="mono"><span class="hl">3</span>12</span>。这是 3 在（12）上从右往左扫。</li>
@@ -220,7 +209,7 @@ button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
 <li>2 动了，比 2 大的 3 箭头反向变成 →。3 往右扫：<span class="mono">2<span class="hl">3</span>1</span> → <span class="mono">21<span class="hl">3</span></span>。这是 3 在（21）上从左往右扫回来。</li>
 <li><span class="mono">213</span>：3 到了右边界，2 的箭头指向左边界外，1 永远不动。没有可移动数，停止。6 个排列和上面"插进去"的表完全一样。</li>
 </ol>
-<p class="tip">一句话：<b>"把 <span class="nw">\(n\)</span> 插进去"说的是这些排列长什么样，"可移动数"是让你不用存整张表、只看当前一行就能接着往下走的记号</b>。<span class="nw">\(n=4\)</span> 时，3 和 2 也在用同样的规则，在更小的那层里来回扫。</p>
+
 
 <div class="machine" id="jtBox">
   <div class="head"><span class="title">演示：可移动整数算法</span><span class="count" id="jtCount"></span></div>
@@ -271,7 +260,7 @@ button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
   <div class="caption" id="invOut"></div>
 </div>
 
-<h3>逆序列的范围，以及为什么能反推回排列</h3>
+<h3>逆序列的范围，以及怎么反推回排列</h3>
 <p>比 <span class="nw">\(j\)</span> 大的数只有 <span class="nw">\(n-j\)</span> 个，所以 <span class="nw"><b><span class="nw">\(0\le a_j\le n-j\)</span></b>：</span><span class="nw">\(a_1\)</span> 在 <span class="nw">\(0\ldots n-1\)</span> 之间，<span class="nw">\(a_2\)</span> 在 <span class="nw">\(0\ldots n-2\)</span> 之间，……，<span class="nw">\(a_n\)</span> 一定是 0。满足这些范围的序列一共有 <span class="nw">\(n\times(n-1)\times\cdots\times 1=n!\)</span> 个，正好和排列一样多。</p>
 <p>这个数是用乘法原理数出来的：<span class="nw">\(a_1\)</span> 有 <span class="nw">\(n\)</span> 种取法<span class="nw">（\(0\ldots n-1\)）</span>，<span class="nw">\(a_2\)</span> 有 <span class="nw">\(n-1\)</span> 种<span class="nw">（\(0\ldots n-2\)）</span>，……，<span class="nw">\(a_n\)</span> 只有 1 种（只能是 0）。<b>每个位置的取值范围只看 <span class="nw">\(j\)，</span>不受前面填了什么影响</b>，所以可以直接相乘。<span class="nw">\(n=3\)</span> 时 <span class="nw">\(a_1\in\{0,1,2\}\)、</span><span class="nw">\(a_2\in\{0,1\}\)、</span><span class="nw">\(a_3=0\)，</span>全部列出来是 <span class="mono">000、010、100、110、200、210</span>，共 <span class="nw">\(3\times 2\times 1=6\)</span> 个。</p>
 <p class="tip"><b>注意谁会重复</b>：排列 <span class="nw">\(1\ldots n\)</span> 里每个数恰好出现一次，不会重复；但<b>逆序列可以有重复的值</b>，比如 31524 的逆序列是 1,2,0,1,0。它只受 <span class="nw">\(0\le a_j\le n-j\)</span> 限制。（"序列"本身只是一串有顺序的数，允许重复；有重复元素的排列是第3课的多重集排列。）</p>
@@ -295,29 +284,19 @@ button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
   </div>
 </div>
 <p class="tip">讲义里的<b>算法 I</b> 是反过来做：先写 8，再按 <span class="nw">\(b_7\)</span> 把 7 插到 8 的前或后，再按 <span class="nw">\(b_6\)</span> 插 6……插 <span class="nw">\(k\)</span> 时，它前面要有 <span class="nw">\(b_k\)</span> 个已经写好的数（这些都比 <span class="nw">\(k\)</span> 大）。两种算法得到同一个排列 48625137。</p>
-<p><b>造出来的排列是唯一的吗？是的，因为每一步都没得选。</b>放 <span class="nw">\(j\)</span> 的时候，比 <span class="nw">\(j\)</span> 小的数已经放好，剩下的空位以后全部由比 <span class="nw">\(j\)</span> 大的数来填。所以<span class="nw">"\(j\)</span> 前面有几个比它大的数"就等于<span class="nw">"\(j\)</span> 前面留着几个空位"：<span class="nw">\(b_j=2\)</span> 就只能放第 3 个空位，放第 2 个或第 4 个，逆序数就变成 1 或 3。另外它也总放得下：放 <span class="nw">\(j\)</span> 时还剩 <span class="nw">\(n-j+1\)</span> 个空位，而 <span class="nw">\(b_j\le n-j\)，</span>第 <span class="nw">\(b_j+1\)</span> 个空位一定存在。</p>
 <ol class="steps">
 <li>例：<span class="nw">\(b=1,2,0,1,0\)</span><span class="nw">（\(n=5\)）</span>。放 1：第 2 个空 → <span class="mono">_ 1 _ _ _</span></li>
 <li>放 2：空位是 1、3、4、5 号，第 3 个空是 4 号 → <span class="mono">_ 1 _ 2 _</span></li>
 <li>放 3：第 1 个空 → <span class="mono">3 1 _ 2 _</span></li>
 <li>放 4：空位是 3、5 号，第 2 个空是 5 号 → <span class="mono">3 1 _ 2 4</span></li>
-<li>放 5：只剩 3 号 → <span class="mono">3 1 5 2 4</span>，只有这一个答案。</li>
+<li>放 5：只剩 3 号 → <span class="mono">3 1 5 2 4</span>。</li>
 </ol>
-<p><b>不用这个算法，结论也成立。</b>上面的推理对<b>任何一个</b>逆序列是 <span class="nw">\(b\)</span> 的排列 <span class="nw">\(\pi\)</span> 都适用，不依赖构造方法：其他数都比 1 大，所以 1 在 <span class="nw">\(\pi\)</span> 里前面恰好有 <span class="nw">\(b_1\)</span> 个数，位置被定死；除了 1 其他数都比 2 大，所以不算 1 那格，2 前面恰好有 <span class="nw">\(b_2\)</span> 个数，位置也被定死；依此类推。所以两个逆序列相同的排列，每个数的位置都一样，就是同一个排列。</p>
-<p>也可以用鸽巢原理看：排列有 <span class="nw">\(n!\)</span> 个，合法逆序列也有 <span class="nw">\(n!\)</span> 个，每个逆序列都至少对应一个排列（算法造得出来）。如果某个逆序列对应两个排列，<span class="nw">\(n!\)</span> 个排列只能分到少于 <span class="nw">\(n!\)</span> 个逆序列上，必有别的逆序列一个排列都没有，矛盾。</p>
-<p class="tip">"总能造出来"加上"只造得出一个"，就是上面定理说的<b>排列和逆序列一一对应</b>。</p>
+<p class="tip">每一步都只有一个位置可放，所以造出来的排列是唯一的。这就是上面定理说的一一对应，考试只要会用算法 I 或 II 还原。</p>
 
 <h3>用相邻交换排好序</h3>
 <p>每交换一对相邻的、顺序颠倒的数，逆序个数恰好减 1。所以<b>把排列变成 <span class="nw">\(12\ldots n\)</span> 最少要交换的次数 = 逆序个数</b>。讲义第 184 页把 361245 变成 123456，用了 6 次，因为 361245 有 6 个逆序：<span class="nw">\((3,1)(3,2)(6,1)(6,2)(6,4)(6,5)\)。</span></p>
 <p class="mono">361245 → 316245 → 136245 → 132645 → 123645 → 123465 → 123456</p>
-<p><b>为什么交换不会引入新的逆序，也不会一次去掉好几个？</b>因为相邻交换只改变被交换的那两个数之间的先后。以 361245 → 316245 为例：</p>
-<ol class="steps">
-<li>3 原来在 6、1 的前面，交换后还在它俩前面；2、4、5 原来在后面，交换后还在后面。</li>
-<li>所以任何别的数和 6、和 1 的相对顺序都没变，唯一变了的是 <span class="nw">\((6,1)\)</span> 这一对。</li>
-<li>换的是"左大右小"的相邻对，逆序数恰好减 1；换"左小右大"的则加 1，所以只挑顺序颠倒的相邻对来换。</li>
-<li>每次最多减 1，所以至少要换"逆序个数"次；而只要还没排好，就一定有一对左大右小的相邻数（否则整串已经是 <span class="nw">\(12\ldots n\)）</span>，所以正好这么多次就够。</li>
-</ol>
-<p class="tip"><b>不相邻</b>的交换才可能一次去掉多个逆序：321 直接交换 3 和 1 得到 123，一下去掉 3 个，因为夹在中间的 2 和两边的相对顺序都变了。</p>
+<p class="tip"><b>直觉</b>：相邻交换只改变被交换的那两个数的先后，所以每次交换一对"左大右小"的相邻数，逆序数恰好少 1。不相邻的交换才可能一次去掉多个，比如 321 直接交换 3 和 1 得到 123，一下去掉 3 个。</p>
 
 <!-- ============ 3 ============ -->
 <h2 id="bin">3　生成全部子集：二进制加 1（幻灯片 185–189）</h2>
@@ -403,7 +382,6 @@ button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
 <li>第三位 3 加 1 是 4，不在组合里，可以。所以 <span class="nw">\(k=3\)。</span></li>
 <li>3 变成 4，后面填 5、6：答案 <span class="mono">12456</span>。</li>
 </ul>
-<p class="tip"><b>为什么这样得到的就是紧挨着的下一个</b>：要比当前大、又要尽量小，就得①改动的位置尽量靠右（和当前共用的开头尽量长），②那一位只加 1，③后面各位填能填的最小值。讲义第 201 页的说法是：以 123 开头的组合里 12389 已经是最后一个，所以下一个的开头只能是 12 加上比 3 大的数，其中最小的是 12456。</p>
 
 <div class="machine" id="lexBox">
   <div class="head"><span class="title">演示：<span class="nw">\(\{1,\ldots,6\}\)</span> 的 4-组合（讲义第 204 页）</span><span class="count" id="lexCount"></span></div>
@@ -438,7 +416,6 @@ button.rl-opt.wrong{border-color:var(--warn);color:var(--warn)}
 <p>排在后面的共 6 个，所以 1356 排第 <span class="nw">\(15-6=\boldsymbol{9}\)</span> 位。可以在上面的演示里点到第 9 个核对一下。一般公式（幻灯片 205）：</p>
 <div class="rule"><p>\[\begin{aligned}\text{位置}&=\binom{n}{r}-\binom{n-a_1}{r}\\&\quad-\binom{n-a_2}{r-1}-\cdots-\binom{n-a_r}{1}\end{aligned}\]</p></div>
 <p>公式里每一项就是上面的一类：第 <span class="nw">\(i\)</span> 位比 <span class="nw">\(a_i\)</span> 大时，第 <span class="nw">\(i\)</span> 位到第 <span class="nw">\(r\)</span> 位这 <span class="nw">\(r-i+1\)</span> 个数都要从 <span class="nw">\(\{a_i+1,\ldots,n\}\)</span> 这 <span class="nw">\(n-a_i\)</span> 个数里选，所以是 <span class="nw">\(\binom{n-a_i}{r-i+1}\)。</span></p>
-<p class="tip"><b>为什么不直接数前面的？</b>也可以，但麻烦。排在前面的，某一位要比 <span class="nw">\(a_i\)</span> 小、又要比前一位大，得把每个可能的值分开算再加起来。数后面的，每一位只要一个组合数就够了。</p>
 
 <div class="machine">
   <div class="head"><span class="title">自己试：算一个组合的位置</span></div>
