@@ -139,6 +139,18 @@ tr.fin td{font-weight:700;color:var(--accent)}
 tr.new td{background:var(--accent-soft)}
 td.ok{color:var(--accent);font-weight:600}
 td.bad{color:var(--warn);font-weight:600}
+/* Reading prompts and short concept checks */
+.section-question{color:var(--muted);border-left:2px solid var(--line);padding-left:.8rem}
+.section-question b{color:var(--ink)}
+.learning-route{margin-top:1.2rem}
+.checkpoint{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:.75rem 1rem;margin:1.2rem 0}
+.checkpoint summary{font-weight:600;line-height:1.7}
+.checkpoint .ans{padding-top:.3rem;overflow-x:auto}
+.concept-table{width:100%}
+.concept-table caption{text-align:left;color:var(--muted);font-size:.85rem;margin-bottom:.4rem}
+.concept-table td:first-child{white-space:normal;min-width:7rem}
+@media print{.machine,.checkpoint,.rule{break-inside:avoid}.checkpoint .ans{display:block}}
+
 /* practice */
 .q{margin:1rem 0;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 .q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600}
@@ -153,7 +165,7 @@ details[open] summary{margin-bottom:.3rem}
 <div class="wrap">
 <p class="meta">组合数学 · 讲义 07 · 幻灯片第 289–382 页 · Brualdi 第7章</p>
 <h1>第7课　递推关系和生成函数</h1>
-<p class="lede">第1课数 \(2\times n\) 棋盘的铺法时，我们没有一个一个去数，而是发现 \(f(n) = f(n-1) + f(n-2)\)：大问题的答案可以用小问题的答案算出来。这种式子叫<b>递推关系</b>。这一课做两件事。第一，把递推关系"解开"，得到一个直接代 \(n\) 就能算的公式（特征方程、特解）。第二，引入<b>生成函数</b>：把整串数 \(h_0, h_1, h_2, \ldots\) 写成 \(h_0 + h_1x + h_2x^2 + \cdots\) 这样一个"多项式"，让多项式乘法替我们计数，也用它来解递推。最后是<b>指数生成函数</b>，专门用来数"有顺序"的排列。每个方法都先用一个小数字说明为什么需要它，再给一般规则；三个演示可以一项一项地对账。</p>
+<p class="lede">第1课数 \(2\times n\) 棋盘的铺法时，我们没有一个一个去数，而是发现 \(f(n) = f(n-1) + f(n-2)\)：大问题的答案可以用小问题的答案算出来。这种式子叫<b>递推关系</b>。这一课做两件事。第一，把递推关系"解开"，得到一个直接代 \(n\) 就能算的公式（特征方程、特解）。第二，引入<b>生成函数</b>：把整串数 \(h_0, h_1, h_2, \ldots\) 写成 \(h_0 + h_1x + h_2x^2 + \cdots\) 这样一个"多项式"，让多项式乘法替我们计数，也用它来解递推。最后是<b>指数生成函数</b>，在本课中用来处理有数量限制的字母排列和涂色。每个方法都先用小例子建立直觉，再推导规则；演示可以一项一项地对账。</p>
 <ul class="toc">
   <li><a href="#seq">1 数列和递推</a></li>
   <li><a href="#fib">2 Fibonacci 的公式</a></li>
@@ -166,6 +178,15 @@ details[open] summary{margin-bottom:.3rem}
   <li><a href="#egf">9 指数生成函数</a></li>
   <li><a href="#practice">练习</a></li>
 </ul>
+
+<div class="rule learning-route">
+<p><b>沿着三个问题读这一章</b></p>
+<ol class="steps">
+<li><b>知道递推，怎样求通项？</b>第2–4节找出满足递推的基本解，再用初值确定常数；第5节多一个任务：找到能凑出非齐次项的特解。</li>
+<li><b>不知道递推，能不能直接计数？</b>第6节用指数记录数量，用系数记录方案数；数量限制变成括号，合并选择变成乘法。</li>
+<li><b>这种记账方法还能做什么？</b>第7节用移位处理线性递推，第8节用乘法处理卷积，第9节让阶乘带入排列数。注意每次运算究竟改变了哪一个系数。</li>
+</ol>
+</div>
 
 <!-- ============ 1 ============ -->
 <h2 id="seq">1　数列和递推关系（幻灯片 289–298）</h2>
@@ -500,6 +521,9 @@ details[open] summary{margin-bottom:.3rem}
 <!-- ============ 5 ============ -->
 <h2 id="non">5　非齐次递推（幻灯片 325–335）</h2>
 
+<p class="section-question"><b>这一节要回答：</b>递推中多了一个不含数列项的量，为什么只找一个特解，就能把问题交回给齐次递推？</p>
+<p>把 \(h_n=3h_{n-1}\) 改成 \(h_n=3h_{n-1}-4n\)，新增的 \(-4n\) 就是<b>非齐次项</b>。一般写成 \(h_n=a_1h_{n-1}+\cdots+a_kh_{n-k}+b_n\)；\(b_n\) 恒为 0 时叫齐次，不恒为 0 时叫非齐次。它可以是常数、多项式或指数项。</p>
+
 <h3>汉诺塔（幻灯片 325–327）</h3>
 <p>三根柱子，一根上套着 \(n\) 个大小不同的圆盘，大的在下。每次移动一个盘子，任何时候都不能把大盘子放在小盘子上面。把整摞移到另一根柱子上，至少要几步？设为 \(h_n\)。</p>
 <p>小的情形：\(h_0 = 0\)；\(h_1 = 1\)；\(h_2 = 3\)（小的挪到中间，大的挪到目标，小的再放上去）。</p>
@@ -516,6 +540,14 @@ details[open] summary{margin-bottom:.3rem}
 <div class="calc">\[\begin{gathered} h_n - p_n:\ 2 - 3,\ 2 - 5,\ -2 - 7,\ -18 - 9,\ -70 - 11 \\ = -1,\ -3,\ -9,\ -27,\ -81 \end{gathered}\]</div>
 <p>差是一个公比为 3 的等比数列，也就是<b>齐次</b>递推 \(h_n = 3h_{n-1}\) 的解。<b>为什么</b>：\((3h_{n-1} - 4n) - (3p_{n-1} - 4n) = 3(h_{n-1} - p_{n-1})\)，那个 \(-4n\) 被减掉了。</p>
 <p>所以：<b>任何一个解 = 一个特解 + 齐次递推的某个解</b>。方法是（幻灯片 330）：</p>
+
+<div class="calc">
+<p><b>再看反方向，确保既能得到解，也没有漏掉解。</b>设 \(g_n=3g_{n-1}\)，\(p_n=3p_{n-1}-4n\)。相加得到</p>
+\[g_n+p_n=3(g_{n-1}+p_{n-1})-4n.\]
+<p>所以每个“齐次解 + 特解”都是原递推的解；而任意原递推的解减去同一个 \(p_n\)，又必定是齐次解。这两步一起说明：</p>
+\[\boxed{\text{非齐次通解}=\text{齐次通解}+\text{一个特解}}\]
+<p>这里的<b>特解只要求满足原递推，不要求满足题目的初值</b>。本例 \(p_0=3\) 而 \(h_0=2\)，差的那一部分由齐次解补上。</p>
+</div>
 <ol class="steps">
 <li>求对应齐次递推的通解。这里 \(h_n = 3h_{n-1}\)，特征方程 \(x - 3 = 0\)，通解 \(c\cdot 3^n\)（7.23）。</li>
 <li>求非齐次递推的<b>一个</b>特解。</li>
@@ -560,8 +592,17 @@ details[open] summary{margin-bottom:.3rem}
 <p>核对：\(h_1 = 3\cdot 2 + 3 = 9 = 3\cdot 3\)；\(h_2 = 3\cdot 9 + 9 = 36 = 4\cdot 9\)。</p>
 <p class="tip"><b>两种情况其实是一回事</b>：\(a = 1\) 时特征根是 1，而多项式可以看成"乘了 \(1^n\)"；\(b_n\) 和齐次解撞车，就要把猜测乘上 \(n\)（所以 \(a = 1\) 时常数要猜成 \(rn\)，一次式要猜成二次式）。上面演示的下拉菜单里有汉诺塔和这一节的三个例子。</p>
 
+
+<details class="checkpoint" id="check-non">
+<summary>停一下：为什么 \(h_n=2h_{n-1}+3^n\) 可以试 \(p_n=A3^n\)，换成 \(h_n=3h_{n-1}+3^n\) 就不行？</summary>
+<div class="ans"><p>前一个递推的特征根是 2，代 \(A3^n\) 得 \(A=\frac23A+1\)，能解出 \(A=3\)。后一个的特征根就是 3，同样代入得到 \(A=A+1\)，矛盾：猜测已是齐次解，左边减去齐次部分只剩 0。改试 \(An3^n\)，便得到 \(An=A(n-1)+1\)，解出 \(A=1\)。<b>先检查特征根，再决定是否乘 \(n\)</b>。</p></div>
+</details>
+<p class="tip"><b>做题顺序：</b>解齐次部分 → 按 \(b_n\) 的形式猜特解 → 检查撞车 → 两者相加 → 最后代初值。对更一般的常系数递推，若 \(b_n=P_d(n)r^n\)（\(r\ne0\)），\(r\) 是特征方程的 \(s\) 重根，就试 \(n^sQ_d(n)r^n\)，其中 \(Q_d\) 写全所有不超过 \(d\) 次的待定项；不是特征根时取 \(s=0\)。</p>
+
 <!-- ============ 6 ============ -->
 <h2 id="gf">6　生成函数（幻灯片 336–347）</h2>
+
+<p class="section-question"><b>这一节要回答：</b>为什么把数列装进幂级数以后，多项式乘法就能替我们计数？先抓住“指数记数量，系数记方案数”，再看公式。</p>
 
 <h3>为什么需要新工具</h3>
 <p>前面的问题都先找出递推，再解递推。可是像"从苹果、香蕉、橘子、梨里拿 \(n\) 个水果，苹果偶数个、香蕉奇数个、橘子最多 4 个、梨至少 1 个，有几种拿法"这种问题，递推很难找，手工列举又太多。生成函数把"每种东西拿几个"变成<b>多项式乘法</b>，让乘法替我们数。</p>
@@ -581,12 +622,26 @@ details[open] summary{margin-bottom:.3rem}
 <li>\(x^a\cdot x^b = x^{a+b}\)：指数相加，所以乘出来的指数正好是水果总数。</li>
 <li>合并同类项就是把"总数相同"的拿法放在一起数，所以 \(x^n\) 的系数 = 一共拿 \(n\) 个的拿法数。</li>
 </ol>
-<p><b>"\(x\) 只是一个占位符"是什么意思</b>：我们从来不给 \(x\) 代具体的数。\(x^n\) 像一个贴着标签"第 \(n\) 号"的格子，系数是格子里装的数。把整串数写成 \(h_0 + h_1x + h_2x^2 + \cdots\) 只是一种记账方式，好处是乘法会自动把"挑法"按总数归类。</p>
+<p><b>"\(x\) 只是一个占位符"是什么意思</b>：提取系数时不需要给 \(x\) 代具体的数。\(x^n\) 像一个贴着标签"第 \(n\) 号"的格子，系数是格子里装的数。把整串数写成 \(h_0 + h_1x + h_2x^2 + \cdots\) 只是一种记账方式，好处是乘法会自动把"挑法"按总数归类。</p>
 <div class="rule">
 <p><b>定义</b>（幻灯片 336）：数列 \(h_0, h_1, h_2, \ldots\) 的<b>生成函数</b>是无穷级数</p>
 <p class="eq">\[g(x) = h_0 + h_1x + h_2x^2 + \cdots + h_nx^n + \cdots\]</p>
 <p>\(x^n\) 的系数就是 \(h_n\)，\(x^n\) 是给 \(h_n\) 占位置的。</p>
 </div>
+
+<p>例如数列 \(1,2,3,4,\ldots\)，写成 \(g(x)=1+2x+3x^2+4x^3+\cdots\)。\(3x^2\) 同时记录两件事：下标是 2，那个位置的数是 3。记号 <b>\([x^n]g(x)\)</b> 就是“取出 \(x^n\) 的系数”，所以 \([x^2]g(x)=3\)，一般有 \(h_n=[x^n]g(x)\)。<b>次数和系数各做一件事，不要混在一起。</b></p>
+
+<h3 id="convolution">乘法的本质：按总量合并，叫作卷积</h3>
+<p>水果例子里每种数量恰好有 1 种选择。如果第一部分大小为 \(k\) 时有 \(a_k\) 种选择，第二部分大小为 \(n-k\) 时有 \(b_{n-k}\) 种选择，合起来就有 \(a_kb_{n-k}\) 种。把所有拆分加起来：</p>
+<div class="rule">
+\[\begin{gathered}
+A(x)=\sum_{k\ge0}a_kx^k,\qquad B(x)=\sum_{k\ge0}b_kx^k,\\
+[x^n]A(x)B(x)=\sum_{k=0}^{n}a_kb_{n-k}.
+\end{gathered}\]
+<p>这叫<b>卷积</b>，就是多项式乘法中合并同类项的规则。固定一种拆分用乘法原理，不同拆分之间用加法原理。</p>
+</div>
+<p>只看 \(x^2\) 就很清楚：只能来自 \((x^0,x^2)\)、\((x^1,x^1)\)、\((x^2,x^0)\)，所以系数是 \(a_0b_2+a_1b_1+a_2b_0\)。在苹果、香蕉的例子里，它就是 \(1\cdot0+1\cdot1+1\cdot1=2\)。第8节遇到 \(\sum h_kh_{n-k}\) 时，我们会反过来认出它是一个生成函数平方的系数。</p>
+
 
 <h3>几个常用的生成函数（幻灯片 336–338）</h3>
 <ol class="steps">
@@ -596,6 +651,21 @@ details[open] summary{margin-bottom:.3rem}
 <li><b>\(h_n = \binom{n+k-1}{n}\) 的生成函数是 \(\frac{1}{(1-x)^k}\)</b>。下面推一下。</li>
 </ol>
 <p><b>\(\frac{1}{(1-x)^k}\) 的推导</b>（幻灯片 337–338）：\(\frac{1}{(1-x)^k}\) 是 \(k\) 个 \((1 + x + x^2 + \cdots)\) 相乘。从第 \(i\) 个括号挑 \(x^{e_i}\)，乘起来是 \(x^{e_1+e_2+\cdots+e_k}\)。要得到 \(x^n\)，就要 \(e_1 + e_2 + \cdots + e_k = n\)（7.30）。所以 \(x^n\) 的系数 = 这个方程的非负整数解的个数 = \(\binom{n+k-1}{n}\)（第3课的隔板法）。小例子 \(k = 2\)、\(n = 2\)：解是 \((0,2)\)、\((1,1)\)、\((2,0)\)，3 个 = \(\binom{3}{2}\)；而 \(\frac{1}{(1-x)^2} = 1 + 2x + 3x^2 + \cdots\)，\(x^2\) 的系数正是 3。</p>
+
+
+<h3>把数量限制翻译成括号</h3>
+<p>先列出允许的指数，再用等比级数化简。下面表示的都是<b>一种相同物品</b>可以拿多少个，每个允许的数量只有 1 种拿法。</p>
+<div class="scroll"><table class="concept-table">
+<caption>普通生成函数的数量限制速查</caption>
+<tr><th scope="col">允许的数量</th><th scope="col">先写出来</th><th scope="col">化简</th></tr>
+<tr><td>任意非负整数</td><td>\(1+x+x^2+\cdots\)</td><td>\(\frac1{1-x}\)</td></tr>
+<tr><td>至少 \(r\) 个</td><td>\(x^r+x^{r+1}+\cdots\)</td><td>\(\frac{x^r}{1-x}\)</td></tr>
+<tr><td>0 到 \(m\) 个</td><td>\(1+x+\cdots+x^m\)</td><td>\(\frac{1-x^{m+1}}{1-x}\)</td></tr>
+<tr><td>偶数个</td><td>\(1+x^2+x^4+\cdots\)</td><td>\(\frac1{1-x^2}\)</td></tr>
+<tr><td>奇数个</td><td>\(x+x^3+x^5+\cdots\)</td><td>\(\frac{x}{1-x^2}\)</td></tr>
+<tr><td>\(d\) 的倍数个</td><td>\(1+x^d+x^{2d}+\cdots\)</td><td>\(\frac1{1-x^d}\)</td></tr>
+</table></div>
+<p class="tip">这里 \(r,m\) 是非负整数，\(d\) 是正整数。把幂级数当作形式记账工具时，只按系数运算；如果要代入具体实数求和，则另外检查收敛范围。</p>
 
 <h3>每种东西一个括号（幻灯片 338–342）</h3>
 <p><b>例 1</b>（幻灯片 338）：\((1 + x + x^2 + x^3 + x^4 + x^5)(1 + x + x^2)(1 + x + x^2 + x^3 + x^4)\) 是什么数列的生成函数？</p>
@@ -653,10 +723,42 @@ details[open] summary{margin-bottom:.3rem}
 <p class="eq">\[g(x) = \frac{1}{(1-x)(1-x^5)(1-x^{10})(1-x^{25})(1-x^{50})}\]</p>
 <p>例：10 分有 4 种（10 个 1 分；1 个 5 分 + 5 个 1 分；2 个 5 分；1 个 10 分）。25 分有 13 种，1 元（100 分）有 292 种。上面演示里选"找零钱"可以看 25 分以内的每一种。</p>
 
+
+<details class="checkpoint" id="check-gf">
+<summary>停一下：苹果只能取偶数个，香蕉至少取 1 个，总共取 3 个，为什么只有 2 种？</summary>
+<div class="ans"><p>括号是 \((1+x^2+x^4+\cdots)(x+x^2+x^3+\cdots)\)。能凑出 \(x^3\) 的只有 \(1\cdot x^3\) 和 \(x^2\cdot x\)，对应 \((0,3)\)、\((2,1)\)。因此 \([x^3]\frac{x}{(1-x^2)(1-x)}=2\)。这里数的是每种水果的数量，交换拿取顺序不会新增方案。</p></div>
+</details>
+
 <!-- ============ 7 ============ -->
 <h2 id="rgf">7　用生成函数解递推（幻灯片 348–360）</h2>
 
-<h3>两个工具（幻灯片 348–349）</h3>
+<p class="section-question"><b>这一节要回答：</b>怎样把“前一项、前两项”变成代数运算？关键是乘 \(x\) 只移动系数的位置，接着让递推负责消项。</p>
+
+<h3>先看移位：乘 \(x\) 不会把系数乘上 \(n\)</h3>
+<div class="calc">
+\[\begin{aligned}
+g(x)&=h_0+h_1x+h_2x^2+\cdots,\\
+xg(x)&=0+h_0x+h_1x^2+\cdots,\\
+x^2g(x)&=0+0x+h_0x^2+h_1x^3+\cdots.
+\end{aligned}\]
+</div>
+<p>乘 \(x^s\) 后，原来的 \(h_j\) 出现在 \(x^{j+s}\) 前。因此 <b>\([x^n]x^sg(x)=h_{n-s}\)</b>（\(n\ge s\)）；当 \(n&lt;s\) 时系数是 0。这正好把递推里的下标差变成 \(x\) 的幂次差。</p>
+<div class="machine" id="shiftBox">
+  <div class="head"><span class="title">演示：先移位，再让递推消项</span><span class="count">\(h_n=5h_{n-1}-6h_{n-2}\)</span></div>
+  <p class="tip">初值 \(h_0=1\)、\(h_1=-2\)。依次点下面四步，观察同一列的数从哪里来。</p>
+  <div class="controls" id="shiftSteps" role="group" aria-label="移位与消项步骤">
+    <button type="button" data-step="0" aria-pressed="true" class="sel">1 原序列</button>
+    <button type="button" data-step="1" aria-pressed="false">2 右移一格</button>
+    <button type="button" data-step="2" aria-pressed="false">3 右移两格</button>
+    <button type="button" data-step="3" aria-pressed="false">4 按递推相加</button>
+  </div>
+  <div class="scroll"><table class="num" id="shiftTable" aria-label="生成函数移位后的系数"></table></div>
+  <div class="caption" id="shiftCap" aria-live="polite"></div>
+</div>
+<p>第4步最容易漏掉的是前两列：递推只对 \(n\ge2\) 成立，不能拿它把 \(x^0\)、\(x^1\) 的系数也消掉。这两列留下初值的信息，成为分子 \(1-7x\)。</p>
+
+
+<h3>读系数的工具，以及求导操作（幻灯片 348–349）</h3>
 <p>把第5课的 (5.14) 里的 \(z\) 换成 \(rx\)，就得到</p>
 <div class="rule"><p class="eq">\[\begin{gathered} \frac{1}{(1-rx)^n} = \sum_{k=0}^{\infty}\binom{n+k-1}{k}r^kx^k \\ \Bigl(|x| &lt; \frac{1}{|r|}\Bigr) \end{gathered} \tag{7.31}\]</p>
 <p>最常用的两个：\(\frac{1}{1-rx} = \sum r^kx^k\)；\(\frac{1}{(1-rx)^2} = \sum (k+1)r^kx^k\)。</p></div>
@@ -697,6 +799,19 @@ details[open] summary{margin-bottom:.3rem}
 <p>核对 \(h_2 = 20 - 36 = -16\)，\(h_3 = 40 - 108 = -68\)。</p>
 <p><b>和特征方程的联系</b>：分母 \(1 - 5x + 6x^2\) 和特征多项式 \(x^2 - 5x + 6\) 的系数正好倒过来（\(1 - 5x + 6x^2 = x^2\cdot\bigl((\frac1x)^2 - 5\cdot\frac1x + 6\bigr)\)）。特征根 2、3 就以 \(1 - 2x\)、\(1 - 3x\) 的形式出现在分母里，最后变成 \(2^n\)、\(3^n\)。</p>
 
+
+<div class="rule">
+<p><b>这道题的四步路线</b>：定义 \(g(x)\) → 用移位构造方程 → 解出 \(g(x)\) → 展开并读系数。得到分式以后还没结束：题目要的是 \(h_n\)，所以必须说明怎样读出每个系数。</p>
+</div>
+<h3>回到起点：Fibonacci 的生成函数</h3>
+<p>第2节用特征根解过 \(f_n=f_{n-1}+f_{n-2}\)，\(f_0=0\)、\(f_1=1\)。现在设 \(F(x)=\sum_{n\ge0}f_nx^n\)：从 \(x^2\) 起，\(F-xF-x^2F\) 的系数都为 0；常数项是 0，\(x\) 的系数是 \(f_1-f_0=1\)。于是</p>
+\[(1-x-x^2)F(x)=x,\qquad \boxed{F(x)=\frac{x}{1-x-x^2}}.\]
+<p>展开是 \(x+x^2+2x^3+3x^4+5x^5+\cdots\)。分子 \(x\) 保留了 \(f_0=0\)、\(f_1=1\) 的信息；分母对应递推。不要和 \(\frac1{1-x-x^2}\) 混淆，后者从 \(1,1,2,3,\ldots\) 开始，是 \(f_{n+1}\) 的生成函数。</p>
+<details class="checkpoint" id="check-shift">
+<summary>停一下：\(h_n=2h_{n-1}+h_{n-2}\)，\(h_0=1\)、\(h_1=2\)，为什么 \((1-2x-x^2)g(x)=1\)，而不是 \(1+2x\)？</summary>
+<div class="ans"><p>常数项是 \(h_0=1\)；\(x\) 的系数不是单独的 \(h_1\)，而是 \(h_1-2h_0=2-2=0\)。\(x^2\) 起由递推抵消，所以只剩 1。<b>初值也要参与移位相加</b>，不能把前两个初值原样搬到分子里。</p></div>
+</details>
+
 <h3>重根会自己冒出来（幻灯片 352–355）</h3>
 <p>解 \(h_n + h_{n-1} - 16h_{n-2} + 20h_{n-3} = 0\)（\(n \ge 3\)），\(h_0 = 0\)，\(h_1 = 1\)，\(h_2 = -1\)。用递推算：\(0, 1, -1, 17, -53, 345, -1533, \ldots\)</p>
 <ol class="steps">
@@ -730,6 +845,8 @@ details[open] summary{margin-bottom:.3rem}
 
 <!-- ============ 8 ============ -->
 <h2 id="geo">8　一个几何例子：凸多边形的三角剖分（幻灯片 361–369）</h2>
+
+<p class="section-question"><b>这一节要回答：</b>递推里出现两项相乘，为什么应当想到生成函数的平方？要把“固定一种拆分相乘，再对拆分求和”与第6节的卷积联系起来。</p>
 <p>这一节的递推<b>不是线性的</b>（里面有两项相乘），特征方程用不上；但生成函数照样能解，最后还要用到第5课的 Newton 二项式定理。答案是下一章的主角 Catalan 数。</p>
 
 <h3>凸区域和对角线（幻灯片 361–362）</h3>
@@ -815,6 +932,17 @@ details[open] summary{margin-bottom:.3rem}
 <h3>用生成函数解（幻灯片 367–369）</h3>
 <p>设 \(g(x) = h_1x + h_2x^2 + h_3x^3 + \cdots\)（从 \(h_1\) 开始，没有常数项）。</p>
 <p><b>为什么要算 \(g(x)^2\)</b>：\(g(x)\cdot g(x)\) 里 \(x^n\) 的系数，是从第一个 \(g\) 挑 \(h_kx^k\)、从第二个 \(g\) 挑 \(h_{n-k}x^{n-k}\)，对所有 \(k\) 相加，也就是 \(h_1h_{n-1} + h_2h_{n-2} + \cdots + h_{n-1}h_1\)，正好是递推右边。这和"左边 \(K_1\) 选一种、右边 \(K_2\) 选一种"是同一回事。例：\(x^4\) 的系数是 \(h_1h_3 + h_2h_2 + h_3h_1 = 5 = h_4\)。</p>
+
+<div class="scroll"><table class="concept-table">
+<caption>把递推逐项翻译成 \(g(x)^2\) 的系数</caption>
+<tr><th scope="col">次数</th><th scope="col">从两个括号选出的系数相乘再相加</th><th scope="col">按递推得到</th></tr>
+<tr><td>\(x\)</td><td>两个括号都至少从 \(x\) 起，没有这一项</td><td>0</td></tr>
+<tr><td>\(x^2\)</td><td>\(h_1h_1=1\)</td><td>\(h_2\)</td></tr>
+<tr><td>\(x^3\)</td><td>\(h_1h_2+h_2h_1=2\)</td><td>\(h_3\)</td></tr>
+<tr><td>\(x^4\)</td><td>\(h_1h_3+h_2h_2+h_3h_1=2+1+2\)</td><td>\(h_4=5\)</td></tr>
+</table></div>
+<p>所以 \(g^2\) 与 \(g\) 只差最前面的 \(h_1x=x\)。<b>减去 \(x\) 是为了对齐起始项</b>，和第7节不能漏掉初值列是同一个道理。</p>
+
 <ol class="steps">
 <li>所以 \(g^2 = h_2x^2 + h_3x^3 + h_4x^4 + \cdots\)（\(g^2\) 的 \(x^2\) 系数是 \(h_1h_1 = 1 = h_2\)，以后各项用递推）。这正是 \(g\) 去掉第一项：\(g^2 = g - h_1x = g - x\)。</li>
 <li>\(g^2 - g + x = 0\)，把 \(g\) 当未知数解二次方程：\(g = \frac{1 + \sqrt{1-4x}}{2}\) 或 \(g = \frac{1 - \sqrt{1-4x}}{2}\)。</li>
@@ -831,11 +959,21 @@ details[open] summary{margin-bottom:.3rem}
 </table></div>
 <p class="tip">这些数（错开一位）就是第8章的 Catalan 数。第3节的演示里选"三角剖分"可以对账（我们也用程序直接枚举过 3 到 9 边形的剖分数）。</p>
 
+
+<h3>别把多边形的边数和 Catalan 下标混在一起</h3>
+<p>标准 Catalan 数是 \(C_j=\frac1{j+1}\binom{2j}{j}\)（\(j\ge0\)）。本节 \(h_n\) 数的是 \((n+1)\) 边形，所以 \(h_n=C_{n-1}\)。若题目直接给“凸 \(m\) 边形”，先写 \(n=m-1\)，答案就是 <b>\(C_{m-2}\)</b>（\(m\ge3\)）。例如六边形用 \(C_4=14\)，不是 \(C_6\)。</p>
+<details class="checkpoint" id="check-catalan">
+<summary>停一下：改用标准下标 \(a_0=1\)、\(a_n=\sum_{k=0}^{n-1}a_ka_{n-1-k}\)，\(A(x)=\sum_{n\ge0}a_nx^n\) 满足什么方程？</summary>
+<div class="ans"><p>答案是 <b>\(A(x)=1+xA(x)^2\)</b>。因为 \(A^2\) 的 \(x^{n-1}\) 系数才是 \(\sum_{k=0}^{n-1}a_ka_{n-1-k}\)，需要乘 \(x\) 把它移到 \(x^n\)；常数项另外补上 \(a_0=1\)。本节的记号是 \(g=xA\)，所以 \(g=x+g^2\)，两套方程完全一致。</p></div>
+</details>
+
 <!-- ============ 9 ============ -->
 <h2 id="egf">9　指数生成函数（幻灯片 370–382）</h2>
 
+<p class="section-question"><b>这一节要回答：</b>为什么在每个因子里除以阶乘，最后反而能得到排列数？先把“每种用了几个”和“放在哪些位置”分开看。</p>
+
 <h3>为什么要除以 \(n!\)（幻灯片 370）</h3>
-<p>第6节的生成函数数的是"每种拿几个"，不管顺序。如果要数<b>排成一列</b>的方法，它就不对了。小例子：用最多 2 个 a、最多 1 个 b 排成长度为 \(n\) 的词。直接列：</p>
+<p>第6节“每种物品一个因子”的构造数的是“每种拿几个”，没有记录位置。直接沿用这些因子去数<b>排成一列</b>的方法，会漏掉同一组数量的不同排列。小例子：用最多 2 个 a、最多 1 个 b 排成长度为 \(n\) 的词。直接列：</p>
 <ol class="steps">
 <li>\(n = 1\)：a、b，2 个。</li>
 <li>\(n = 2\)：aa、ab、ba，3 个。</li>
@@ -850,6 +988,24 @@ details[open] summary{margin-bottom:.3rem}
 <p class="eq">\[\begin{aligned} g^{(e)}(x) &= \sum_{n\ge 0} h_n\frac{x^n}{n!} \\ &= h_0 + h_1x + h_2\frac{x^2}{2!} + \cdots + h_n\frac{x^n}{n!} + \cdots \end{aligned}\]</p>
 <p>名字来自 \(e^x = 1 + x + \frac{x^2}{2!} + \cdots + \frac{x^n}{n!} + \cdots\)。</p>
 </div>
+
+
+<h3>同一个数列，两种记法；乘法规则也不同</h3>
+<div class="scroll"><table class="concept-table">
+<caption>OGF 与 EGF：先确认读的是哪一种系数</caption>
+<tr><th scope="col"></th><th scope="col">普通生成函数（OGF）</th><th scope="col">指数生成函数（EGF）</th></tr>
+<tr><th scope="row">记录数列 \(h_n\)</th><td>\(g(x)=\sum h_nx^n\)</td><td>\(g^{(e)}(x)=\sum h_n\frac{x^n}{n!}\)</td></tr>
+<tr><th scope="row">恢复第 \(n\) 项</th><td>\(h_n=[x^n]g(x)\)</td><td>\(h_n=n![x^n]g^{(e)}(x)\)</td></tr>
+<tr><th scope="row">本课的因子构造</th><td>数量为 \(m\) 时写 \(x^m\)</td><td>数量为 \(m\) 时写 \(x^m/m!\)</td></tr>
+<tr><th scope="row">本课的乘积在数什么</th><td>每种物品取多少个</td><td>这些物品在不同位置上的排列</td></tr>
+</table></div>
+<p>两种生成函数都可以记录任意数列；选择哪一种，关键看<b>哪种运算更贴合问题</b>。不能只凭“有顺序”就断定必须用 EGF——Fibonacci 也能计数有顺序的串，并用 OGF 求解。本节选择 EGF，是因为数量限制和位置分配能通过它的乘法一起处理。</p>
+<p>普通乘法只给出卷积；EGF 的乘法会自动多出一个二项式系数。若 \(A_e(x)=\sum a_kx^k/k!\)、\(B_e(x)=\sum b_kx^k/k!\)，那么</p>
+<div class="rule">
+\[n![x^n]A_e(x)B_e(x)=\sum_{k=0}^{n}\binom nk a_kb_{n-k}.\]
+<p>\(\binom nk\) 先从 \(n\) 个位置中挑 \(k\) 个给第一部分；\(a_k\)、\(b_{n-k}\) 再分别数两部分在各自位置上的安排。这就是阶乘带来的额外信息。</p>
+</div>
+<p>用 a、b 的例子看 \(n=2\)：取两个 a 的项为 \(x^2/2!\)，恢复排列数是 \(2!/2!=1\)；取一个 a、一个 b 的项为 \(x^2\)，恢复后是 \(2!/(1!1!)=2\)。所以总数是 \(1+2=3\)。<b>不能把普通生成函数的答案 2 直接乘 \(2!\)</b>，因为两类数量方案各自的重复程度不同。</p>
 
 <h3>几个例子（幻灯片 371–372）</h3>
 <ol class="steps">
@@ -873,6 +1029,18 @@ details[open] summary{margin-bottom:.3rem}
 </ol>
 <p><b>做题的规则</b>：每种东西一个括号，括号里放 \(\frac{x^m}{m!}\)（\(m\) 取所有允许的个数），乘起来，读 \(\frac{x^n}{n!}\) 的系数。限制条件只改括号里留哪些项，和第6节一样。</p>
 
+
+<div class="scroll"><table class="concept-table">
+<caption>指数生成函数的数量限制速查</caption>
+<tr><th scope="col">允许出现的次数</th><th scope="col">对应的单个因子</th></tr>
+<tr><td>任意非负整数次</td><td>\(e^x\)</td></tr>
+<tr><td>至少 1 次</td><td>\(e^x-1\)</td></tr>
+<tr><td>最多 2 次</td><td>\(1+x+\frac{x^2}{2!}\)</td></tr>
+<tr><td>偶数次（包含 0 次）</td><td>\(\frac{e^x+e^{-x}}2\)</td></tr>
+<tr><td>奇数次</td><td>\(\frac{e^x-e^{-x}}2\)</td></tr>
+</table></div>
+<p class="tip">先按允许的次数留下 \(x^m/m!\)，再化简为指数函数。下面会解释最后两行为什么能筛出奇偶项。</p>
+
 <h3>"偶数个"用 \(e^x\) 和 \(e^{-x}\) 来写（幻灯片 376–382）</h3>
 <p><b>例 1</b>（幻灯片 376–377）：由数字 1、2、3 组成的 \(n\) 位数，1 出现偶数次，2 至少出现 3 次，3 至多出现 4 次。</p>
 <p class="eq">\[\begin{aligned} &g^{(e)}(x) = \Bigl(1 + \frac{x^2}{2!} + \frac{x^4}{4!} + \cdots\Bigr) \\ &\quad\cdot\Bigl(\frac{x^3}{3!} + \frac{x^4}{4!} + \frac{x^5}{5!} + \cdots\Bigr) \\ &\quad\cdot\Bigl(1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \frac{x^4}{4!}\Bigr) \end{aligned}\]</p>
@@ -885,6 +1053,8 @@ details[open] summary{margin-bottom:.3rem}
 </ol>
 <div class="rule"><p class="eq">\[h_n = \frac{3^n + 1}{2}\]</p></div>
 <p>核对 \(n = 2\)：\(\frac{9 + 1}{2} = 5\)。</p>
+
+<p><b>这里为什么没有再乘一次 \(n!\)？</b>因为我们读的是 \(e^{ax}=\sum a^n x^n/n!\) 中 \(x^n/n!\) 的系数，已经是 \(a^n\)。若改读普通 \(x^n\) 的系数，它是 \(a^n/n!\)，这时才乘 \(n!\) 恢复。两种读法得到同一个数，只能恢复一次。</p>
 <p><b>例 3</b>（幻灯片 379–380）：每位数字都是奇数（1、3、5、7、9）的 \(n\) 位数，1 和 3 都出现偶数次。规定 \(h_0 = 1\)。</p>
 <div class="calc">\[\begin{aligned} g^{(e)}(x) &= \Bigl(\frac{e^x + e^{-x}}{2}\Bigr)^2\cdot e^{3x} = \frac{e^{2x} + 2 + e^{-2x}}{4}\cdot e^{3x} \\ &= \frac{e^{5x} + 2e^{3x} + e^x}{4} \end{aligned}\]</div>
 <div class="rule"><p class="eq">\[h_n = \frac{5^n + 2\cdot 3^n + 1}{4}\qquad (n \ge 0)\]</p></div>
@@ -908,10 +1078,20 @@ details[open] summary{margin-bottom:.3rem}
     <span>长度 \(n\)：</span><span class="regbtns" id="egNs" style="margin-top:0"></span>
   </div>
   <div class="calc" id="egHead"></div>
+<div class="caption" id="egReadout" aria-live="polite"></div>
   <div class="scroll"><table class="num" id="egTable"></table></div>
   <div class="caption" id="egCap"></div>
 </div>
 <p class="tip">表里每一行是一种"每个字母用几个"的分法 \((m_1, m_2, \ldots)\)，也就是乘开后的一项；右边是这一类的排法数 \(\frac{n!}{m_1!\,m_2!\cdots}\)。把所有行加起来就是 \(\frac{x^n}{n!}\) 的系数。下面的"逐个检查"是程序把所有 \(k^n\) 个串列出来，一个个看是否满足条件，和表格总和应该一样。</p>
+
+
+<details class="checkpoint" id="check-egf">
+<summary>停一下：a 必须出现奇数次，b、c 次数不限，长度 \(n\) 的串有多少个？</summary>
+<div class="ans"><p>a 的因子是 \(\frac{e^x-e^{-x}}2\)，b、c 各贡献一个 \(e^x\)，所以 \(g^{(e)}(x)=\frac{e^x-e^{-x}}2e^{2x}=\frac{e^{3x}-e^x}2\)。读出 <b>\(h_n=(3^n-1)/2\)</b>（\(n\ge0\)）。\(n=0\) 得 0，空串不含 a；\(n=2\) 得 4，恰好是 ab、ba、ac、ca。</p></div>
+</details>
+<div class="rule">
+<p><b>把第6–9节连起来</b>：生成函数先记录数列，再让运算替我们做事。乘 \(x\) 对应移位（线性递推），乘两个生成函数对应卷积（三角剖分），在阶乘分母下相乘则带入位置的分配（本节的排列计数）。每次都先问“这一项的系数代表什么”，最后回到小例子和初值核对。</p>
+</div>
 
 <!-- ============ practice ============ -->
 <h2 id="practice">练习（Exercises.pdf 题号）</h2>
@@ -1336,6 +1516,53 @@ var L7 = (function(){
   load(0);
 })();
 
+/* ---------- Shift demo: match recurrence indices to coefficient columns ---------- */
+(function(){
+  var M = L7.M, $ = L7.$;
+  var h = [1, -2];
+  for (var n = 2; n <= 5; n++) h[n] = 5*h[n-1] - 6*h[n-2];
+  function shifted(s, n){ return n < s ? 0 : h[n-s]; }
+  function row(label, s, weight, selected){
+    var cells = '<tr' + (selected ? ' class="new"' : '') + '><th scope="row">' + M(label) + '</th>';
+    for (var n = 0; n <= 5; n++) cells += '<td>' + M(String(weight*shifted(s, n))) + '</td>';
+    return cells + '</tr>';
+  }
+  function render(step){
+    var table = '<tr><th scope="col">系数所在的位置</th>';
+    for (var n = 0; n <= 5; n++) table += '<th scope="col">' + M('x^{' + n + '}') + '</th>';
+    table += '</tr>';
+    if (step < 3){
+      table += row('g(x)', 0, 1, step === 0);
+      if (step >= 1) table += row('xg(x)', 1, 1, step === 1);
+      if (step >= 2) table += row('x^2g(x)', 2, 1, true);
+    } else {
+      table += row('g(x)', 0, 1, false) + row('-5xg(x)', 1, -5, false) + row('6x^2g(x)', 2, 6, false);
+      table += '<tr class="fin"><th scope="row">三行相加</th>';
+      for (n = 0; n <= 5; n++) table += '<td>' + M(String(h[n] - 5*shifted(1,n) + 6*shifted(2,n))) + '</td>';
+      table += '</tr>';
+    }
+    $('shiftTable').innerHTML = table;
+    var captions = [
+      '原来的 ' + M('g(x)') + '：' + M('x^n') + ' 的系数是 ' + M('h_n') + '。例如 ' + M('x^2') + ' 的系数是 ' + M('h_2=-16') + '。',
+      '乘 ' + M('x') + ' 后，原来的 ' + M('h_1=-2') + ' 移到 ' + M('x^2') + ' 前。因此同一列中，' + M('xg(x)') + ' 比 ' + M('g(x)') + ' 的下标少 1；新空出的常数项补 0。',
+      '乘 ' + M('x^2') + ' 后，' + M('h_0=1') + ' 才移到 ' + M('x^2') + ' 前。看这一列：' + M('-16,-2,1') + ' 正好是 ' + M('h_2,h_1,h_0') + '，现在可以按递推消项。',
+      '把第二行乘 ' + M('-5') + '、第三行乘 ' + M('6') + ' 后相加。' + M('x^2') + ' 列是 ' + M('-16+10+6=0') + '，更高次也为 0；前两列留下 ' + M('1') + ' 和 ' + M('-2-5=-7') + '。所以 ' + M('(1-5x+6x^2)g(x)=1-7x') + '。'
+    ];
+    $('shiftCap').innerHTML = captions[step];
+    Array.prototype.forEach.call($('shiftSteps').querySelectorAll('button'), function(b){
+      var active = +b.dataset.step === step;
+      b.classList.toggle('sel', active); b.setAttribute('aria-pressed', String(active));
+    });
+    L7.tex($('shiftBox'));
+  }
+  $('shiftSteps').addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if (b && $('shiftSteps').contains(b)) render(+b.dataset.step);
+  });
+  render(0);
+})();
+
+
 /* ---------- Demo C: exponential generating functions ---------- */
 (function(){
   var M = L7.M, fact = L7.fact, $ = L7.$;
@@ -1352,6 +1579,14 @@ var L7 = (function(){
   var sel = $('egSel');
   P.forEach(function(p, i){ var o = document.createElement('option'); o.value = i; o.textContent = p.name; sel.appendChild(o); });
   var st = {p: P[0], n: 2};
+
+  function fraction(a, b){
+    if (!a) return '0';
+    var x = a, y = b;
+    while (y){ var r = x % y; x = y; y = r; }
+    a /= x; b /= x;
+    return b === 1 ? String(a) : '\\frac{' + a + '}{' + b + '}';
+  }
   function comps(n, k){
     var out = [];
     (function rec(i, left, cur){
@@ -1383,6 +1618,11 @@ var L7 = (function(){
     });
     html += '<tr class="fin"><td colspan="' + k + '">合计 ' + M('h_n') + '</td><td>' + tot + '</td></tr>';
     $('egTable').innerHTML = html;
+
+    $('egReadout').innerHTML = '同一组限制，三种数值：<br>' +
+      '数量方案（OGF 的系数） = <b>' + rows.length + '</b>；<br>' +
+      'EGF 中 ' + M('x^{' + n + '}') + ' 的系数 = ' + M(fraction(tot, fact(n))) + '；<br>' +
+      '排列数 ' + M('h_{' + n + '} = ' + n + '!\\times ' + fraction(tot, fact(n)) + ' = ' + tot) + '。';
     var b = brute(n);
     var c = '<b>' + M('n = ' + n) + '</b>：表里有 ' + rows.length + ' 行，每行是一种"每个字母用几个"（这是不计顺序的组合数，普通生成函数数出来的就是它）。把每行的排法数加起来，得 ' + M('\\frac{x^n}{n!}') + ' 的系数 <span class="hl">' + tot + '</span>。';
     c += '<br>逐个检查全部 ' + M(k + '^{' + n + '} = ' + b.total) + ' 个长度为 ' + n + ' 的串，满足条件的有 <b>' + b.cnt + '</b> 个' + (b.cnt === tot ? '，一样' : '，不一样（不应该发生）') + '。';
