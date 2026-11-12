@@ -205,6 +205,15 @@ svg .bc{fill:none;stroke:var(--g2);stroke-width:2.2}
 svg .bcur{fill:var(--mark);fill-opacity:.7}
 svg text.blab{fill:var(--g4);font-size:12px}
 #mtSvg{margin-top:.4rem}
+table.sdr td,table.sdr th{text-align:center;padding:.35rem .45rem}
+table.sdr td{font-weight:400;color:var(--ink);background:transparent}
+table.sdr td.pick{color:var(--accent);font-weight:700}
+table.sdr tr.bad td{background:var(--mark);color:var(--mark-ink)}
+#sdRows{margin-top:.6rem}
+.sdrow{margin-top:.35rem}
+.sdname{display:inline-block;min-width:2.4rem}
+button.clash{border-color:var(--warn);color:var(--warn);font-weight:700;box-shadow:inset 0 0 0 1px var(--warn)}
+#sdSvg{margin-top:.6rem}
 </style>
 
 <div class="wrap">
@@ -439,63 +448,122 @@ svg text.blab{fill:var(--g4);font-size:12px}
 <!-- ============ 6 ============ -->
 <h2 id="sdr">6　相异代表系和婚姻条件（幻灯片 503–508）</h2>
 
-<h3>每个社团选一个代表，不许兼任（幻灯片 503）</h3>
-<p>4 个社团的成员是 \(A_1 = \{a, b, c\}\)，\(A_2 = \{b, d\}\)，\(A_3 = \{a, b, d\}\)，\(A_4 = \{b, d\}\)。每个社团从自己的成员里选一个代表去开会，<b>一个人不能同时代表两个社团</b>。</p>
-<p>选 \((a, b, b, d)\) 不行，\(b\) 代表了两个社团。选 \((c, b, a, d)\) 可以：\(A_1\) 派 \(c\)，\(A_2\) 派 \(b\)，\(A_3\) 派 \(a\)，\(A_4\) 派 \(d\)，四个人都不同。</p>
-<div class="figs">
-<figure>
-<svg class="bip" role="img" aria-label="集合在左元素在右" data-l="A1,A2,A3,A4" data-r="a,b,c,d" data-e="1-1,1-2,1-3,2-2,2-4,3-1,3-2,3-4,4-2,4-4" data-m="1-3,2-2,3-1,4-4"></svg>
-<figcaption>左边是社团，右边是人，"是成员"就连线；粗线是选出的代表</figcaption>
-</figure>
-</div>
 <div class="rule">
-<p>这样选出的一组<b>互不相同</b>的代表 \((e_1, \ldots, e_n)\)，\(e_i \in A_i\)，叫集合族 \((A_1, \ldots, A_n)\) 的<b>相异代表系</b>（SDR）。</p>
-<p><b>画成图就是匹配</b>：集合在左，元素在右，元素属于集合就连线。SDR 就是<b>左边每个点都用上</b>的匹配。</p>
+<p><b>一句话</b>：有几个集合，<b>从每个集合里挑一个元素</b>当它的代表，要求<b>挑出来的元素互不重复</b>。</p>
+<p>能这样挑出来的一组代表，就叫<b>相异代表系</b>，简称 <b>SDR</b>（"相异"就是互不相同）。</p>
 </div>
 
-<h3>什么时候选不出来：婚姻条件（幻灯片 504–506）</h3>
-<p>\(A_1 = A_2 = A_3 = \{a, b\}\)，\(A_4 = \{a, b, c, d\}\)。\(A_1, A_2, A_3\) 三个社团的成员加起来只有 \(a, b\) 两个人，<b>三个社团抢两个人</b>，怎么选都有一个社团没人。</p>
+<h3>先看例子：能挑出来（幻灯片 503）</h3>
+<p>4 个社团要各派 1 个人去开会。每个社团只能派自己的成员，<b>一个人不能同时代表两个社团</b>。</p>
+<div class="scroll"><table class="sdr">
+<tr><th>社团</th><th>成员（能派谁）</th><th>派的人</th></tr>
+<tr><td>\(A_1\)</td><td>\(a, b, c\)</td><td class="pick">\(c\)</td></tr>
+<tr><td>\(A_2\)</td><td>\(b, d\)</td><td class="pick">\(b\)</td></tr>
+<tr><td>\(A_3\)</td><td>\(a, b, d\)</td><td class="pick">\(a\)</td></tr>
+<tr><td>\(A_4\)</td><td>\(b, d\)</td><td class="pick">\(d\)</td></tr>
+</table></div>
+<p>"派的人"这一列是 \(c, b, a, d\)，<b>没有重复</b>，所以 \((c, b, a, d)\) 是一个 SDR。</p>
+<p>反例：派 \((a, b, b, d)\) 不行，\(b\) 同时代表了 \(A_2\) 和 \(A_3\)，重复了。</p>
+
+<h3>画成图：就是匹配</h3>
+<p>社团放左边，人放右边，"是成员"就连一条线。<b>挑代表 = 每个左点选一条线</b>；<b>不重复 = 选的线不能落到同一个右点上</b>。这正是匹配。</p>
 <div class="figs">
 <figure>
-<svg class="bip" role="img" aria-label="三个集合只连着两个元素" data-l="A1,A2,A3,A4" data-r="a,b,c,d" data-e="1-1,1-2,2-1,2-2,3-1,3-2,4-1,4-2,4-3,4-4" data-m="1-1,2-2,4-3" data-p="1-1,1-2,2-1,2-2,3-1,3-2"></svg>
-<figcaption>红色虚线：\(A_1, A_2, A_3\) 只连着 \(a, b\)。最多只能选出 3 个代表</figcaption>
+<svg class="bip" role="img" aria-label="集合在左元素在右，粗线是选出的代表" data-l="A1,A2,A3,A4" data-r="a,b,c,d" data-e="1-1,1-2,1-3,2-2,2-4,3-1,3-2,3-4,4-2,4-4" data-m="1-3,2-2,3-1,4-4"></svg>
+<figcaption>粗线就是上表"派的人"：4 条线落在 4 个不同的点上</figcaption>
 </figure>
 </div>
-<p>反过来说，要能选出来，就不能出现这种"挤"的情况：</p>
 <div class="rule">
-<p><b>婚姻条件</b>：<b>任意挑几个集合，它们合起来的元素个数不少于挑出的集合个数。</b>写成式子：</p>
+<p><b>有 SDR</b> \(\iff\) 这个图有一个<b>用上全部左点</b>的匹配 \(\iff\) 最大匹配的边数 = 集合个数。</p>
+</div>
+<p class="tip">所以 SDR 放在匹配这一课：问"能不能挑出代表"，就是问"最大匹配够不够大"，前面的匹配算法可以直接用。</p>
+
+<h3>再看例子：挑不出来（幻灯片 504）</h3>
+<div class="scroll"><table class="sdr">
+<tr><th>集合</th><th>元素</th></tr>
+<tr><td>\(A_1\)</td><td>\(a, b\)</td></tr>
+<tr><td>\(A_2\)</td><td>\(a, b\)</td></tr>
+<tr><td>\(A_3\)</td><td>\(a, b\)</td></tr>
+<tr><td>\(A_4\)</td><td>\(a, b, c, d\)</td></tr>
+</table></div>
+<p>\(A_1, A_2, A_3\) 都只能在 \(a, b\) 里挑。<b>3 个集合，只有 2 个元素可挑</b>，怎么挑都会有两个集合挑到同一个。所以没有 SDR。</p>
+<div class="figs">
+<figure>
+<svg class="bip" role="img" aria-label="三个集合只连着两个元素" data-l="A1,A2,A3,A4" data-r="a,b,c,d" data-e="1-1,1-2,2-1,2-2,3-1,3-2,4-1,4-2,4-3,4-4" data-p="1-1,1-2,2-1,2-2,3-1,3-2"></svg>
+<figcaption>红色虚线：\(A_1, A_2, A_3\) 三个点只连着 \(a, b\) 两个点</figcaption>
+</figure>
+</div>
+
+<h3>婚姻条件：怎么判断挑不挑得出来</h3>
+<p>上面挑不出来，是因为有几个集合"挤"在一起：<b>集合比它们的元素还多</b>。把这件事反过来，就是婚姻条件：</p>
+<div class="rule">
+<p><b>婚姻条件</b>：随便挑出几个集合，把它们的元素合在一起数一数，<b>元素个数 ≥ 挑出的集合个数</b>。</p>
+<p>挑出 \(k\) 个集合，写成式子是</p>
 <p class="eq">\[|A_{i_1} \cup A_{i_2} \cup \cdots \cup A_{i_k}| \ge k. \tag{9.7}\]</p>
-<p><b>Hall 定理</b>：有 SDR \(\iff\) 满足婚姻条件。</p>
+<p><b>Hall 定理</b>：有 SDR \(\iff\) 婚姻条件对所有挑法都成立。</p>
 </div>
-<p class="tip">"有 SDR 就满足条件"很显然：\(k\) 个集合要 \(k\) 个不同的代表，合起来至少得有 \(k\) 个元素。难的是反过来：只要没有"挤"的情况，就一定选得出来。这由 König 定理推出，会用就行。名字来自<b>婚姻问题</b>（幻灯片 505）：\(A_i\) 是第 \(i\) 位男士愿意娶的女士，每位男士都娶到愿意娶的人，就是选出一个 SDR。</p>
+<p>拿上面挑不出来的例子逐个检查：</p>
+<div class="scroll"><table class="sdr">
+<tr><th>挑出的集合</th><th>合起来</th><th>元素数</th><th>集合数</th><th>够吗</th></tr>
+<tr><td>\(A_1\)</td><td>\(\{a, b\}\)</td><td>2</td><td>1</td><td>够</td></tr>
+<tr><td>\(A_1, A_2\)</td><td>\(\{a, b\}\)</td><td>2</td><td>2</td><td>够</td></tr>
+<tr class="bad"><td>\(A_1, A_2, A_3\)</td><td>\(\{a, b\}\)</td><td>2</td><td>3</td><td>不够</td></tr>
+<tr><td>\(A_1, \ldots, A_4\)</td><td>\(\{a, b, c, d\}\)</td><td>4</td><td>4</td><td>够</td></tr>
+</table></div>
+<p>只要有<b>一行不够</b>，就没有 SDR。</p>
+<p class="tip">一个方向很好理解：\(k\) 个集合要挑 \(k\) 个不同的代表，合起来至少得有 \(k\) 个元素。Hall 定理厉害的是反方向：<b>只要没有任何一组"挤"</b>，就一定挑得出来。证明用 König 定理，会用就行。名字来自婚姻问题（幻灯片 505）：\(A_i\) 是第 \(i\) 位男士愿意娶的女士，人人娶到愿意娶的人、又不重婚，就是一个 SDR。</p>
 <div class="calc">
-<p><b>做题</b>：</p>
-<p>说明<b>没有</b> SDR：找出挤在一起的那几个集合，写"\(A_1 \cup A_2 \cup A_3 = \{a, b\}\)，3 个集合只有 2 个元素，违反婚姻条件"。</p>
-<p>说明<b>有</b> SDR：直接写出一组代表。</p>
+<p><b>做题怎么写</b>（不用把所有挑法都检查一遍）：</p>
+<p><b>有 SDR</b>：直接写出一组代表，比如"取 \((c, b, a, d)\)，互不相同，所以有 SDR"。</p>
+<p><b>没有 SDR</b>：指出挤在一起的那几个集合，比如"\(A_1 \cup A_2 \cup A_3 = \{a, b\}\)，3 个集合只有 2 个元素，违反婚姻条件，所以没有 SDR"。</p>
 </div>
 
-<h3>选不出来时，最多能照顾几个集合（幻灯片 506–508）</h3>
-<p><b>例</b>（幻灯片 507–508）：\(A_1 = \{a, b, c\}\)，\(A_2 = A_3 = A_4 = \{b, c\}\)，\(A_5 = \{c\}\)，\(A_6 = \{a, b, c, d\}\)。</p>
+<div class="machine" id="sdBox">
+  <div class="head"><span class="title">演示：自己挑代表</span><span class="count" id="sdCount"></span></div>
+  <div class="controls" style="margin-top:0">
+    <label for="sdSel">例子：</label>
+    <select id="sdSel"></select>
+  </div>
+  <div id="sdRows"></div>
+  <svg id="sdSvg" role="img" aria-label="当前挑的代表画成的图"></svg>
+  <div class="controls">
+    <button id="sdAns" class="primary">看答案</button>
+    <button id="sdReset">重来</button>
+  </div>
+  <div class="caption" id="sdCap"></div>
+</div>
+<p class="tip">点每个集合后面的元素来挑代表，再点一次取消。挑重复了，冲突的线在图里画成红色虚线。</p>
+
+<h3>挑不全时，最多几个集合能有代表（幻灯片 506–508）</h3>
+<p><b>例</b>（幻灯片 507–508）：</p>
+<div class="scroll"><table class="sdr">
+<tr><th>集合</th><th>元素</th><th>代表</th></tr>
+<tr><td>\(A_1\)</td><td>\(a, b, c\)</td><td class="pick">\(a\)</td></tr>
+<tr class="bad"><td>\(A_2\)</td><td>\(b, c\)</td><td class="pick">\(b\)</td></tr>
+<tr class="bad"><td>\(A_3\)</td><td>\(b, c\)</td><td>没有</td></tr>
+<tr class="bad"><td>\(A_4\)</td><td>\(b, c\)</td><td>没有</td></tr>
+<tr class="bad"><td>\(A_5\)</td><td>\(c\)</td><td class="pick">\(c\)</td></tr>
+<tr><td>\(A_6\)</td><td>\(a, b, c, d\)</td><td class="pick">\(d\)</td></tr>
+</table></div>
+<ol class="steps">
+<li><b>找挤在一起的</b>（表里标色的 4 行）：\(A_2, A_3, A_4, A_5\) 都只能在 \(b, c\) 里挑。<b>4 个集合抢 2 个元素</b>，至少有 \(4 - 2 = 2\) 个集合挑不到。这个 2 叫<b>缺口</b>。</li>
+<li><b>最多几个</b>：6 个集合里至少 2 个挑不到，最多 \(6 - 2 = 4\) 个有代表。</li>
+<li><b>真能做到 4 个</b>：表里最后一列，\(A_1, A_2, A_5, A_6\) 挑 \(a, b, c, d\)，互不相同。</li>
+<li>结论：最多 <b>4</b> 个集合能同时有代表。</li>
+</ol>
 <div class="figs">
 <figure>
-<svg class="bip" role="img" aria-label="六个集合的例子" data-l="A1,A2,A3,A4,A5,A6" data-r="a,b,c,d" data-e="1-1,1-2,1-3,2-2,2-3,3-2,3-3,4-2,4-3,5-3,6-1,6-2,6-3,6-4" data-m="1-1,2-2,5-3,6-4" data-p="2-2,2-3,3-2,3-3,4-2,4-3,5-3"></svg>
-<figcaption>红色虚线：\(A_2, \ldots, A_5\) 四个集合只连着 \(b, c\)；粗线：4 个集合选出了代表</figcaption>
+<svg class="bip" role="img" aria-label="六个集合的例子" data-l="A1,A2,A3,A4,A5,A6" data-r="a,b,c,d" data-e="1-1,1-2,1-3,2-2,2-3,3-2,3-3,4-2,4-3,5-3,6-1,6-2,6-3,6-4" data-m="1-1,2-2,5-3,6-4"></svg>
+<figcaption>粗线：4 个集合挑到了代表。\(A_3, A_4\) 只连着已经被占的 \(b, c\)</figcaption>
 </figure>
 </div>
-<ol class="steps">
-<li><b>找最挤的一组</b>：\(A_2, A_3, A_4, A_5\) 是 4 个集合，合起来只有 \(\{b, c\}\) 2 个元素，<b>缺口</b>是 \(4 - 2 = 2\)：这 4 个里至少有 2 个分不到代表。</li>
-<li><b>上界</b>：6 个集合里至少 2 个落空，最多 \(6 - 2 = 4\) 个有代表。</li>
-<li><b>下界</b>：图里的粗线，\(A_1, A_2, A_5, A_6\) 选出 \(a, b, c, d\)，4 个做到了。</li>
-<li>结论：最多 <b>4</b> 个集合能同时有 SDR。</li>
-</ol>
 <div class="rule">
-<p><b>定理</b>：能同时有 SDR 的集合最多有</p>
-<p class="eq">\[\rho = n - \text{最大缺口},\]</p>
-<p>其中某 \(k\) 个集合的<b>缺口</b>是</p>
-<p class="eq">\[k - |A_{i_1} \cup \cdots \cup A_{i_k}|.\]</p>
-<p>讲义写成 \(\rho = \min\bigl(|A_{i_1} \cup \cdots \cup A_{i_k}| + n - k\bigr)\)，是同一个式子。</p>
+<p><b>缺口</b>：挑出 \(k\) 个集合，缺口 = 集合数 − 合起来的元素数，也就是 \(k - |A_{i_1} \cup \cdots \cup A_{i_k}|\)。</p>
+<p><b>定理</b>：最多能同时有代表的集合个数是</p>
+<p class="eq">\[\rho = n - \text{最大缺口}.\]</p>
+<p>讲义写成 \(\rho = \min\bigl(|A_{i_1} \cup \cdots \cup A_{i_k}| + n - k\bigr)\)，把括号拆开就是 \(n - \bigl(k - |A_{i_1} \cup \cdots \cup A_{i_k}|\bigr)\)，是同一个意思。</p>
 </div>
-<p class="tip">和第3节的考试写法一样：上界来自"挤在一起"的那组集合（相当于覆盖），下界直接把代表写出来（相当于匹配），两个数一样就是答案。</p>
+<p class="tip">做法和第3节一样：先用"挤在一起"的那组集合说明<b>最多</b>几个，再直接把代表写出来说明<b>做得到</b>，两个数一样就是答案。</p>
 <!-- ============ 7 ============ -->
 <h2 id="sm">7　稳定婚姻（幻灯片 509–517）</h2>
 
@@ -989,6 +1057,83 @@ var L9 = (function(){
   bReset.addEventListener('click', start);
   bW.addEventListener('click', function(){ women = true; start(); });
   bM.addEventListener('click', function(){ women = false; start(); });
+  sel.addEventListener('change', start);
+  start();
+})();
+/* ---------- Demo: pick distinct representatives ---------- */
+(function(){
+  var $ = L9.$, M = L9.M, tx = L9.tx;
+  var sel = $('sdSel'), rows = $('sdRows'), svg = $('sdSvg'), cap = $('sdCap'), cnt = $('sdCount');
+  if (!sel) return;
+  var R = ['a', 'b', 'c', 'd'];
+  var EX = [
+    {name: '例 1：4 个社团（能挑全）', S: ['abc', 'bd', 'abd', 'bd'], ans: 'cbad',
+     why: '4 个集合挑到 4 个不同的代表，这就是一个 SDR。'},
+    {name: '例 2：三个集合只有 a, b（挑不全）', S: ['ab', 'ab', 'ab', 'abcd'], ans: 'ab-c',
+     why: M('A_1, A_2, A_3') + ' 合起来只有 ' + M('\\{a, b\\}') + '，3 个集合抢 2 个元素，缺口 1，最多 4 − 1 = 3 个集合有代表。没有 SDR。'},
+    {name: '例 3：6 个集合（幻灯片 507）', S: ['abc', 'bc', 'bc', 'bc', 'c', 'abcd'], ans: 'ab--cd',
+     why: M('A_2, \\ldots, A_5') + ' 合起来只有 ' + M('\\{b, c\\}') + '，4 个集合抢 2 个元素，缺口 2，最多 6 − 2 = 4 个集合有代表。'}
+  ];
+  EX.forEach(function(e, i){ var o = document.createElement('option'); o.value = i; o.textContent = e.name; sel.appendChild(o); });
+  var ex, pick, showWhy;
+  function start(){
+    ex = EX[+sel.value]; pick = ex.S.map(function(){ return null; }); showWhy = false; build(); render();
+  }
+  function build(){
+    var h = '';
+    ex.S.forEach(function(s, i){
+      h += '<div class="controls sdrow"><span class="sdname">' + M('A_{' + (i + 1) + '}') + '</span>';
+      s.split('').forEach(function(c){
+        h += '<button data-i="' + i + '" data-c="' + c + '" aria-pressed="false">' + c + '</button>';
+      });
+      h += '</div>';
+    });
+    rows.innerHTML = h; L9.tex(rows);
+    rows.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        var i = +b.dataset.i, c = b.dataset.c;
+        pick[i] = pick[i] === c ? null : c; showWhy = false; render();
+      });
+    });
+  }
+  function render(){
+    var who = {};
+    pick.forEach(function(c, i){ if (c) (who[c] = who[c] || []).push(i); });
+    var dup = Object.keys(who).filter(function(c){ return who[c].length > 1; });
+    rows.querySelectorAll('button').forEach(function(b){
+      var i = +b.dataset.i, c = b.dataset.c, on = pick[i] === c;
+      b.classList.toggle('sel', on && dup.indexOf(c) < 0);
+      b.classList.toggle('clash', on && dup.indexOf(c) >= 0);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var g = {L: ex.S.map(function(s, i){ return 'A' + (i + 1); }), R: R, E: []}, Mo = {}, Po = {};
+    ex.S.forEach(function(s, i){ s.split('').forEach(function(c){ g.E.push([i, R.indexOf(c)]); }); });
+    pick.forEach(function(c, i){
+      if (!c) return;
+      var k = i + '-' + R.indexOf(c);
+      if (dup.indexOf(c) >= 0) Po[k] = true; else Mo[k] = true;
+    });
+    L9.draw(svg, g, {M: Mo, P: Po});
+    var good = Object.keys(who).length, n = ex.S.length, msg;
+    if (dup.length){
+      msg = dup.map(function(c){
+        return M(c) + ' 被 ' + who[c].map(function(i){ return M('A_{' + (i + 1) + '}'); }).join('、') + ' 同时挑了';
+      }).join('；') + '。重复了，要换一个。';
+    } else if (good === n){
+      msg = '全部 ' + n + ' 个集合都挑到了，而且互不相同：' + M('(' + pick.join(', ') + ')') + ' 是一个 SDR。';
+    } else if (good === 0){
+      msg = '点每个集合后面的元素，给它挑一个代表。';
+    } else {
+      msg = '已经有 ' + good + ' 个集合挑到了互不相同的代表。还能更多吗？';
+    }
+    if (showWhy) msg = ex.why;
+    cap.innerHTML = msg; L9.tex(cap);
+    cnt.textContent = '有代表 ' + (dup.length ? '?' : good) + ' / ' + n;
+  }
+  $('sdAns').addEventListener('click', function(){
+    pick = ex.ans.split('').map(function(c){ return c === '-' ? null : c; }); showWhy = true; render();
+  });
+  $('sdReset').addEventListener('click', start);
   sel.addEventListener('change', start);
   start();
 })();
