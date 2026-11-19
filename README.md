@@ -1,6 +1,6 @@
 # 组合数学学习笔记
 
-郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。前8章均配有 HTML 交互笔记，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
+郑惠南《组合数学》2026 秋，教材 Brualdi《Introductory Combinatorics》。每章一个文件夹，里面放老师的讲义 PDF 和对应的课程笔记。已完成的课程笔记采用 HTML 交互格式，下载后用浏览器打开就能看到图和可以点的演示。第一课同时保留原始 Markdown 笔记。
 
 | 章 | 主题 | 讲义 | 课程笔记 |
 |---|---|---|---|
@@ -16,7 +16,7 @@
 | 10 | [组合设计](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1) | [10 Combinatorial Designs.pdf](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1/10%20Combinatorial%20Designs.pdf) | [第10课-组合设计.html](ch10-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1/%E7%AC%AC10%E8%AF%BE-%E7%BB%84%E5%90%88%E8%AE%BE%E8%AE%A1.html) |
 | 11 | [图论导引](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95) | [11 Introduction to Graph Theory.pdf](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/11%20Introduction%20to%20Graph%20Theory.pdf) | [第11课-图论导引.html](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/%E7%AC%AC11%E8%AF%BE-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95.html) |
 | 12 | [有向图与网络](ch12-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C) | [12 Digraphs and Networks.pdf](ch12-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C/12%20Digraphs%20and%20Networks.pdf) | 待写 |
-| 13 | [图论续](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD) | [13 More on Graph Theory.pdf](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD/13%20More%20on%20Graph%20Theory.pdf) | 待写 |
+| 13 | [图论续](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD) | [13 More on Graph Theory.pdf](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD/13%20More%20on%20Graph%20Theory.pdf) | [第13课-图论续.html](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD/%E7%AC%AC13%E8%AF%BE-%E5%9B%BE%E8%AE%BA%E7%BB%AD.html) |
 | 14 | [Polya计数](ch14-Polya%E8%AE%A1%E6%95%B0) | [14 Polya Counting.pdf](ch14-Polya%E8%AE%A1%E6%95%B0/14%20Polya%20Counting.pdf) | 待写 |
 
 其他文件：

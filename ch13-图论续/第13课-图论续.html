@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第13课　图论续</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --paper: #f5f6f3;
+  --surface: #fff;
+  --ink: #1c2422;
+  --muted: #52645e;
+  --line: #d7ddd9;
+  --accent: #1f6f5c;
+  --soft: #e1efe9;
+  --warning: #a34430;
+  --edge: #5d736c;
+  --c1: #d4ede3;
+  --c2: #dceafe;
+  --c3: #fbe2d9;
+  --c4: #ece0f8;
+  --c5: #f5e9bc;
+  --color-ink: #192c26;
+  --sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --serif: "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121715;
+    --surface: #1a211f;
+    --ink: #e4ebe8;
+    --muted: #a5b4ae;
+    --line: #384741;
+    --accent: #80d2b7;
+    --soft: #1d3a32;
+    --warning: #ffa08a;
+    --edge: #9bada6;
+  }
+}
+* { box-sizing: border-box }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 1rem/1.8 var(--sans);
+  overflow-wrap: break-word;
+}
+.wrap { max-width: 48rem; margin: auto; padding: 2rem 1rem 4rem }
+h1, h2, h3 { font-family: var(--serif); line-height: 1.4 }
+h1 { font-size: clamp(2rem, 6vw, 2.75rem); margin: .15rem 0 .65rem }
+h2 { margin: 0 0 .55rem; font-size: 1.6rem }
+h3 { margin: 1.65rem 0 .4rem; font-size: 1.2rem }
+p { margin: .55rem 0 }
+ol, ul { padding-inline-start: 1.45rem }
+li + li { margin-top: .2rem }
+a { color: var(--accent); text-underline-offset: .2em }
+a:focus-visible, button:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.meta, .source, .tip, figcaption { color: var(--muted); font-size: .9rem }
+.source { margin: 0 0 1rem }
+.lede { max-width: 39rem }
+.toc { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; padding: 0; margin: 1.15rem 0 0 }
+.toc li { margin: 0 }
+.toc a {
+  display: inline-block;
+  padding: .22rem .7rem;
+  border: 1px solid var(--line);
+  border-radius: 2rem;
+  background: var(--surface);
+  font-size: .9rem;
+  text-decoration: none;
+}
+.toc a:hover { border-color: var(--accent) }
+section, footer { margin-top: 2.8rem; padding-top: 1.15rem; border-top: 1px solid var(--line) }
+section { scroll-margin-top: 1rem }
+.rule, .calc, .machine, .question, figure {
+  margin: 1rem 0;
+  padding: .8rem 1rem;
+  border-radius: .55rem;
+}
+.rule { background: var(--soft); border-inline-start: 3px solid var(--accent) }
+.calc, .machine, .question, figure { background: var(--surface); border: 1px solid var(--line) }
+.rule > :first-child, .calc > :first-child, .question > :first-child { margin-top: 0 }
+.rule > :last-child, .calc > :last-child, .question > :last-child { margin-bottom: 0 }
+.eq {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.14rem;
+  line-height: 1.7;
+  letter-spacing: .01em;
+}
+.eq sub, .eq sup { line-height: 0 }
+.over { text-decoration: overline }
+.scroll { overflow-x: auto; margin: .7rem 0 }
+table { border-collapse: collapse; width: 100%; background: var(--surface) }
+th, td { padding: .45rem .65rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top }
+th { background: var(--soft); font-weight: 700 }
+.num { text-align: center; font-variant-numeric: tabular-nums }
+.controls { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin: .6rem 0 }
+button, select {
+  padding: .34rem .66rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: .9rem;
+  max-width: 100%;
+}
+button { cursor: pointer }
+button:hover, button[aria-pressed="true"] { border-color: var(--accent) }
+button[aria-pressed="true"] { background: var(--soft); color: var(--accent); font-weight: 700 }
+button:disabled { opacity: .5; cursor: default }
+.caption { background: var(--paper); border-radius: .42rem; padding: .45rem .65rem; margin: .55rem 0 0 }
+.machine h3 { margin: 0 0 .3rem }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: .6rem }
+.pair > figure { margin: 0 }
+.graph { display: block; width: 100%; max-width: 23rem; height: auto; margin: .25rem auto }
+.graph .edge { stroke: var(--edge); stroke-width: 2; fill: none; stroke-linecap: round }
+.graph .extra { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 3 }
+.graph .removed { stroke: var(--warning); stroke-dasharray: 4 5; opacity: .65 }
+.graph .vertex { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6 }
+.graph .vertex.removed { stroke: var(--warning); fill: var(--paper) }
+.graph .color1 { fill: var(--c1) }
+.graph .color2 { fill: var(--c2) }
+.graph .color3 { fill: var(--c3) }
+.graph .color4 { fill: var(--c4) }
+.graph .color5 { fill: var(--c5) }
+.graph text { fill: var(--ink); font: 700 14px var(--sans); text-anchor: middle }
+.graph text.colored { fill: var(--color-ink) }
+.graph text.note { font: 12px var(--sans); fill: var(--muted) }
+.graph .face { fill: var(--soft) }
+figcaption { text-align: center }
+summary { cursor: pointer; color: var(--accent); font-weight: 600 }
+details > :last-child { margin-bottom: 0 }
+.question summary { padding: .1rem 0 }
+[hidden] { display: none !important }
+@media (max-width: 30rem) {
+  .wrap { padding-top: 1.3rem }
+  .rule, .calc, .machine, .question, figure { padding: .65rem .75rem }
+}
+@media print {
+  :root { color-scheme: light; --paper: #fff; --surface: #fff; --ink: #1c2422; --muted: #52645e;
+    --line: #d7ddd9; --accent: #1f6f5c; --soft: #e1efe9; --edge: #5d736c }
+  .wrap { max-width: none; padding: 0 }
+  .toc, .controls, footer .back { display: none }
+  h2, h3 { break-after: avoid }
+  figure, .machine, .question { break-inside: avoid }
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="top">
+<header>
+  <p class="meta">组合数学 · Brualdi 第 13 章 · 幻灯片 662–696</p>
+  <h1>第13课　图论续</h1>
+  <p class="lede">有冲突的考试要错开，至少要排几个时段？一张图有交叉，换个画法能把交叉消掉吗？删掉哪几个点会让路网断开？这三个问题分别对应<strong>着色、平面性和连通度</strong>。</p>
+  <nav aria-label="本课目录">
+    <ul class="toc">
+      <li><a href="#coloring">1 色数</a></li>
+      <li><a href="#polynomial">2 色多项式</a></li>
+      <li><a href="#planar">3 平面图</a></li>
+      <li><a href="#five">4 五色定理</a></li>
+      <li><a href="#sets">5 独立集与团</a></li>
+      <li><a href="#connectivity">6 连通度</a></li>
+      <li><a href="#practice">课后练习</a></li>
+    </ul>
+  </nav>
+  <p class="tip">本课用无向简单图。忘了度数、圈、导出子图或桥的定义，可以先翻<a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/%E7%AC%AC11%E8%AF%BE-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95.html">第 11 课《图论导引》</a>。</p>
+</header>
+
+<section id="coloring" aria-labelledby="coloring-title">
+  <h2 id="coloring-title">1　色数 χ：最少要几种颜色？</h2>
+  <p class="source">幻灯片 662–668</p>
+  <p>把每门考试画成一个点。如果有学生同时选了两门课，就在那两个点之间连边。给每个点填一个时段，边的两端必须填不同的时段。换成颜色来想，一个时段就是一种颜色。</p>
+  <div class="rule">
+    <p><strong>正常点着色</strong>要求每条边的两端异色。手里有 <i>k</i> 种颜色、允许有些颜色闲置，这叫 <i>k</i>-着色。能办到的最小 <i>k</i> 就是<strong>色数</strong> χ(<i>G</i>)。</p>
+    <p>同色点之间没有边，所以每个颜色类都是一个<strong>独立集</strong>。</p>
+  </div>
+  <p>要证明 χ(<i>G</i>) = 3，就做两件事。先解释两种颜色为什么不够，再实际给出一种三色涂法。</p>
+  <div class="calc">
+    <p><strong>例｜五边形 <i>C</i><sub>5</sub></strong>　如果只有两种颜色，从 <i>A</i> 开始沿圈就只能交替涂成 1、2、1、2、1。最后一个点和 <i>A</i> 相邻，两端都是 1，矛盾。改成 1、2、1、2、3 就合法，所以 χ(<i>C</i><sub>5</sub>) = 3。</p>
+    <p>这个证明也适用于所有奇圈（练习 #598）。偶圈可以一直交替着色，色数为 2。更一般地，有至少一条边的图，色数为 2 当且仅当它是二部图。</p>
+  </div>
+  <div class="scroll">
+    <table aria-label="常用的色数上下界">
+      <thead><tr><th scope="col">要证明</th><th scope="col">从哪里下手</th></tr></thead>
+      <tbody>
+        <tr><td>至少用 <i>r</i> 色</td><td>找 <i>K</i><sub>r</sub>：其中每两个点都相邻，每个点都得用不同颜色。找奇圈也能证明至少需要 3 色。</td></tr>
+        <tr><td>至多用 <i>r</i> 色</td><td>写出每个点的颜色，逐边检查。也可以按某个顺序贪心着色。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>贪心着色：先看已经涂好的邻居</h3>
+  <p>先给顶点排个顺序。轮到一个点时，记下它的已着色邻居用了哪些色号，再选没有被占用的最小色号。如果最大度数为 Δ，每次至多有 Δ 个邻居挡住颜色，因此<strong>χ(<i>G</i>) ≤ Δ + 1</strong>。</p>
+  <div class="machine" id="greedy-demo" hidden>
+    <h3>在同一个六边形上换顺序</h3>
+    <p class="tip">圆周顺次连着 <i>A–B–C–D–E–F–A</i>。节点内的数字是色号。</p>
+    <div class="controls">
+      <label for="greedy-order">顶点顺序</label>
+      <select id="greedy-order">
+        <option value="cycle">A → B → C → D → E → F</option>
+        <option value="other">A → D → B → C → E → F</option>
+      </select>
+      <button type="button" id="greedy-prev">上一步</button>
+      <button type="button" id="greedy-next">下一步</button>
+      <button type="button" id="greedy-reset">重来</button>
+    </div>
+    <svg class="graph" id="greedy-graph" viewBox="0 0 300 205" role="img"></svg>
+    <p class="caption" id="greedy-status" role="status"></p>
+  </div>
+  <p>六边形沿圈顺次贪心只用 2 色。若先涂 <i>A</i>、<i>D</i>、<i>B</i>，它们依次拿到 1、1、2。轮到 <i>C</i> 时，邻居 <i>B</i> 和 <i>D</i> 已占了 2 和 1，于是必须开第 3 色。做题时，贪心结果能用来给出上界，下界要另找理由。</p>
+  <p class="tip"><strong>Brooks 定理（幻灯片 668）</strong>　连通图若既不是完全图也不是奇圈，则 χ(<i>G</i>) ≤ Δ。这里的 Δ 界来自定理，任意顺序的贪心只保证 Δ + 1。</p>
+</section>
+
+<section id="polynomial" aria-labelledby="polynomial-title">
+  <h2 id="polynomial-title">2　色多项式：给定 <i>k</i> 种颜色，有几种涂法？</h2>
+  <p class="source">幻灯片 668–673</p>
+  <p>用 <i>P</i><sub>G</sub>(<i>k</i>) 表示合法着色的总数。颜色有编号，交换 1 号和 2 号可能会得到另一种涂法。例如一条边用两色有 2 种涂法，因为两端谁拿 1 号都可以。能使 <i>P</i><sub>G</sub>(<i>k</i>) &gt; 0 的最小非负整数 <i>k</i> 就是色数。</p>
+  <div class="scroll">
+    <table aria-label="三种基础图的色多项式">
+      <thead><tr><th scope="col">图</th><th scope="col">色多项式</th><th scope="col">为什么</th></tr></thead>
+      <tbody>
+        <tr><td><i>n</i> 个孤立点 <i>N</i><sub>n</sub></td><td><i>k</i><sup>n</sup></td><td>每个点可随意选色。</td></tr>
+        <tr><td>完全图 <i>K</i><sub>n</sub></td><td>[<i>k</i>]<sub>n</sub> = <i>k</i>(<i>k</i>−1)⋯(<i>k</i>−<i>n</i>+1)</td><td>第 <i>j</i> 个点避开前面 <i>j</i>−1 个点的颜色。</td></tr>
+        <tr><td><i>n</i> 个点的树</td><td><i>k</i>(<i>k</i>−1)<sup>n−1</sup></td><td>从根向外涂。根有 <i>k</i> 种选法，每个非根点避开父节点的颜色即可。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>删除—收缩：先允许同色，再减掉同色</h3>
+  <p>在图 <i>G</i> 上选一条边 <i>e</i> = <i>uv</i>。删边 <i>G</i>−<i>e</i> 时，所有顶点保留。缩边 <i>G</i>/<i>e</i> 时，把 <i>u</i> 和 <i>v</i> 合成一个点，去掉被缩的边并合并重边。</p>
+  <div class="rule">
+    <p>删边后，合法涂法分成两类。</p>
+    <ol>
+      <li><i>u</i>、<i>v</i> 异色。把边接回去仍然合法，这一类有 <i>P</i><sub>G</sub>(<i>k</i>) 种。</li>
+      <li><i>u</i>、<i>v</i> 同色。把两个同色点捏成一个点，刚好对应缩边图的涂法，这一类有 <i>P</i><sub>G/e</sub>(<i>k</i>) 种。</li>
+    </ol>
+    <p class="eq"><i>P</i><sub>G</sub>(<i>k</i>) = <i>P</i><sub>G−e</sub>(<i>k</i>) − <i>P</i><sub>G/e</sub>(<i>k</i>)</p>
+  </div>
+  <div class="calc">
+    <p><strong>例｜四边形 <i>C</i><sub>4</sub></strong>　对边 <i>DA</i> 做删除—收缩。删边得到四点路径 <i>A–B–C–D</i>，缩边得到三角形 <i>(AD)–B–C–(AD)</i>。</p>
+    <p class="eq"><i>P</i><sub>C₄</sub>(<i>k</i>) = <i>k</i>(<i>k</i>−1)<sup>3</sup> − <i>k</i>(<i>k</i>−1)(<i>k</i>−2)</p>
+    <p>取 <i>k</i> = 3 时，路径有 24 种涂法，其中 6 种让 <i>A</i> 与 <i>D</i> 同色。接回 <i>DA</i> 后留下 18 种。</p>
+  </div>
+  <div class="machine" id="deletion-demo" hidden>
+    <h3>对照四边形的三个图</h3>
+    <div class="controls" id="deletion-controls">
+      <button type="button" data-mode="original" aria-pressed="true">原图</button>
+      <button type="button" data-mode="delete" aria-pressed="false">删除 DA</button>
+      <button type="button" data-mode="contract" aria-pressed="false">收缩 DA</button>
+      <label for="palette-size">颜色数</label>
+      <select id="palette-size">
+        <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+      </select>
+    </div>
+    <svg class="graph" id="deletion-graph" viewBox="0 0 300 176" role="img"></svg>
+    <p class="caption" id="deletion-status" role="status"></p>
+  </div>
+  <p>反复拆下去，遇到无边图就写 <i>k</i><sup>顶点数</sup>。遇到树和完全图可直接用表里的式子。删边保留点数，缩边少一个点。用这个观察对边数归纳，可以看出 <i>n</i> 点图的色多项式次数是 <i>n</i>，最高次项系数为 1。</p>
+  <details class="calc">
+    <summary>几块图只共用一个团时，怎样直接拼起来？</summary>
+    <p>假设删掉公共团 <i>S</i> = <i>K</i><sub>r</sub> 后，图分成 <i>t</i> 块。每块把 <i>S</i> 加回来，得到 <i>H</i><sub>1</sub> 到 <i>H</i><sub>t</sub>。先固定公共团的具体配色。由于颜色编号可以互换，每块在这个固定配色下的扩展方案数都是 <i>P</i><sub>Hᵢ</sub>(<i>k</i>) / [<i>k</i>]<sub>r</sub>，各块可独立选择。最后乘回公共团自己的 [<i>k</i>]<sub>r</sub> 种涂法。</p>
+    <p class="eq"><i>P</i><sub>G</sub>(<i>k</i>) = <i>P</i><sub>H₁</sub>(<i>k</i>) ⋯ <i>P</i><sub>Hₜ</sub>(<i>k</i>) / ([<i>k</i>]<sub>r</sub>)<sup>t−1</sup></p>
+    <p>除式按多项式化简后，再代入具体的 <i>k</i>。例如两个三角形共用一条边，可先涂公共边，再各涂自己的第三个点，得到 <i>k</i>(<i>k</i>−1)(<i>k</i>−2)<sup>2</sup>。同理，若 <i>G</i> 含 <i>K</i><sub>r</sub>，其色多项式有因子 [<i>k</i>]<sub>r</sub>。各连通分支完全分开时，色多项式直接相乘，色数取最大值。</p>
+  </details>
+</section>
+
+<section id="planar" aria-labelledby="planar-title">
+  <h2 id="planar-title">3　平面图：能不能把交叉消掉？</h2>
+  <p class="source">幻灯片 662、674–677</p>
+  <p><strong>平面图</strong>（planar graph）可以画在平面上，使边只在共同的端点相遇。这样的一个具体画法叫<strong>平面嵌入</strong>，画出来的图叫平面表示（plane graph）。判断平面性时允许挪动点、弯曲边，保留原来的相邻关系。</p>
+  <div class="pair">
+    <figure>
+      <svg class="graph" viewBox="0 0 300 188" role="img" aria-label="K4 的四个顶点排成正方形，两条对角线在中心交叉">
+        <path class="edge" d="M86 40H214V148H86ZM86 40L214 148 M214 40L86 148"/>
+        <g class="vertex"><circle cx="86" cy="40" r="15"/><circle cx="214" cy="40" r="15"/><circle cx="214" cy="148" r="15"/><circle cx="86" cy="148" r="15"/></g>
+        <text x="86" y="45">A</text><text x="214" y="45">B</text><text x="214" y="153">C</text><text x="86" y="153">D</text>
+      </svg>
+      <figcaption>把 <i>K</i><sub>4</sub> 画成正方形，两条对角线交叉</figcaption>
+    </figure>
+    <figure>
+      <svg class="graph" viewBox="0 0 300 188" role="img" aria-label="K4 的三个顶点组成外三角形，第四个顶点放在内部并连到外三角形的三个顶点">
+        <path class="face" d="M150 29L62 150H238Z"/>
+        <path class="edge" d="M150 29L62 150H238Z M150 29V106L62 150 M150 106L238 150"/>
+        <g class="vertex"><circle cx="150" cy="29" r="15"/><circle cx="62" cy="150" r="15"/><circle cx="238" cy="150" r="15"/><circle cx="150" cy="106" r="15"/></g>
+        <text x="150" y="34">A</text><text x="62" y="155">B</text><text x="238" y="155">C</text><text x="150" y="111">D</text>
+      </svg>
+      <figcaption>挪一个点到三角形内，六条边都在，交叉消失</figcaption>
+    </figure>
+  </div>
+  <p>右图有 3 个内部小三角形，加上外面无限延伸的一块，一共 4 个<strong>面</strong>（讲义称区域）。所以这里的点数 <i>n</i> = 4、边数 <i>e</i> = 6、面数 <i>f</i> = 4，恰好 4 − 6 + 4 = 2。</p>
+  <div class="rule">
+    <p><strong>Euler 公式</strong>　连通平面嵌入满足 <i>n</i> − <i>e</i> + <i>f</i> = 2。</p>
+    <p>从一棵生成树开始。树有 <i>n</i>−1 条边，只有外面一个面，式子是 <i>n</i> − (<i>n</i>−1) + 1 = 2。沿原画法添回每条非树边时，点数不变，一条边把一个面切成两个，<i>e</i> 和 <i>f</i> 各加 1。</p>
+  </div>
+  <p><strong>数面边界时逐侧数边。</strong> 每条边有两侧，所以所有面的边界长度加起来等于 2<i>e</i>。一条桥的两侧属于同一个面，也要各数一次。例如一条两边的路径，只有外面一个面，边界长度为 4。</p>
+  <div class="calc">
+    <p><strong>从数面得到边数上限</strong>　连通简单平面图有 <i>n</i> ≥ 3 时，每个面的边界长度至少为 3，所以 3<i>f</i> ≤ 2<i>e</i>。将 <i>f</i> = 2 − <i>n</i> + <i>e</i> 代入，得 <strong><i>e</i> ≤ 3<i>n</i> − 6</strong>。若还是二部图，面边界长度为偶数且至少 4，改用 4<i>f</i> ≤ 2<i>e</i>，得 <strong><i>e</i> ≤ 2<i>n</i> − 4</strong>。</p>
+    <p><i>K</i><sub>5</sub> 有 5 点 10 边，超过 3·5 − 6 = 9，因此非平面。<i>K</i><sub>3,3</sub> 有 6 点 9 边，超过二部图上限 2·6 − 4 = 8，因此也非平面。</p>
+  </div>
+  <p>边数超过上限就能判非平面。满足上限时还要继续检查，例如 <i>K</i><sub>3,3</sub> 满足普通的 3<i>n</i> − 6 界。想证明平面，最直接的办法是画出一个没有交叉的嵌入。</p>
+  <details class="calc">
+    <summary>遇到加了中间点的 <i>K</i><sub>5</sub> 或 <i>K</i><sub>3,3</sub> 怎么办？</summary>
+    <p>把边 <i>uv</i> 改为路径 <i>u–x–v</i>，其中 <i>x</i> 是新点，这叫<strong>细分</strong>。在已有的边上放一个点，或者擦掉这个点再把两段线接上，都可以沿同一条轨迹进行，因此细分保留平面性。</p>
+    <p><strong>Kuratowski 定理</strong>说，一个图是平面图，当且仅当它没有任何子图是 <i>K</i><sub>5</sub> 或 <i>K</i><sub>3,3</sub> 的细分。另一个等价判据是看能否通过删点、删边和缩边得到这两个图之一（Wagner 定理）。找细分时，代表不同原边的路径不能共用内部点。</p>
+  </details>
+</section>
+
+<section id="five" aria-labelledby="five-title">
+  <h2 id="five-title">4　五色定理：五种颜色都被占了怎么办？</h2>
+  <p class="source">幻灯片 676、678–680</p>
+  <p>地图上每个区域画成一个顶点，共享一段边界的区域连边。只在一个点接触的区域可以同色。这样地图着色就变成了平面图的点着色。</p>
+  <div class="rule">
+    <p><strong>五色定理</strong>　每个简单平面图都可以用至多 5 种颜色正常着色。</p>
+  </div>
+  <h3>先删一个点，涂好剩下的图</h3>
+  <p>对连通的简单平面图，<i>n</i> ≥ 3 时，平均度数 2<i>e</i>/<i>n</i> ≤ 6 − 12/<i>n</i> &lt; 6，所以至少一个顶点 <i>x</i> 的度数至多为 5。不到 3 点时可直接着色，不连通时可逐块着色。删掉 <i>x</i> 得到更小的平面图，对顶点数归纳，先把它五着色。若 <i>x</i> 的邻居没用满五色，就用剩下的一色涂 <i>x</i>。</p>
+  <h3>五个邻居恰好五色时，整块换色</h3>
+  <p>先记住一个操作。只保留两种颜色（比如 1 和 3）及这些点之间的边，取所得导出子图的一个连通分支，把这个分支里的 1、3 对调。这叫 <strong>Kempe 换色</strong>。分支内部两端一起换，仍然异色。跨出分支的边若通向另一种 1 或 3，那个点本来就会在同一个分支里。故跨出的邻居只能是其他色，换完依然合法。</p>
+  <ol>
+    <li>在平面画法上绕 <i>x</i> 一圈，依次把五个邻居叫作 <i>y</i><sub>1</sub> 到 <i>y</i><sub>5</sub>，把它们的颜色编号记作 1 到 5。</li>
+    <li>如果 <i>y</i><sub>1</sub> 和 <i>y</i><sub>3</sub> 在删掉 <i>x</i> 后没有通过 1、3 色的路径相连，就换 <i>y</i><sub>1</sub> 所在的 1、3 色分支。<i>y</i><sub>1</sub> 变成 3 色，1 色空出来给 <i>x</i>。</li>
+    <li>如果有这条 1、3 色路径，它和 <i>xy</i><sub>1</sub>、<i>xy</i><sub>3</sub> 围成一个圈，把 <i>y</i><sub>2</sub> 与 <i>y</i><sub>4</sub> 分在两侧。2、4 色路径不能经过这个圈上的点，也不能穿过它的边，因此连不到另一侧。换 <i>y</i><sub>2</sub> 所在的 2、4 色分支，2 色空出来给 <i>x</i>。</li>
+  </ol>
+  <figure>
+    <svg class="graph" viewBox="0 0 300 226" role="img" aria-label="中心 x 的五个邻点按顺时针排列。外侧的 1、3 色路径从 y1 绕到 y3，与中心两条边合成封闭圈，y2 在圈内而 y4 在圈外">
+      <path class="face" d="M148 117L148 34L256 32L263 159L202 188Z"/>
+      <path class="edge" d="M148 117L148 34 M148 117L222 91 M148 117L202 188 M148 117L92 184 M148 117L69 82"/>
+      <path class="edge extra" d="M148 34L256 32L263 159L202 188"/>
+      <circle class="vertex" cx="148" cy="117" r="15"/><text x="148" y="122">x</text>
+      <circle class="vertex color1" cx="148" cy="34" r="14"/><text class="colored" x="148" y="39">1</text>
+      <circle class="vertex color2" cx="222" cy="91" r="14"/><text class="colored" x="222" y="96">2</text>
+      <circle class="vertex color3" cx="202" cy="188" r="14"/><text class="colored" x="202" y="193">3</text>
+      <circle class="vertex color4" cx="92" cy="184" r="14"/><text class="colored" x="92" y="189">4</text>
+      <circle class="vertex color5" cx="69" cy="82" r="14"/><text class="colored" x="69" y="87">5</text>
+      <circle class="vertex color3" cx="256" cy="32" r="14"/><text class="colored" x="256" y="37">3</text>
+      <circle class="vertex color1" cx="263" cy="159" r="14"/><text class="colored" x="263" y="164">1</text>
+      <text class="note" x="148" y="13">y₁</text><text class="note" x="222" y="68">y₂</text>
+      <text class="note" x="202" y="213">y₃</text><text class="note" x="92" y="209">y₄</text>
+      <text class="note" x="69" y="59">y₅</text>
+    </svg>
+    <figcaption>虚线是 1、3 色的路。浅色区域展示它与 <i>x</i> 的两条边围成的圈，隔开 <i>y</i><sub>2</sub> 和 <i>y</i><sub>4</sub>。</figcaption>
+  </figure>
+  <p class="tip"><strong>联系</strong>　四色定理把上界改进为 4。讲义还介绍了 Hadwiger 猜想：若 χ(<i>G</i>) ≥ <i>p</i>，则 <i>G</i> 含 <i>K</i><sub>p</sub> 作为子式（也称图的 minor），也就是可以通过删点、删边和缩边得到 <i>K</i><sub>p</sub>。其中 <i>p</i> = 5 的情形等价于四色定理。</p>
+</section>
+
+<section id="sets" aria-labelledby="sets-title">
+  <h2 id="sets-title">5　独立集、团与支配集：挑出的点要满足什么？</h2>
+  <p class="source">幻灯片 681–690</p>
+  <div class="scroll">
+    <table aria-label="三种点集的条件与目标">
+      <thead><tr><th scope="col">点集</th><th scope="col">怎么检查</th><th scope="col">求什么</th></tr></thead>
+      <tbody>
+        <tr><td>独立集</td><td>集合里面每两个点都没有边。</td><td>最大大小 α(<i>G</i>)</td></tr>
+        <tr><td>团</td><td>集合里面每两个点都有边。</td><td>最大大小 ω(<i>G</i>)</td></tr>
+        <tr><td>支配集</td><td>集合外每个点都至少有一个邻居在集合里面。</td><td>最小大小 dom(<i>G</i>)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="calc">
+    <p><strong>同一个五边形 <i>C</i><sub>5</sub></strong>　沿圈标 <i>A、B、C、D、E</i>。<i>A</i>、<i>C</i> 可以一起选进独立集，又能支配全图。沿圈每个已选点后至少要空一个点，5 个顶点放不下 3 个独立点，所以 α = 2。一条边的两个端点构成团，图中没有三角形，所以 ω = 2。任一个点连自己最多覆盖 3 点，因此 dom = 2。</p>
+  </div>
+  <p>一个独立集如果再也加不进点，就称为<strong>极大独立集</strong>。它必定支配所有外面的点，否则还能把某个未被支配的点加进来。比如三点路径 <i>A–M–B</i> 中，{<i>M</i>} 已经极大，{<i>A</i>, <i>B</i>} 才是大小最大的独立集。</p>
+  <p>对至少有两个顶点的连通图，可取一棵生成树。树的二部划分中，较小那一侧至多 ⌊<i>n</i>/2⌋ 个点，而且每个另一侧的点至少和它相邻一次，于是 dom(<i>G</i>) ≤ ⌊<i>n</i>/2⌋。</p>
+  <div class="rule">
+    <p><strong>独立集和团都能给色数下界。</strong> 每种颜色装得下至多 α(<i>G</i>) 个点，于是 χ(<i>G</i>) ≥ ⌈<i>n</i>/α(<i>G</i>)⌉。一个团里的所有点都得异色，于是 χ(<i>G</i>) ≥ ω(<i>G</i>)。</p>
+    <p>在补图 <span class="over"><i>G</i></span> 里，原来相连的点对不相连，原来不相连的点对变成相连。因此 α(<i>G</i>) = ω(<span class="over"><i>G</i></span>)。若用 θ(<i>G</i>) 表示把顶点划分成团所需的最少团数，则 θ(<i>G</i>) = χ(<span class="over"><i>G</i></span>) ≥ α(<i>G</i>)。</p>
+  </div>
+  <p class="tip">讲义用八皇后举例：每个格子是一个点，两个格子的皇后会互相攻击就连边。能同时摆多少个互不攻击的皇后，就是求 α。每行至多摆一个给出了上界 8，找出一组能摆 8 个的方案就达到了上界。</p>
+  <h3>区间图、弦图和完美图</h3>
+  <ul>
+    <li><strong>区间图</strong>。每个点是一段时间，两段闭区间只要有公共点就连边。例如 [1, 3] 和 [3, 5] 在 3 相交，所以对应的点相邻。</li>
+    <li><strong>弦图</strong>。长度至少为 4 的每个圈都有弦，也就是圈上两个不连续点之间有一条边。比如单独一个四边形没有弦，加上一条对角线就成了弦图。</li>
+    <li><strong>完美图</strong>。对它的<strong>每一个导出子图</strong> <i>H</i>，都有 χ(<i>H</i>) = ω(<i>H</i>)。<i>C</i><sub>5</sub> 的色数为 3，团数为 2，所以只要某个导出子图是 <i>C</i><sub>5</sub>，整个图就不完美。</li>
+  </ul>
+  <div class="rule">
+    <p><strong>区间图 ⊆ 弦图 ⊆ 完美图。</strong></p>
+    <p>想象一个由区间排成的长圈，找右端点最靠左的那个区间。圈上它的两个邻居都必须含这个右端点，因此两个邻居相交，连出的边就是一条弦。</p>
+  </div>
+  <details class="calc">
+    <summary>为什么弦图也完美？</summary>
+    <p>讲义给了一个拆图方法。连通弦图中，按包含关系极小的割集会诱导出一个团。沿着这个团拆开，对每个小块分别着色，再通过颜色重新编号让各块在公共团上的颜色一致，就能拼回整图。用顶点数归纳，各块用到的色数都等于各自的最大团大小，所以整图的色数也等于最大团大小。完全图作起点，不连通的图可以分开涂。弦图的导出子图仍是弦图，因此每个导出子图也满足这个等式。</p>
+    <p>讲义也给出完美图的两个判别结果。完美图的补图仍完美。强完美图定理还说明，完美当且仅当图和它的补图都没有长度至少为 5 的无弦奇圈作为导出子图。</p>
+  </details>
+</section>
+
+<section id="connectivity" aria-labelledby="connectivity-title">
+  <h2 id="connectivity-title">6　连通度：最少要删几个点或几条边？</h2>
+  <p class="source">幻灯片 691–696</p>
+  <p>都连通的图也可能有不同的抗断能力。只允许删点和只允许删边，是两个分别计算的问题。删点会同时删掉它关联的所有边。</p>
+  <div class="scroll">
+    <table aria-label="点连通度、边连通度与最小度数">
+      <thead><tr><th scope="col">记号</th><th scope="col">怎么数</th></tr></thead>
+      <tbody>
+        <tr><td>κ(<i>G</i>)</td><td>点连通度。对非完全图，数让剩余图不连通至少要删几个顶点。约定 κ(<i>K</i><sub>n</sub>) = <i>n</i> − 1。</td></tr>
+        <tr><td>λ(<i>G</i>)</td><td>边连通度。数保留全部顶点时，让图不连通至少要删几条边。</td></tr>
+        <tr><td>δ(<i>G</i>)</td><td>最小度数。找一个邻居最少的点，记录它的度数。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>对至少有两个顶点的图有 <strong>κ(<i>G</i>) ≤ λ(<i>G</i>) ≤ δ(<i>G</i>)</strong>。把度数最小的点的所有边删掉就能孤立它，所以 λ ≤ δ。已经不连通的图，κ 和 λ 都是 0。</p>
+  <div class="machine" id="cut-demo" hidden>
+    <h3>让两个共用一个点的三角形断开</h3>
+    <div class="controls" id="cut-controls">
+      <button type="button" data-mode="original" aria-pressed="true">原图</button>
+      <button type="button" data-mode="vertex" aria-pressed="false">删顶点 X</button>
+      <button type="button" data-mode="one" aria-pressed="false">删 AX</button>
+      <button type="button" data-mode="two" aria-pressed="false">删 AX 和 AB</button>
+    </div>
+    <svg class="graph" id="cut-graph" viewBox="0 0 330 178" role="img"></svg>
+    <p class="caption" id="cut-status" role="status"></p>
+  </div>
+  <p>三角形 <i>ABX</i> 和 <i>CDX</i> 只共用 <i>X</i>。删掉 <i>X</i> 就断开，所以 κ = 1。任删一条边，每个三角形都还连通。删 <i>AX</i> 和 <i>AB</i> 可以孤立 <i>A</i>，所以 λ = 2。这个例子的 δ 也等于 2。删掉就使连通图断开的顶点叫<strong>割点</strong>，这样的边叫<strong>桥</strong>。这里 <i>X</i> 是割点，每条边都在三角形上，因此图没有桥。</p>
+  <h3>两点之间能不能绕一道？</h3>
+  <p>当 <i>n</i> ≥ 3 时，<strong>2-连通</strong>就是图连通且没有割点。下面两种说法也等价。</p>
+  <ul>
+    <li>任意两个不同的点 <i>a</i> 和 <i>b</i> 都在某个共同的圈上。</li>
+    <li>从 <i>a</i> 到 <i>b</i> 有两条路，内部顶点互不重叠。把一个经过 <i>a</i> 和 <i>b</i> 的圈沿两点分开，就得到这两条路。</li>
+  </ul>
+  <p>推广到 <i>k</i> ≥ 1、<i>n</i> ≥ <i>k</i> + 1 时，<i>k</i>-连通（κ ≥ <i>k</i>）等价于每对不同顶点之间有 <i>k</i> 条内部顶点互不重叠的路。理解其中一个方向：删不到 <i>k</i> 个别的顶点，至少还有一条路没被截断。</p>
+  <h3>块：把图拆成没有割点的部分</h3>
+  <p>块是再也扩不大的、连通且内部没有割点的导出子图。一个连通图（至少有两点）的块要么是桥形成的 <i>K</i><sub>2</sub>，要么是 2-连通图。上例中，两个三角形各是一个块。它们能共用割点 <i>X</i>，但边各归一个块。一般地，两个不同块最多共用一个点，所有块的边集划分了原图的边集。</p>
+</section>
+
+<section id="practice" aria-labelledby="practice-title">
+  <h2 id="practice-title">课后练习</h2>
+  <p>题号对应仓库里的<a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/Exercises.pdf">《Exercises.pdf》</a>。题目用中文简述，先自己画图或写两行推导，再展开解答。#598 的解法在第 1 节。</p>
+
+  <h3>先练色数和色多项式</h3>
+  <div class="question">
+    <p><strong>#604、#605</strong>　从 <i>K</i><sub>n</sub>（<i>n</i> ≥ 2）删掉一条边 <i>uv</i>，求色数和色多项式。</p>
+    <details><summary>展开解答</summary>
+      <p>除了 <i>u</i> 和 <i>v</i>，每对点仍然相邻。去掉 <i>v</i> 能看到一个 <i>K</i><sub>n−1</sub>，至少要 <i>n</i> − 1 色。让 <i>v</i> 用和 <i>u</i> 一样的色，<i>n</i> − 1 色就够了。</p>
+      <p>计数分两类。若 <i>u</i>、<i>v</i> 异色，等同给 <i>K</i><sub>n</sub> 涂色，共 [<i>k</i>]<sub>n</sub> 种。若它们同色，可以当成一个点，共 [<i>k</i>]<sub>n−1</sub> 种。总数为 [<i>k</i>]<sub>n</sub> + [<i>k</i>]<sub>n−1</sub>。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#608</strong>　证明 <i>P</i><sub>Cₙ</sub>(<i>k</i>) = (<i>k</i> − 1)<sup>n</sup> + (−1)<sup>n</sup>(<i>k</i> − 1)，其中 <i>n</i> ≥ 3。</p>
+    <details><summary>展开解答</summary>
+      <p><i>n</i> = 3 时，三角形用 <i>k</i>(<i>k</i>−1)(<i>k</i>−2)，也等于 (<i>k</i>−1)<sup>3</sup> − (<i>k</i>−1)。对于 <i>n</i> ≥ 4，删掉圈的一条边得到 <i>n</i> 点路径，收缩它得到 <i>C</i><sub>n−1</sub>。</p>
+      <p class="eq"><i>P</i><sub>Cₙ</sub>(<i>k</i>) = <i>k</i>(<i>k</i>−1)<sup>n−1</sup> − <i>P</i><sub>Cₙ₋₁</sub>(<i>k</i>)</p>
+      <p>代入 <i>C</i><sub>n−1</sub> 的式子后，前两项合成 (<i>k</i>−1)<sup>n</sup>，余下的项因减号变为 (−1)<sup>n</sup>(<i>k</i>−1)。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#610</strong>　为什么 <i>k</i><sup>4</sup> − 4<i>k</i><sup>3</sup> + 3<i>k</i><sup>2</sup> 不能是色多项式？</p>
+    <details><summary>展开解答</summary>
+      <p>取 <i>k</i> = 2，得到 16 − 32 + 12 = −4。色多项式在任何非负整数处都在数着色方案，值必须非负。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#612（进阶）</strong>　求立方体图 <i>Q</i><sub>3</sub> 的色多项式。</p>
+    <details><summary>展开解答</summary>
+      <p>把它画成上下两个四边形 <i>A–B–C–D–A</i> 和 <i>E–F–G–H–E</i>，再连 <i>AE、BF、CG、DH</i>。从任意边做删除—收缩，直到无边图。为方便核对，先对 <i>AE</i> 拆成两个多项式。表中的每个数是对应幂次的系数。</p>
+      <div class="scroll">
+        <table class="num" aria-label="立方体图删除和收缩 AE 的系数">
+          <thead><tr><th scope="col">图</th><th scope="col"><i>k</i><sup>8</sup></th><th scope="col"><i>k</i><sup>7</sup></th><th scope="col"><i>k</i><sup>6</sup></th><th scope="col"><i>k</i><sup>5</sup></th><th scope="col"><i>k</i><sup>4</sup></th><th scope="col"><i>k</i><sup>3</sup></th><th scope="col"><i>k</i><sup>2</sup></th><th scope="col"><i>k</i></th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><i>Q</i><sub>3</sub> − <i>AE</i></th><td>1</td><td>−11</td><td>55</td><td>−161</td><td>298</td><td>−347</td><td>232</td><td>−67</td></tr>
+            <tr><th scope="row"><i>Q</i><sub>3</sub> / <i>AE</i></th><td>0</td><td>1</td><td>−11</td><td>53</td><td>−143</td><td>225</td><td>−191</td><td>66</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>把第二行逐项从第一行减掉。</p>
+      <p class="eq"><i>P</i><sub>Q₃</sub>(<i>k</i>) = <i>k</i><sup>8</sup> − 12<i>k</i><sup>7</sup> + 66<i>k</i><sup>6</sup> − 214<i>k</i><sup>5</sup> + 441<i>k</i><sup>4</sup> − 572<i>k</i><sup>3</sup> + 423<i>k</i><sup>2</sup> − 133<i>k</i></p>
+      <p>代入 1 得 0。代入 2 得 2，因为立方体图连通且是二部图，两种颜色可整体对调。代入 3 得 114，也可枚举核对。若自己编程，保留点数以便计入孤立点，每次收缩后对边去重。</p>
+    </details>
+  </div>
+
+  <h3>再练平面图</h3>
+  <div class="question">
+    <p><strong>#617</strong>　连通简单平面图若 <i>e</i> = 3<i>n</i> − 6，证明任一平面嵌入的每个面都有三条边作为边界。</p>
+    <details><summary>展开解答</summary>
+      <p>把 <i>e</i> = 3<i>n</i> − 6 代入 Euler 公式，就有 2<i>e</i> = 3<i>f</i>。每个面的边界至少长 3，所有面的边界加起来刚好是 3<i>f</i>，所以每个面都只能正好长 3。外部面也算在内。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#620、#621</strong>　简单平面图若每点度数一样，证明这个公共度数至多为 5。再证明任何至少有两个点的简单平面图都有至少两个度数至多为 5 的点。</p>
+    <details><summary>展开解答</summary>
+      <p>若 <i>n</i> ≤ 2，每个点度数至多为 1。其余情况有总度数 2<i>e</i> ≤ 6<i>n</i>−12。即使图不连通，也可以在各连通分支之间加边而不破坏平面性，再对加边后的图用边数上界。</p>
+      <p>#620 中，如果所有度数都至少为 6，总和至少为 6<i>n</i>，矛盾。#621 中，如果至多一个点的度数 ≤ 5，其他至少 <i>n</i>−1 个点各贡献 6 度，总度数至少为 6<i>n</i>−6，同样矛盾。</p>
+    </details>
+  </div>
+
+  <h3>最后用点集和连通度收尾</h3>
+  <div class="question">
+    <p><strong>#627</strong>　证明 <i>n</i> 点树的独立数至少是 ⌈<i>n</i>/2⌉。</p>
+    <details><summary>展开解答</summary>
+      <p>以一个点为根，按到根的距离的奇偶性分成两组。树的任意一条边都连接相邻层，所以两个组分别是独立集。较大的一组至少有 ⌈<i>n</i>/2⌉ 个点。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#639</strong>　证明二部图都是完美图。</p>
+    <details><summary>展开解答</summary>
+      <p>任取一个导出子图 <i>H</i>，保留二部划分后它仍是二部图。若 <i>H</i> 有边，两端构成大小为 2 的团，且两色就够了，所以 χ(<i>H</i>) = ω(<i>H</i>) = 2。若 <i>H</i> 有点无边，两个数都等于 1。无顶点时二者都是 0。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#643、#649</strong>　举一个 κ &lt; λ 的例子。再说明树的每个块为什么都是 <i>K</i><sub>2</sub>（树至少有两个点）。</p>
+    <details><summary>展开解答</summary>
+      <p>两个三角形只共用一个点的图就满足 κ = 1 &lt; λ = 2。对树，任一有三个或更多顶点的连通导出子图仍是树。它有一个度数至少为 2 的点，删掉这个点就断成几块，所以这个子图有割点。于是能成为块的只有各条边形成的 <i>K</i><sub>2</sub>。</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <p><a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD/13%20More%20on%20Graph%20Theory.pdf">本章讲义</a> · <a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/Exercises.pdf">课程习题集</a> · <a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92.md">学习计划</a></p>
+  <p class="back"><a href="#top">返回目录</a></p>
+</footer>
+</main>
+<script>
+"use strict";
+
+const byId = (id) => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+
+function svgElement(name, attributes, content) {
+  const element = document.createElementNS(svgNS, name);
+  for (const [key, value] of Object.entries(attributes)) {
+    element.setAttribute(key, value);
+  }
+  if (content !== undefined) element.textContent = content;
+  return element;
+}
+
+function drawGraph(svg, vertices, edges, {
+  label, colors = {}, missingVertex, missingEdges = []
+} = {}) {
+  svg.setAttribute("aria-label", label);
+  const lines = edges.map(([a, b]) => {
+    const [x1, y1] = vertices[a];
+    const [x2, y2] = vertices[b];
+    const removed = a === missingVertex || b === missingVertex || missingEdges.includes(a + b);
+    return svgElement("line", { x1, y1, x2, y2, class: removed ? "edge removed" : "edge" });
+  });
+  const points = Object.entries(vertices).map(([name, [x, y]]) => {
+    const group = svgElement("g", {});
+    const color = colors[name];
+    const style = name === missingVertex ? " removed" : color ? " color" + color : "";
+    group.append(
+      svgElement("circle", { cx: x, cy: y, r: 17, class: "vertex" + style }),
+      svgElement("text", { x, y: y + 5, class: color ? "colored" : "" }, color ?? name)
+    );
+    if (color) group.append(svgElement("text", { x, y: y - 22, class: "note" }, name));
+    return group;
+  });
+  svg.replaceChildren(...lines, ...points);
+}
+
+function setModes(id, render) {
+  const buttons = [...byId(id).querySelectorAll("button[data-mode]")];
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      buttons.forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
+      render(button.dataset.mode);
+    });
+  });
+}
+
+function startGreedyDemo() {
+  const orderInput = byId("greedy-order");
+  const prev = byId("greedy-prev");
+  const next = byId("greedy-next");
+  const reset = byId("greedy-reset");
+  const vertices = {
+    A: [99, 50], B: [202, 50], C: [252, 112],
+    D: [202, 174], E: [99, 174], F: [48, 112]
+  };
+  const edges = [["A", "B"], ["B", "C"], ["C", "D"], ["D", "E"], ["E", "F"], ["F", "A"]];
+  const orders = { cycle: "ABCDEF", other: "ADBCEF" };
+  let step = 0;
+
+  function render() {
+    const order = orders[orderInput.value];
+    const colors = {};
+    let picked;
+    let occupied = [];
+    for (const vertex of order.slice(0, step)) {
+      const neighbors = edges
+        .filter((edge) => edge.includes(vertex))
+        .map(([a, b]) => a === vertex ? b : a);
+      occupied = [...new Set(neighbors.map((name) => colors[name]).filter(Boolean))].sort();
+      let color = 1;
+      while (occupied.includes(color)) color++;
+      colors[vertex] = color;
+      picked = vertex;
+    }
+    const used = new Set(Object.values(colors)).size;
+    const count = step + " / " + order.length;
+    let message = count + "。点「下一步」给 " + order[0] + " 上色。";
+    if (picked) {
+      const blocked = occupied.length ? "邻居已占 " + occupied.join("、") + " 色" : "邻居还没有用色";
+      message = count + "。轮到 " + picked + "，" + blocked + "，它选 " + colors[picked] + " 色。";
+      if (step === order.length) message += "这个顺序用了 " + used + " 色。";
+    }
+    byId("greedy-status").textContent = message;
+    const assignments = Object.entries(colors).map(([name, color]) => name + " 用 " + color + " 色");
+    const label = ["按 A、B、C、D、E、F 围成的六边形", ...assignments].join("，");
+    drawGraph(byId("greedy-graph"), vertices, edges, { label, colors });
+    prev.disabled = reset.disabled = step === 0;
+    next.disabled = step === order.length;
+  }
+
+  function restart() {
+    step = 0;
+    render();
+  }
+
+  orderInput.addEventListener("change", restart);
+  reset.addEventListener("click", restart);
+  next.addEventListener("click", () => { step++; render(); });
+  prev.addEventListener("click", () => { step--; render(); });
+  render();
+  byId("greedy-demo").hidden = false;
+}
+
+function startDeletionDemo() {
+  const palette = byId("palette-size");
+  const square = { A: [94, 40], B: [206, 40], C: [206, 135], D: [94, 135] };
+  const path = [["A", "B"], ["B", "C"], ["C", "D"]];
+  const graphs = {
+    original: [square, [...path, ["D", "A"]], "原图的四边形 ABCD"],
+    delete: [square, path, "删除 DA 后的四点路径 ABCD"],
+    contract: [
+      { AD: [91, 88], B: [203, 40], C: [203, 135] },
+      [["AD", "B"], ["B", "C"], ["C", "AD"]],
+      "收缩 DA 后的三角形，A 和 D 合并为 AD"
+    ]
+  };
+  let mode = "original";
+
+  function render() {
+    const k = Number(palette.value);
+    const pathCount = k * (k - 1) ** 3;
+    const triangleCount = k * (k - 1) * (k - 2);
+    const counts = {
+      original: pathCount + " − " + triangleCount + " = " + (pathCount - triangleCount) + " 种合法涂法",
+      delete: pathCount + " 种涂法，包含 A、D 同色的情形",
+      contract: triangleCount + " 种涂法，恰好数出删边图中 A、D 同色的情形"
+    };
+    const [vertices, edges, label] = graphs[mode];
+    drawGraph(byId("deletion-graph"), vertices, edges, { label });
+    byId("deletion-status").textContent = "手里有 " + k + " 种颜色，这里有 " + counts[mode] + "。";
+  }
+
+  palette.addEventListener("change", render);
+  setModes("deletion-controls", (value) => {
+    mode = value;
+    render();
+  });
+  render();
+  byId("deletion-demo").hidden = false;
+}
+
+function startCutDemo() {
+  const vertices = { A: [46, 43], B: [46, 135], X: [165, 89], C: [284, 43], D: [284, 135] };
+  const edges = [["A", "B"], ["A", "X"], ["B", "X"], ["X", "C"], ["X", "D"], ["C", "D"]];
+  const states = {
+    original: { message: "五个点都连通，左右两个三角形共用 X。" },
+    vertex: { missingVertex: "X", message: "X 和它的四条边都消失，AB 和 CD 是两个连通分支。" },
+    one: { missingEdges: ["AX"], message: "A 仍可沿 A–B–X 到达 X，所有点仍然连通。" },
+    two: { missingEdges: ["AX", "AB"], message: "A 的两条边都删去，A 被孤立，图不再连通。" }
+  };
+
+  function render(mode) {
+    const { message, ...changes } = states[mode];
+    drawGraph(byId("cut-graph"), vertices, edges, {
+      ...changes, label: "三角形 ABX 和三角形 CDX。" + message
+    });
+    byId("cut-status").textContent = message;
+  }
+
+  setModes("cut-controls", render);
+  render("original");
+  byId("cut-demo").hidden = false;
+}
+
+startGreedyDemo();
+startDeletionDemo();
+startCutDemo();
+</script>
+</body>
+</html>
