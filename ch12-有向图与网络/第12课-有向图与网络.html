@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第12课　有向图与网络</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --paper: #f5f6f3;
+  --surface: #fff;
+  --ink: #1c2422;
+  --muted: #52645e;
+  --line: #d7ddd9;
+  --accent: #1f6f5c;
+  --soft: #e1efe9;
+  --warning: #a34430;
+  --edge: #5d736c;
+  --sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --serif: "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121715;
+    --surface: #1a211f;
+    --ink: #e4ebe8;
+    --muted: #a5b4ae;
+    --line: #384741;
+    --accent: #80d2b7;
+    --soft: #1d3a32;
+    --warning: #ffa08a;
+    --edge: #9bada6;
+  }
+}
+* { box-sizing: border-box }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 1rem/1.8 var(--sans);
+  overflow-wrap: break-word;
+}
+.wrap { max-width: 48rem; margin: auto; padding: 2rem 1rem 4rem }
+h1, h2, h3 { font-family: var(--serif); line-height: 1.4 }
+h1 { font-size: clamp(2rem, 6vw, 2.75rem); margin: .15rem 0 .65rem }
+h2 { margin: 0 0 .55rem; font-size: 1.6rem }
+h3 { margin: 1.65rem 0 .4rem; font-size: 1.2rem }
+p { margin: .55rem 0 }
+ol, ul { padding-inline-start: 1.45rem }
+li + li { margin-top: .2rem }
+a { color: var(--accent); text-underline-offset: .2em }
+a:focus-visible, button:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.meta, .source, .tip, figcaption { color: var(--muted); font-size: .9rem }
+.source { margin: 0 0 1rem }
+.lede { max-width: 39rem }
+.toc { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; padding: 0; margin: 1.15rem 0 0 }
+.toc li { margin: 0 }
+.toc a {
+  display: inline-block;
+  padding: .22rem .7rem;
+  border: 1px solid var(--line);
+  border-radius: 2rem;
+  background: var(--surface);
+  font-size: .9rem;
+  text-decoration: none;
+}
+.toc a:hover { border-color: var(--accent) }
+section, footer { margin-top: 2.8rem; padding-top: 1.15rem; border-top: 1px solid var(--line) }
+section { scroll-margin-top: 1rem }
+.rule, .calc, .machine, .question, figure {
+  margin: 1rem 0;
+  padding: .8rem 1rem;
+  border-radius: .55rem;
+}
+.rule { background: var(--soft); border-inline-start: 3px solid var(--accent) }
+.calc, .machine, .question, figure { background: var(--surface); border: 1px solid var(--line) }
+.rule > :first-child, .calc > :first-child, .question > :first-child { margin-top: 0 }
+.rule > :last-child, .calc > :last-child, .question > :last-child { margin-bottom: 0 }
+.eq {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.14rem;
+  line-height: 1.7;
+  letter-spacing: .01em;
+}
+.eq sub, .eq sup { line-height: 0 }
+.scroll { overflow-x: auto; margin: .7rem 0 }
+table { border-collapse: collapse; width: 100%; background: var(--surface) }
+th, td { padding: .45rem .65rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top }
+th { background: var(--soft); font-weight: 700 }
+.num { text-align: center; font-variant-numeric: tabular-nums }
+.controls { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin: .6rem 0 }
+button, select {
+  padding: .34rem .66rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: .9rem;
+  max-width: 100%;
+}
+button { cursor: pointer }
+button:hover, button[aria-pressed="true"] { border-color: var(--accent) }
+button[aria-pressed="true"] { background: var(--soft); color: var(--accent); font-weight: 700 }
+button:disabled { opacity: .5; cursor: default }
+.caption { background: var(--paper); border-radius: .42rem; padding: .45rem .65rem; margin: .55rem 0 0 }
+.machine h3 { margin: 0 0 .3rem }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: .6rem }
+.pair > figure { margin: 0 }
+.graph { display: block; width: 100%; max-width: 23rem; height: auto; margin: .25rem auto }
+.graph .edge { stroke: var(--edge); stroke-width: 2; fill: none; stroke-linecap: round }
+.graph .vertex { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6 }
+.graph .chosen { stroke: var(--accent); stroke-width: 3 }
+.graph .backward { stroke: var(--warning); stroke-width: 2.8; stroke-dasharray: 5 4 }
+.graph .selected { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5 }
+.graph text { fill: var(--ink); font: 700 14px var(--sans); text-anchor: middle }
+.graph text.note { font: 600 12px var(--sans); paint-order: stroke; stroke: var(--surface); stroke-width: 4px }
+.graph marker path { fill: var(--edge) }
+.graph marker.accent path { fill: var(--accent) }
+.graph marker.warning path { fill: var(--warning) }
+caption { caption-side: bottom; padding-top: .4rem; color: var(--muted); font-size: .88rem }
+.steps li::marker { color: var(--accent); font-weight: 700 }
+figcaption { text-align: center }
+summary { cursor: pointer; color: var(--accent); font-weight: 600 }
+details > :last-child { margin-bottom: 0 }
+.question summary { padding: .1rem 0 }
+[hidden] { display: none !important }
+@media (max-width: 30rem) {
+  .wrap { padding-top: 1.3rem }
+  .rule, .calc, .machine, .question, figure { padding: .65rem .75rem }
+}
+@media print {
+  :root { color-scheme: light; --paper: #fff; --surface: #fff; --ink: #1c2422; --muted: #52645e;
+    --line: #d7ddd9; --accent: #1f6f5c; --soft: #e1efe9; --edge: #5d736c }
+  .wrap { max-width: none; padding: 0 }
+  .toc, .machine, footer .back { display: none }
+  h2, h3 { break-after: avoid }
+  figure, .machine, .question { break-inside: avoid }
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="top">
+<header>
+  <p class="meta">组合数学 · Brualdi 第 12 章 · 幻灯片 641–661</p>
+  <h1>第12课　有向图与网络</h1>
+  <p class="lede">一条路改成单行道，还能来回走吗？几个人怎么交换物品才能各取所需？每条管道都有容量，一共能送到终点多少水？给边加上箭头，就能把这三件事画出来。</p>
+  <nav aria-label="本课目录">
+    <ul class="toc">
+      <li><a href="#digraphs">1 读懂箭头</a></li>
+      <li><a href="#tournaments">2 竞赛图</a></li>
+      <li><a href="#orientation">3 强连通定向</a></li>
+      <li><a href="#trading">4 交易与核心分配</a></li>
+      <li><a href="#networks">5 最大流最小割</a></li>
+      <li><a href="#practice">课后练习</a></li>
+    </ul>
+  </nav>
+  <p class="tip">本课沿用第 11 课的点、边、路、圈和桥。遇到 Euler 迹和 Hamilton 路时，可以对照<a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/%E7%AC%AC11%E8%AF%BE-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95.html">第 11 课《图论导引》</a>。</p>
+</header>
+
+<section id="digraphs" aria-labelledby="digraphs-title">
+  <h2 id="digraphs-title">1　有向图要沿箭头走</h2>
+  <p class="source">幻灯片 641–645</p>
+  <p>有向图 <i>D</i> = (<i>V</i>, <i>A</i>) 里的边叫<strong>弧</strong>。写成 (<i>a</i>, <i>b</i>) 或 <i>a</i> → <i>b</i>，表示从 <i>a</i> 出发、进入 <i>b</i>。<i>a</i> → <i>b</i> 和 <i>b</i> → <i>a</i> 是两条不同的弧。一般有向图还可以允许同方向的重弧，自环从同一点出发又回到该点。</p>
+  <div class="rule">
+    <p><strong>出度</strong> <i>d</i><sup>+</sup>(<i>x</i>) 数从 <i>x</i> 出发的弧，<strong>入度</strong> <i>d</i><sup>−</sup>(<i>x</i>) 数到达 <i>x</i> 的弧。自环给两者各加 1。</p>
+    <p class="eq">∑<i>d</i><sup>+</sup>(<i>x</i>) = ∑<i>d</i><sup>−</sup>(<i>x</i>) = |<i>A</i>|</p>
+    <p>从每条弧来看，它给起点贡献一个出度，给终点贡献一个入度。</p>
+  </div>
+  <p>按箭头连着走叫<strong>有向途径</strong>。每条弧至多走一次叫<strong>有向迹</strong>，顶点也不重复时叫<strong>有向路</strong>。如果只允许首尾的顶点相同，就得到<strong>有向圈</strong>。</p>
+  <p>擦掉箭头后得到<strong>底图</strong>。底图连通就叫<strong>弱连通</strong>（讲义这里简称连通）。任意两个点顺着箭头都能互相到达才叫<strong>强连通</strong>。例如 <i>a</i> → <i>b</i> → <i>c</i> 的底图连通，但从 <i>c</i> 走不到 <i>a</i>。添上 <i>c</i> → <i>a</i> 后就强连通了。</p>
+  <h3>有向 Euler 迹怎么判断？</h3>
+  <p>有向 Euler 迹把每条弧恰好走一次。假设底图连通，数每个点进出是否平衡。</p>
+  <div class="scroll">
+    <table aria-label="有向 Euler 迹的度数条件">
+      <thead><tr><th scope="col">要找的迹</th><th scope="col">充要条件</th></tr></thead>
+      <tbody>
+        <tr><td>闭迹，回到起点</td><td>每个顶点的入度等于出度。</td></tr>
+        <tr><td>从 <i>x</i> 出发，到 <i>y</i> 结束</td><td><i>x</i> 的出度比入度多 1，<i>y</i> 的入度比出度多 1，其余点入度等于出度。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>走过中间点时，一进一出正好配平。起点多一次离开，终点多一次到达。以 <i>a</i> → <i>b</i>、<i>b</i> → <i>c</i>、<i>a</i> → <i>c</i> 为例。底图是一个三角形，<i>a</i> 却多了 2 个出度，因此既没有闭的 Euler 迹，也没有开的 Euler 迹。</p>
+  <details class="calc">
+    <summary>度数配平以后，为什么一定能找到走法？</summary>
+    <p>从一个有弧的点启程，总挑没用过的出弧。每个中间点只要能进入，一进一出的计数就保证还有下一条出弧，所以首次走不动时一定回到起点。如果还有弧没走，底图连通保证这条闭迹和剩下的弧有公共顶点。从那里用剩余的弧再走一圈，接到原迹上，重复到全部走完。</p>
+    <p>对于开迹，先临时补一条 <i>y</i> → <i>x</i>，把度数配平。找到闭迹后，从这条临时弧的后面开始读，并去掉临时弧，就得到从 <i>x</i> 到 <i>y</i> 的开迹。</p>
+  </details>
+  <p class="tip">有向 <strong>Hamilton 路</strong>要经过每个顶点恰好一次，Hamilton 圈还要回到起点。本节的度数平衡条件只用来判 Euler 迹。</p>
+</section>
+
+<section id="tournaments" aria-labelledby="tournaments-title">
+  <h2 id="tournaments-title">2　竞赛图一定能排出一条 Hamilton 路</h2>
+  <p class="source">幻灯片 643、646</p>
+  <p>每两位选手打一次，胜者指向败者。这样给完全图 <i>K</i><sub>n</sub> 的每条边选一个方向，就得到<strong>竞赛图</strong>。若能把选手排成一列，使每人都打赢后面的<strong>所有人</strong>，叫<strong>传递竞赛图</strong>。一般竞赛图可能出现 <i>a</i> → <i>b</i> → <i>c</i> → <i>a</i> 的循环胜负。</p>
+  <p>对任意竞赛图，可以找到一列包含所有选手的顺序，使每人都打赢<strong>紧挨在后面</strong>的那个人。这条路就是 Hamilton 路。证明时，从只有一个点的路开始，把剩下的点一个个插进去。</p>
+  <div class="calc">
+    <p><strong>怎么插点 <i>x</i></strong>　从路的左端往右找第一个被 <i>x</i> 打赢的点 <i>v</i>，把 <i>x</i> 放在 <i>v</i> 前面。若 <i>v</i> 前面有点 <i>u</i>，因为 <i>v</i> 是第一个被 <i>x</i> 打赢的点，所以 <i>u</i> → <i>x</i> → <i>v</i>。如果一路找不到，路上的最后一个点打赢了 <i>x</i>，就把 <i>x</i> 接在末尾。</p>
+  </div>
+  <div class="machine" id="insert-demo" hidden>
+    <h3>把 X 插到 A → B → C 中</h3>
+    <p class="tip">图中显示旧路和插点用到的弧。换一组胜负，看看插入位置怎样变。</p>
+    <div class="controls">
+      <label for="match-case">X 和旧点的胜负</label>
+      <select id="match-case">
+        <option value="middle">X 胜 C，负 A 和 B</option>
+        <option value="start">X 胜 A、B、C</option>
+        <option value="end">X 负 A、B、C</option>
+      </select>
+      <button type="button" id="insert-toggle" aria-pressed="false">插入 X</button>
+    </div>
+    <svg class="graph" id="insert-graph" viewBox="0 0 360 174" role="img"></svg>
+    <p class="caption" id="insert-status" role="status"></p>
+  </div>
+  <p>例如旧路为 <i>A</i> → <i>B</i> → <i>C</i>。若新点 <i>X</i> 输给 <i>A</i> 和 <i>B</i>，但赢了 <i>C</i>，第一个能接在 <i>X</i> 后面的点就是 <i>C</i>，于是得到 <i>A</i> → <i>B</i> → <i>X</i> → <i>C</i>。</p>
+  <p class="tip">讲义还有一个一般有向图的充分条件。对至少两个顶点的无自环强连通有向图，若每点的入度与出度之和都至少为顶点数 <i>n</i>，就存在有向 Hamilton 圈。竞赛图每点的这两个度数之和都是 <i>n</i>−1，竞赛图何时有 Hamilton 圈见 #574。</p>
+</section>
+
+<section id="orientation" aria-labelledby="orientation-title">
+  <h2 id="orientation-title">3　给道路定向时，先检查有没有桥</h2>
+  <p class="source">幻灯片 646–647</p>
+  <p>从无向连通图出发，给每条边恰好选一个方向。这叫给原图<strong>定向</strong>。想让定向后的图强连通，需要保证无论想去哪里，都有一条顺着箭头走的路。</p>
+  <div class="rule">
+    <p><strong>强连通定向定理</strong>　一个连通无向图能做成强连通定向，当且仅当它没有桥。</p>
+    <p>桥是两块之间唯一的通道。无论桥指向何方，另一侧都无法沿箭头走回来。</p>
+  </div>
+  <p>无桥时，每条边都在某个圈上。先挑一个圈，让它的边都沿同一个方向走，得到一团已经互相可达的点 <i>U</i>。若还有点没进来，就选一条从 <i>U</i> 接到外面的边，并沿它所在的圈继续走，到第一次回到 <i>U</i> 为止。把这段路统一定向成 <i>x</i> → ⋯ → <i>z</i>。</p>
+  <ol class="steps">
+    <li>旧点能到达 <i>x</i>，再向前走到每个新点。</li>
+    <li>新点能沿这段路走到 <i>z</i>，再走到每个旧点。</li>
+    <li>把新点加入 <i>U</i>。重复到全图都进来，剩下的边任意定向。</li>
+  </ol>
+  <div class="calc">
+    <p><strong>例</strong>　无向三角形 <i>ABC</i> 和 <i>CDE</i> 共用一个点 <i>C</i>。先定成 <i>A</i> → <i>B</i> → <i>C</i> → <i>A</i>，再沿 <i>C</i> → <i>D</i> → <i>E</i> → <i>C</i> 绕回来，最后五个点互相可达。</p>
+    <p>这个例子有割点 <i>C</i>，却没有桥。做本题时要检查删去<strong>一条边</strong>会不会断开。只有一个点时，直接满足强连通。</p>
+  </div>
+</section>
+
+<section id="trading" aria-labelledby="trading-title">
+  <h2 id="trading-title">4　交易时，让每个人指向当前最想要的物品</h2>
+  <p class="source">幻灯片 648–653</p>
+  <p>每人带来一件物品，并且对所有物品有严格的偏好顺序。交易结束时，每人正好拿一件，每件也正好分给一人。用 <i>t</i><sub>i</sub> → <i>t</i><sub>j</sub> 表示「<i>t</i><sub>i</sub> 拿 <i>t</i><sub>j</sub> 原有的物品」。一份完整分配里每个点的出度、入度都是 1，所以全图拆成互不相交的有向圈。自己保留物品就画一个自环。</p>
+  <div class="rule">
+    <p><strong>核心分配</strong>　按讲义的表述，找不到一组少于全体的交易者，仅用这组人原有的物品重新交换，就让组内每个人都比当前分配更满意。</p>
+  </div>
+  <h3>最高交易圈（Top Trading Cycles）</h3>
+  <ol class="steps">
+    <li>每位还没交易的人指向他最想要的<strong>剩余</strong>物品的原主人。最想保留自己的物品，就指向自己。</li>
+    <li>从任意人出发不断跟着箭头走。每个点都有一条出弧，点又只有有限个，所以一定会回到某个走过的点。第一次重复围出来的那一段就是一个圈。</li>
+    <li>每个圈内的人都拿到自己箭头指向的物品。移除这些人及其物品，其他人重新指箭头。直到交易完毕。</li>
+  </ol>
+  <p>下面用讲义的五人偏好表。每一行是该交易者对各物品的排名，数字越小越喜欢。</p>
+  <div class="scroll">
+    <table class="num" aria-label="讲义五人交易的偏好表">
+      <thead><tr><th scope="col">交易者</th><th scope="col">物品 1</th><th scope="col">物品 2</th><th scope="col">物品 3</th><th scope="col">物品 4</th><th scope="col">物品 5</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">T1</th><td>4</td><td>3</td><td>1</td><td>2</td><td>5</td></tr>
+        <tr><th scope="row">T2</th><td>4</td><td>3</td><td>1</td><td>2</td><td>5</td></tr>
+        <tr><th scope="row">T3</th><td>4</td><td>3</td><td>5</td><td>1</td><td>2</td></tr>
+        <tr><th scope="row">T4</th><td>1</td><td>4</td><td>3</td><td>5</td><td>2</td></tr>
+        <tr><th scope="row">T5</th><td>4</td><td>5</td><td>2</td><td>1</td><td>3</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="machine" id="trade-demo" hidden>
+    <h3>跟着偏好箭头做两轮交易</h3>
+    <p class="tip">高亮的圈可以在这一轮交易。每条箭头的终点是物品的原主人。</p>
+    <div class="controls">
+      <button type="button" id="trade-prev">上一步</button>
+      <button type="button" id="trade-next">下一步</button>
+      <button type="button" id="trade-reset">重来</button>
+    </div>
+    <svg class="graph" id="trade-graph" viewBox="0 0 360 210" role="img"></svg>
+    <p class="caption" id="trade-status" role="status"></p>
+  </div>
+  <div class="calc">
+    <p><strong>第一轮</strong>　T1 → T3 → T4 → T1 构成一个圈，三人分别拿到物品 3、4、1。T2 指向 T3，T5 指向 T4。这两个人的箭头只是进入圈，他们要等下一轮。</p>
+    <p><strong>第二轮</strong>　剩物品 2 和 5。T2 比较这两件时更喜欢 2，T5 更喜欢 5，因此二人各拿回自己的物品。按 T1 到 T5 的顺序，最终分配为 (3, 2, 4, 1, 5)。</p>
+  </div>
+  <p><strong>为什么这是核心分配？</strong> 假设有一组人能私下重换，让每个人都严格变好。从组里挑一位在算法中最早交易的人。当他离场时，这组人的原有物品都还在那一轮的候选范围内，包括同一轮离场的人的物品。他已经拿到了自己最喜欢的剩余物品，因此靠这组人的物品无法让他变得更满意。</p>
+</section>
+
+<section id="networks" aria-labelledby="networks-title">
+  <h2 id="networks-title">5　最大流最小割：能送多少，哪里卡住？</h2>
+  <p class="source">幻灯片 654–661</p>
+  <p>把水管画成有向弧。源点 <i>s</i> 供水，汇点 <i>t</i> 收水。弧 <i>e</i> 的<strong>容量</strong> <i>c</i>(<i>e</i>) 是它最多能运多少，<strong>流量</strong> <i>f</i>(<i>e</i>) 是实际安排它运多少。一组流量是否合法，要检查两件事。</p>
+  <ol class="steps">
+    <li>每条弧满足 0 ≤ <i>f</i>(<i>e</i>) ≤ <i>c</i>(<i>e</i>)。</li>
+    <li>除 <i>s</i>、<i>t</i> 外，每个点的流入总量等于流出总量。这叫<strong>流量守恒</strong>。</li>
+  </ol>
+  <p><strong>流值</strong>是从 <i>s</i> 净流出的总量，也等于流入 <i>t</i> 的总量减去从 <i>t</i> 流出的总量。做题时只算这一个净值。</p>
+  <h3>画一道分界线，就能给流值一个上界</h3>
+  <p>挑一个包含 <i>s</i> 且不包含 <i>t</i> 的顶点集 <i>U</i>。从 <i>U</i> 指向外面的所有弧组成一个<strong>割</strong>，记作 δ<sup>+</sup>(<i>U</i>)。每条 <i>s</i> 到 <i>t</i> 的路都得向外跨界至少一次。割容量只加<strong>向外</strong>的弧的容量。</p>
+  <div class="rule">
+    <p class="eq">流值 = 向外跨界的流量 − 向内跨界的流量 ≤ 向外弧的容量和</p>
+    <p>为什么等号左边是流值？对 <i>U</i> 里的点逐个算「流出减流入」。内部弧在两端各算一次，正负抵消。除了源点以外的点净流出都是 0，所以剩下的正好是源点的净流出。</p>
+    <p><strong>最大流最小割定理</strong>　网络的最大流值等于最小割的容量。要证明某个流已经最大，只需给出一组合法流和一个容量等于该流值的割。</p>
+  </div>
+  <p class="tip">讲义把任何截断所有 <i>s</i> 到 <i>t</i> 路径的弧集都叫割。把这些弧临时删掉，从 <i>s</i> 还能到达的点组成 <i>U</i>，则 δ<sup>+</sup>(<i>U</i>) 中的每条弧都在原弧集内。因此找最小割时可以直接找这样的分界。这里的「最小」比较容量和。</p>
+  <h3>增广路：既能加流，也能撤回旧流</h3>
+  <p>如果一条弧没装满，沿原方向还可以增加流量。如果它已经送了一些流，也可以撤回一部分，把容量让给别的路线。把这两种可调整的方向画成<strong>残量网络</strong>。</p>
+  <div class="scroll">
+    <table aria-label="残量弧的两种方向及更新规则">
+      <thead><tr><th scope="col">原弧 <i>u</i> → <i>v</i></th><th scope="col">残量弧</th><th scope="col">沿它增广 Δ 时</th></tr></thead>
+      <tbody>
+        <tr><td>还剩 <i>c</i>−<i>f</i> 的容量</td><td><i>u</i> → <i>v</i>，残量 <i>c</i>−<i>f</i></td><td>原弧流量加 Δ。</td></tr>
+        <tr><td>原来已经送了 <i>f</i></td><td><i>v</i> → <i>u</i>，残量 <i>f</i></td><td>原弧流量减 Δ。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>在残量网络找一条从 <i>s</i> 到 <i>t</i> 的路。取路上最小的正残量作为 Δ，沿路更新原弧，没经过的弧保留原流量。这叫<strong>增广</strong>。反向走一步等于减小对应原弧上的流量。增广后中间点流量仍然守恒，整个流值增加 Δ。</p>
+  <div class="machine" id="flow-demo" hidden>
+    <h3>亲手撤销一段旧流量</h3>
+    <p class="tip">初始五条弧的容量都是 1。原图用「流量 / 容量」标注，看到残量网络时只标还能调整的量。</p>
+    <div class="controls">
+      <button type="button" id="flow-prev">上一步</button>
+      <button type="button" id="flow-next">下一步</button>
+      <button type="button" id="flow-reset">重来</button>
+    </div>
+    <svg class="graph" id="flow-graph" viewBox="0 0 360 210" role="img"></svg>
+    <p class="caption" id="flow-status" role="status"></p>
+  </div>
+  <div class="calc">
+    <p><strong>手算例题</strong>　五条弧容量都是 1，分别为 <i>s</i> → <i>a</i>、<i>s</i> → <i>b</i>、<i>a</i> → <i>b</i>、<i>a</i> → <i>t</i>、<i>b</i> → <i>t</i>。</p>
+    <ol class="steps">
+      <li>先沿 <i>s</i> → <i>a</i> → <i>b</i> → <i>t</i> 送 1。此时 <i>b</i> → <i>t</i> 已满，<i>s</i> → <i>b</i> 虽然还空着，却接不上直接去 <i>t</i> 的路。</li>
+      <li>在残量网络选择 <i>s</i> → <i>b</i> → <i>a</i> → <i>t</i>，中间的 <i>b</i> → <i>a</i> 是反向弧。给 <i>s</i> → <i>b</i>、<i>a</i> → <i>t</i> 各加 1，把 <i>a</i> → <i>b</i> 减为 0。</li>
+      <li>最终等同于各送 1 沿 <i>s</i> → <i>a</i> → <i>t</i> 和 <i>s</i> → <i>b</i> → <i>t</i>。割 <i>U</i> = {<i>s</i>} 的容量是 2，正好等于流值，所以已经最大。</li>
+    </ol>
+  </div>
+  <h3>找不到增广路时，怎样读出最小割？</h3>
+  <p>从 <i>s</i> 沿正残量弧能到的所有点组成 <i>U</i>，这时 <i>t</i> 不在里面。每条原图中向外跨界的弧一定满了，有剩余容量的话还能到达界外。每条从外面指回 <i>U</i> 的原弧一定是零流量，有流量的话还能沿反向残量弧走到界外。因此流值等于这个割的容量，二者同时达到最优。</p>
+  <p class="tip">容量是整数时，从零流开始，每次可增加一个正整数，流值又有上界，所以有限步后停止，并得到一个整数最大流。讲义的基本算法每次加 1，取路径上的最小残量可以一次多加一些。对实数容量，可以从一个最大流出发应用同样的可达集论证。</p>
+  <details class="calc">
+    <summary>同一个定理还能用来找路和做匹配</summary>
+    <p><strong>弧不相交的路</strong>　给每条弧容量 1。整数流里每条弧最多用一次，把流拆成从 <i>s</i> 到 <i>t</i> 的路，绕回来的圈不影响流值。因此最多能找多少条两两不共用弧的路，等于最少要删几条弧才截断 <i>s</i> 到 <i>t</i>。</p>
+    <p><strong>二部图匹配</strong>　回到第 9 课的左右两组。加上源点和汇点，从 <i>s</i> 到每个左点、从每个右点到 <i>t</i> 各连容量 1 的弧。原边从左指向右，容量设得比左侧点数还大。一个单位的整数流经过一组配对，源点边和汇点边的容量保证每个点至多参加一次。最小割容量至多等于左侧点数，因此割不会切到原配对弧。取割外的左点和割内的右点，就能盖住每条原边，个数也等于割容量。这给出 König 定理里的最大匹配数等于最小顶点覆盖数。</p>
+  </details>
+</section>
+
+<section id="practice" aria-labelledby="practice-title">
+  <h2 id="practice-title">课后练习</h2>
+  <p>题号对应仓库的 <a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/Exercises.pdf">《Exercises.pdf》</a>。网络图在习题集第 85 页。</p>
+  <div class="question">
+    <p><strong>#568</strong>　证明竞赛图是传递的，当且仅当它没有三点有向圈。</p>
+    <details><summary>展开解答</summary>
+      <p>如果能从强到弱排成一列，弧都由前指向后，无法绕回起点。反过来，若 <i>a</i> → <i>b</i> 且 <i>b</i> → <i>c</i>，则必须 <i>a</i> → <i>c</i>，因为 <i>c</i> → <i>a</i> 会构成三点圈。这样胜负关系既能比较任意两人，又具有传递性，可以排成一列。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#570</strong>　证明没有有向圈，当且仅当可以编号 1 到 <i>n</i>，使每条弧的终点编号大于起点编号。</p>
+    <details><summary>展开解答</summary>
+      <p>如果沿弧编号严格增大，就不可能绕回原点。反过来，无圈图必有一个入度为 0 的点。若每个点都有入弧，就可以沿入弧反向一直追，有限个点必然重复，追出来一段有向圈。把入度 0 的点编号为 1 后删掉，剩下仍无圈，再找入度 0 的点编号 2。照做直到取完。这种编号叫拓扑排序。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#574</strong>　证明在至少有三个点的竞赛图中，强连通等价于存在有向 Hamilton 圈。</p>
+    <details><summary>展开解答</summary>
+      <p>有 Hamilton 圈时，沿圈可以从任何点走到其他点，所以强连通。反过来，在强连通竞赛图里取一个最长有向圈。圈外若有个点 <i>x</i> 既输给圈内某点也赢过圈内某点，那么沿圈走一周，总能找到相邻的 <i>u</i> → <i>v</i>，其中 <i>u</i> 赢 <i>x</i>、<i>x</i> 赢 <i>v</i>。插入 <i>x</i> 就把圈变长了。</p>
+      <p>因此每个圈外点要么被圈上所有点打败（记入 <i>A</i>），要么打败圈上所有点（记入 <i>B</i>）。若圈外还有点，强连通迫使两类都非空，还迫使有一条 <i>a</i> → <i>b</i>（<i>a</i> ∈ <i>A</i>，<i>b</i> ∈ <i>B</i>），否则从 <i>A</i> 中出发就出不了 <i>A</i>。把圈上任一条 <i>u</i> → <i>v</i> 换成 <i>u</i> → <i>a</i> → <i>b</i> → <i>v</i>，又得到更长的圈，矛盾。所以最长圈已覆盖全体顶点。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#587</strong>　根据习题集中的七人偏好表，求一份核心分配。</p>
+    <details><summary>展开解答</summary>
+      <ol class="steps">
+        <li>第一次的箭头终点按 T1 到 T7 排是 (3, 1, 5, 5, 1, 3, 5)。圈是 T1 → T3 → T5 → T1，这三位先交换。</li>
+        <li>剩下 T2、T4、T6、T7。他们分别指向 T4、T2、T2、T4。T2 和 T4 互换。</li>
+        <li>只剩 T6 和 T7 时两人都指向 T7。T7 留下自己的物品。最后 T6 也保留自己的物品。</li>
+      </ol>
+      <p>最终物品分配按 T1 到 T7 排为 <strong>(3, 4, 5, 2, 1, 6, 7)</strong>。</p>
+    </details>
+  </div>
+  <div class="question">
+    <p><strong>#589</strong>　求习题集里三个网络各自的最大流和最小割。</p>
+    <details><summary>展开解答</summary>
+      <p>下面每条路后面的数字是沿整条路送出的量。重叠的弧把用量相加，没用到的弧记为 0。读出合法流后，再用等容量的割证明它最大。</p>
+      <p><strong>左图，流值 9</strong>　左上、左下、右上、右下四个中间点分别记作 <i>A、B、C、D</i>。</p>
+      <ul>
+        <li>送流：<i>s</i> → <i>A</i> → <i>C</i> → <i>t</i> 送 3，<i>s</i> → <i>B</i> → <i>D</i> → <i>t</i> 送 4，<i>s</i> → <i>A</i> → <i>C</i> → <i>D</i> → <i>t</i> 和 <i>s</i> → <i>B</i> → <i>A</i> → <i>C</i> → <i>D</i> → <i>t</i> 各送 1。</li>
+        <li>验算割：取除 <i>t</i> 外的全部点。向外弧为 <i>C</i> → <i>t</i> 和 <i>D</i> → <i>t</i>，容量 3 + 6 = 9。</li>
+      </ul>
+      <p><strong>中图，流值 12</strong>　左列自上而下为 <i>A、B、C</i>，右列自上而下为 <i>D、E、F</i>，中间两点上 <i>P</i>、下 <i>Q</i>。</p>
+      <ul>
+        <li>送流：<i>s</i> → <i>A</i> → <i>D</i> → <i>t</i> 送 4，<i>s</i> → <i>B</i> → <i>Q</i> → <i>E</i> → <i>t</i> 与 <i>s</i> → <i>C</i> → <i>Q</i> → <i>E</i> → <i>t</i> 各送 2。其余四条 <i>s</i> → <i>C</i> → <i>F</i> → <i>t</i>、<i>s</i> → <i>A</i> → <i>P</i> → <i>D</i> → <i>t</i>、<i>s</i> → <i>B</i> → <i>P</i> → <i>E</i> → <i>t</i>、<i>s</i> → <i>C</i> → <i>Q</i> → <i>F</i> → <i>t</i> 各送 1。</li>
+        <li>验算割：只把 <i>t</i> 放在界外。三条入弧的总容量为 5 + 5 + 2 = 12。</li>
+      </ul>
+      <p><strong>右图，流值 7</strong>　外框的左上和右下记为 <i>A、B</i>。内框左上、右上、左下、右下记为 <i>C、D、E、F</i>。</p>
+      <ul>
+        <li>送流：<i>s</i> → <i>A</i> → <i>t</i> 送 2，<i>s</i> → <i>B</i> → <i>t</i> 送 2，<i>s</i> → <i>A</i> → <i>C</i> → <i>D</i> → <i>t</i> 送 1，<i>s</i> → <i>E</i> → <i>F</i> → <i>D</i> → <i>t</i> 送 2。</li>
+        <li>验算割：取 <i>U</i> = {<i>s</i>, <i>B</i>, <i>E</i>, <i>F</i>}。向外弧为 <i>s</i> → <i>A</i>、<i>F</i> → <i>D</i>、<i>B</i> → <i>t</i>，容量 3 + 2 + 2 = 7。</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <p><a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/ch12-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C/12%20Digraphs%20and%20Networks.pdf">本章讲义</a> · <a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/Exercises.pdf">课程习题集</a> · <a href="https://github.com/wujunxiao1/combination-so-pain-/blob/main/%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92.md">学习计划</a></p>
+  <p class="back"><a href="#top">返回目录</a></p>
+</footer>
+</main>
+<script>
+"use strict";
+
+const byId = (id) => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+
+function svgElement(name, attributes, text) {
+  const element = document.createElementNS(svgNS, name);
+  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function drawDigraph(svg, positions, arcs, { label, selected = [] }) {
+  const definitions = svgElement("defs", {});
+  for (const [style, className] of [["normal", ""], ["chosen", "accent"], ["backward", "warning"]]) {
+    const marker = svgElement("marker", {
+      id: svg.id + "-" + style, viewBox: "0 0 10 10", refX: 9, refY: 5,
+      markerWidth: 9, markerHeight: 9, markerUnits: "userSpaceOnUse", orient: "auto",
+      class: className
+    });
+    marker.append(svgElement("path", { d: "M0 0 L10 5 L0 10 Z" }));
+    definitions.append(marker);
+  }
+
+  const arcElements = arcs.flatMap(({ from, to, style = "normal", note, offset = [0, 0] }) => {
+    const [x, y] = positions[from];
+    const [u, v] = positions[to];
+    const attributes = { class: "edge " + style, "marker-end": "url(#" + svg.id + "-" + style + ")" };
+    if (from === to) {
+      return [svgElement("path", {
+        ...attributes, d: "M " + (x - 11) + " " + (y - 15) + " C " +
+          (x - 36) + " " + (y - 54) + " " + (x + 36) + " " + (y - 54) + " " +
+          (x + 11) + " " + (y - 15)
+      })];
+    }
+    const distance = Math.hypot(u - x, v - y);
+    const dx = (u - x) / distance * 18;
+    const dy = (v - y) / distance * 18;
+    const line = svgElement("line", { ...attributes, x1: x + dx, y1: y + dy, x2: u - dx, y2: v - dy });
+    if (note === undefined) return [line];
+    const text = svgElement("text", {
+      x: (x + u) / 2 + offset[0],
+      y: (y + v) / 2 + offset[1],
+      class: "note"
+    }, note);
+    return [line, text];
+  });
+
+  const nodes = Object.entries(positions).map(([name, [x, y]]) => {
+    const group = svgElement("g", {});
+    group.append(
+      svgElement("circle", { cx: x, cy: y, r: 16, class: selected.includes(name) ? "vertex selected" : "vertex" }),
+      svgElement("text", { x, y: y + 5 }, name)
+    );
+    return group;
+  });
+  svg.setAttribute("aria-label", label);
+  svg.replaceChildren(definitions, ...arcElements, ...nodes);
+}
+
+function makeArcs(pairs, style = "normal") {
+  return pairs.map(([from, to]) => ({ from, to, style }));
+}
+
+function startSteps(prefix, lastStep, show) {
+  const prev = byId(prefix + "-prev");
+  const next = byId(prefix + "-next");
+  const reset = byId(prefix + "-reset");
+  let step = 0;
+
+  function render() {
+    show(step);
+    prev.disabled = reset.disabled = step === 0;
+    next.disabled = step === lastStep;
+  }
+
+  prev.addEventListener("click", () => { step--; render(); });
+  next.addEventListener("click", () => { step++; render(); });
+  reset.addEventListener("click", () => { step = 0; render(); });
+  render();
+  byId(prefix + "-demo").hidden = false;
+}
+
+function startInsertionDemo() {
+  const select = byId("match-case");
+  const toggle = byId("insert-toggle");
+  let inserted = false;
+  const before = { A: [58, 50], B: [180, 50], C: [302, 50], X: [180, 126] };
+  const cases = {
+    middle: { order: ["A", "B", "X", "C"], via: [["B", "X"], ["X", "C"]],
+      reason: "第一个被 X 打赢的是 C。X 紧挨着插到 C 前面。" },
+    start: { order: ["X", "A", "B", "C"], via: [["X", "A"]],
+      reason: "第一个被 X 打赢的是 A。X 插到最前面。" },
+    end: { order: ["A", "B", "C", "X"], via: [["C", "X"]],
+      reason: "X 打不赢旧路上的任何点。最后的 C 能连到 X，把 X 接在末尾。" }
+  };
+
+  function render() {
+    const choice = cases[select.value];
+    const oldPath = [["A", "B"], ["B", "C"]];
+    const newPath = choice.order.slice(1).map((point, index) => [choice.order[index], point]);
+    const after = Object.fromEntries(choice.order.map((point, index) => [point, [48 + index * 88, 87]]));
+    const text = inserted
+      ? choice.reason + " 新路是 " + choice.order.join(" → ") + "。"
+      : "旧路是 A → B → C。高亮的弧用来接入 X，先猜猜 X 应该放在哪。";
+    drawDigraph(byId("insert-graph"), inserted ? after : before,
+      inserted ? makeArcs(newPath, "chosen") : [...makeArcs(oldPath), ...makeArcs(choice.via, "chosen")],
+      { label: text, selected: ["X"] });
+    byId("insert-status").textContent = text;
+    toggle.setAttribute("aria-pressed", String(inserted));
+    toggle.textContent = inserted ? "查看插入前" : "插入 X";
+  }
+
+  select.addEventListener("change", () => { inserted = false; render(); });
+  toggle.addEventListener("click", () => { inserted = !inserted; render(); });
+  render();
+  byId("insert-demo").hidden = false;
+}
+
+function startTradingDemo() {
+  const allPositions = { T1: [119, 52], T2: [298, 52], T3: [200, 104], T4: [111, 164], T5: [278, 158] };
+  const secondPositions = { T2: [118, 114], T5: [242, 114] };
+  const firstTrades = [["T1", "T3"], ["T3", "T4"], ["T4", "T1"]];
+  const secondTrades = [["T2", "T2"], ["T5", "T5"]];
+  const stages = [
+    {
+      positions: allPositions, choices: [["T2", "T3"], ["T5", "T4"]], trades: firstTrades,
+      text: "第一轮找到 T1 → T3 → T4 → T1。T2 和 T5 的箭头进入圈，但他们自己不在圈上。"
+    },
+    {
+      positions: secondPositions, choices: [], trades: secondTrades,
+      text: "移走 T1、T3、T4 及其物品。剩下 T2 和 T5，他们在剩余物品中都最喜欢自己带来的那件。"
+    },
+    {
+      positions: allPositions, choices: [], trades: [...firstTrades, ...secondTrades],
+      text: "交易完成。按 T1 到 T5 的顺序，拿到的物品依次是 3、2、4、1、5。"
+    }
+  ];
+
+  startSteps("trade", stages.length - 1, (step) => {
+    const { positions, choices, trades, text } = stages[step];
+    drawDigraph(byId("trade-graph"), positions, [...makeArcs(choices), ...makeArcs(trades, "chosen")],
+      { label: text, selected: trades.map(([from]) => from) });
+    byId("trade-status").textContent = text;
+  });
+}
+
+function startFlowDemo() {
+  const positions = { s: [45, 104], a: [180, 40], b: [180, 168], t: [315, 104] };
+  const arcs = [
+    { from: "s", to: "a", offset: [-9, -8] }, { from: "s", to: "b", offset: [-9, 17] },
+    { from: "a", to: "b", offset: [18, 4] }, { from: "a", to: "t", offset: [9, -8] },
+    { from: "b", to: "t", offset: [9, 17] }
+  ];
+  const empty = [0, 0, 0, 0, 0];
+  const first = [1, 0, 1, 0, 1];
+  const final = [1, 1, 0, 1, 1];
+  const stages = [
+    { flow: empty, active: [], text: "起点。每条弧可以运 1，当前流值为 0。" },
+    { flow: first, active: [0, 2, 4], text: "先沿 s → a → b → t 送 1。b → t 已满，当前流值为 1。" },
+    { flow: first, active: [1, 2, 3], residual: true,
+      text: "在残量网络里找到 s → b → a → t。虚线 b → a 允许撤回 a → b 上的旧流。路上最小残量为 1。" },
+    { flow: final, active: [1, 2, 3],
+      text: "沿增广路更新。s → b 和 a → t 各加 1，a → b 减为 0。当前流值为 2。" },
+    { flow: final, active: [0, 1], cut: true,
+      text: "s 的两条出弧都满了，沿正残量弧只能到达 s。割 U = {s} 的容量为 2，等于流值。" }
+  ];
+
+  startSteps("flow", stages.length - 1, (step) => {
+    const { flow, active, residual, cut, text } = stages[step];
+    const edges = arcs.map((arc, index) => {
+      const highlighted = active.includes(index);
+      const style = highlighted ? "chosen" : "normal";
+      let displayArc = { ...arc, style, note: flow[index] + " / 1" };
+      if (residual) {
+        const reverse = flow[index] === 1;
+        displayArc = reverse
+          ? { ...arc, from: arc.to, to: arc.from, style: highlighted ? "backward" : "normal", note: "1" }
+          : { ...arc, style, note: "1" };
+      }
+      return displayArc;
+    });
+    drawDigraph(byId("flow-graph"), positions, edges, { label: text, selected: cut ? ["s"] : [] });
+    byId("flow-status").textContent = text;
+  });
+}
+
+startInsertionDemo();
+startTradingDemo();
+startFlowDemo();
+</script>
+</body>
+</html>
