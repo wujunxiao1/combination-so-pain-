@@ -17,7 +17,7 @@
 | 11 | [图论导引](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95) | [11 Introduction to Graph Theory.pdf](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/11%20Introduction%20to%20Graph%20Theory.pdf) | [第11课-图论导引.html](ch11-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95/%E7%AC%AC11%E8%AF%BE-%E5%9B%BE%E8%AE%BA%E5%AF%BC%E5%BC%95.html) |
 | 12 | [有向图与网络](ch12-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C) | [12 Digraphs and Networks.pdf](ch12-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C/12%20Digraphs%20and%20Networks.pdf) | [第12课-有向图与网络.html](ch12-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C/%E7%AC%AC12%E8%AF%BE-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%8E%E7%BD%91%E7%BB%9C.html) |
 | 13 | [图论续](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD) | [13 More on Graph Theory.pdf](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD/13%20More%20on%20Graph%20Theory.pdf) | [第13课-图论续.html](ch13-%E5%9B%BE%E8%AE%BA%E7%BB%AD/%E7%AC%AC13%E8%AF%BE-%E5%9B%BE%E8%AE%BA%E7%BB%AD.html) |
-| 14 | [Polya计数](ch14-Polya%E8%AE%A1%E6%95%B0) | [14 Polya Counting.pdf](ch14-Polya%E8%AE%A1%E6%95%B0/14%20Polya%20Counting.pdf) | 待写 |
+| 14 | [Polya计数](ch14-Polya%E8%AE%A1%E6%95%B0) | [14 Polya Counting.pdf](ch14-Polya%E8%AE%A1%E6%95%B0/14%20Polya%20Counting.pdf) | [第14课-Polya计数.html](ch14-Polya%E8%AE%A1%E6%95%B0/%E7%AC%AC14%E8%AF%BE-Polya%E8%AE%A1%E6%95%B0.html) |
 
 其他文件：
 
