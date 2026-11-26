@@ -741,8 +741,8 @@ table.mini tr.hl-warn td { background: #fffbeb; }
             <td>10</td>
             <td>Ch 13 图论续<br><small style="color:var(--ink-3)">讲义 p.9–12（幻灯片 670–673）</small></td>
             <td>图的色多项式 $p_G(k)$、完全图割点集分解定理、删边-缩边法</td>
-            <td>识别 $K_4$ 与 $K_3$ 沿 $K_2$ 粘合（或 $K_5$ 删两邻边），用割点集公式 / 逐点乘法 / 补边递推</td>
-            <td>图形改编自题 #599（删右竖边）与题 #606（$K_n$ 删两邻边）</td>
+            <td>识别两个 $K_4$ 沿 $K_3$ 粘合（即 $K_5$ 删去单边 $v_2 v_5$），用割点集公式 / 逐点乘法 / 补边缩边一步求出</td>
+            <td>直接对应题 #599 原图（$K_5$ 删去 1 条边）</td>
           </tr>
           <tr>
             <td><a href="#q3">第 3 题</a></td>
@@ -1275,7 +1275,7 @@ table.mini tr.hl-warn td { background: #fffbeb; }
         <div class="badges">
           <span class="badge pts">10 分</span>
           <span class="badge ch">Ch 13 · 图论续</span>
-          <span class="badge src">讲义 p.9–12（幻灯片 670–673）&amp; 题 #606</span>
+          <span class="badge src">讲义 p.9–12（幻灯片 670–673）&amp; 题 #599 原图</span>
         </div>
         <h3 class="q-title">第 2 题 · 5 阶图的色多项式</h3>
       </div>
@@ -1294,6 +1294,7 @@ table.mini tr.hl-warn td { background: #fffbeb; }
             <line x1="155" y1="128" x2="285" y2="28" stroke="#1e293b" stroke-width="2.2"/>
             <line x1="55" y1="78" x2="285" y2="128" stroke="#0f766e" stroke-width="2.2"/>
             <line x1="155" y1="128" x2="285" y2="128" stroke="#0f766e" stroke-width="2.2"/>
+            <line x1="285" y1="28" x2="285" y2="128" stroke="#0f766e" stroke-width="2.2"/>
             <circle cx="55" cy="78" r="6" fill="#1e293b"/>
             <circle cx="155" cy="28" r="6" fill="#1e293b"/>
             <circle cx="155" cy="128" r="6" fill="#1e293b"/>
@@ -1307,7 +1308,7 @@ table.mini tr.hl-warn td { background: #fffbeb; }
               <text x="303" y="133" fill="#0f766e">v₅</text>
             </g>
           </svg>
-          <div class="fig-cap">题 2 图精确重绘（5 顶点 8 条边）：$\{v_1,v_2,v_3,v_4\}$ 构成完全图 $K_4$，$v_5$ 仅与 $v_1, v_3$ 相邻（右侧无边 $v_4 v_5$，亦无对角线 $v_2 v_5$）。</div>
+          <div class="fig-cap">题 2 图精确重绘（5 顶点 9 条边）：$\{v_1,v_2,v_3,v_4\}$ 与 $\{v_1,v_3,v_4,v_5\}$ 各构成完全图 $K_4$，全图仅缺一条边 $v_2 v_5$（即 $K_5 \ominus e$）。</div>
         </div>
       </div>
 
@@ -1318,43 +1319,39 @@ table.mini tr.hl-warn td { background: #fffbeb; }
         </div>
         <div class="tax-box mt-box">
           <div class="t-head">核心解题方法</div>
-          <strong>先看图的结构再动手！</strong> 先数度数：$\deg(v_1)=4,\; \deg(v_3)=4,\; \deg(v_2)=3,\; \deg(v_4)=3,\; \deg(v_5)=2$，总边数 $m=8$。立刻看出 $G$ 是 $K_4$ 与 $K_3$ 沿公共边 $K_2$ 粘合（等价于 $K_5$ 删去共顶点 $v_5$ 的两条边），无需暴力展开 8 层删边树！
+          <strong>先数度数和边数！</strong> $\deg(v_1)=\deg(v_3)=\deg(v_4)=4,\; \deg(v_2)=\deg(v_5)=3$，总边数 $m=9$。立刻看出 $G$ 只是完全图 $K_5$ 删去唯一一条边 $v_2 v_5$（等价于两个 $K_4$ 沿公共 $K_3=\{v_1,v_3,v_4\}$ 粘合），一行出答案！
         </div>
       </div>
 
       <div class="sol-wrap">
         <div class="sol-bar" onclick="toggleSol(this)">
-          <span class="sol-ans-pill">✅ 答案：<span class="ans-text">$p_G(k) = k(k-1)(k-2)^2(k-3) = k^5 - 8k^4 + 23k^3 - 28k^2 + 12k$</span></span>
+          <span class="sol-ans-pill">✅ 答案：<span class="ans-text">$p_G(k) = k(k-1)(k-2)(k-3)^2 = k^5 - 9k^4 + 29k^3 - 39k^2 + 18k$</span></span>
           <span class="sol-toggle-hint">点击折叠 / 展开解析</span>
         </div>
         <div class="sol-content">
           <p><strong>第一步：读图定边（防止看漏 / 看多边）</strong></p>
-          <p>记左端点为 $v_1$，中上、中下为 $v_2, v_3$，右上、右下为 $v_4, v_5$。逐点核对邻边：</p>
+          <p>记左端点为 $v_1$，中上、中下为 $v_2, v_3$，右上、右下为 $v_4, v_5$。逐点核对度数与邻边：</p>
           <ul>
-            <li>$\{v_1, v_2, v_3, v_4\}$ 之间 6 条边全部存在，导出子图同构于 <strong>$K_4$</strong>；</li>
-            <li>顶点 $v_5$ 仅连接 $v_1$ 和 $v_3$（共 2 条边），故 $\{v_1, v_3, v_5\}$ 导出 <strong>$K_3$</strong>；</li>
-            <li>全图共 $5$ 个顶点、$6 + 2 = 8$ 条边（即 $K_5$ 删去 $v_2v_5,\; v_4v_5$ 两条共点边）。</li>
+            <li>$v_1, v_3, v_4$ 均与其余全部 $4$ 个顶点相连（度数均为 $4$），且 $\{v_1, v_2, v_3, v_4\}$ 构成 <strong>$K_4$</strong>；</li>
+            <li>顶点 $v_5$ 与 $v_1, v_3, v_4$ 相连（共 $3$ 条边），仅不与 $v_2$ 相邻，故 $\{v_1, v_3, v_4, v_5\}$ 也构成 <strong>$K_4$</strong>；</li>
+            <li>全图共 $5$ 个顶点、$9$ 条边，恰好是完全图 $K_5$ 删去单边 $e = v_2 v_5$（即 $G = K_5 \ominus e$）。</li>
           </ul>
 
           <p><strong>解法一：割点集分解定理（最推荐，讲义 Ch 13 p.12 原定理）</strong></p>
-          <p>取割点集 $U = \{v_1, v_3\}$，其导出子图 $G_U \cong K_2$。去掉 $U$ 后，$G_{V-U}$ 分成两个连通分支 $U_1 = \{v_2, v_4\}$ 与 $U_2 = \{v_5\}$，对应子图分别为 $H_1 = G_{U\cup U_1} \cong K_4$ 与 $H_2 = G_{U\cup U_2} \cong K_3$。由讲义定理：</p>
-          $$p_G(k) = \frac{p_{H_1}(k) \cdot p_{H_2}(k)}{[k]_2} = \frac{[k]_4 \cdot [k]_3}{[k]_2} = \frac{k(k-1)(k-2)(k-3) \cdot k(k-1)(k-2)}{k(k-1)} = k(k-1)(k-2)^2(k-3).$$
+          <p>取割点集 $U = \{v_1, v_3, v_4\}$，其导出子图 $G_U \cong K_3$。去掉 $U$ 后，$G_{V-U}$ 分成两个孤立顶点 $U_1 = \{v_2\}$ 与 $U_2 = \{v_5\}$，对应子图分别为 $H_1 = G_{U\cup U_1} \cong K_4$ 与 $H_2 = G_{U\cup U_2} \cong K_4$。由讲义定理：</p>
+          $$p_G(k) = \frac{p_{H_1}(k) \cdot p_{H_2}(k)}{[k]_3} = \frac{[k]_4 \cdot [k]_4}{[k]_3} = \frac{k(k-1)(k-2)(k-3) \cdot k(k-1)(k-2)(k-3)}{k(k-1)(k-2)} = k(k-1)(k-2)(k-3)^2.$$
 
           <p><strong>解法二：逐点乘法原理（最直观，考场 2 行写完）</strong></p>
-          <p>先给构成 $K_4$ 的四个顶点 $v_1, v_2, v_3, v_4$ 依次着色，颜色须两两不同，共有 $k(k-1)(k-2)(k-3)$ 种方法；再给 $v_5$ 着色，由于 $v_5$ 仅与已着不同颜色的 $v_1, v_3$ 相邻，恰有 $(k-2)$ 种选择。由乘法原理即得 $p_G(k) = k(k-1)(k-2)^2(k-3)$。</p>
+          <p>先给构成 $K_4$ 的四个顶点 $v_1, v_2, v_3, v_4$ 依次着色，颜色须两两不同，共有 $k(k-1)(k-2)(k-3)$ 种方法；再给 $v_5$ 着色，由于 $v_5$ 与已着三种不同颜色的 $v_1, v_3, v_4$ 相邻（不与 $v_2$ 相邻），恰有 $(k-3)$ 种选择。由乘法原理即得 $p_G(k) = k(k-1)(k-2)(k-3)^2$。</p>
 
-          <p><strong>解法三：补边-缩边递推（讲义删边-缩边算法的逆向巧用）</strong></p>
-          <p>利用 $p_H(k) = p_{H+e}(k) + p_{H\otimes e}(k)$，依次补上缺边 $e_1 = v_2 v_5$ 与 $e_2 = v_4 v_5$：</p>
-          <ul>
-            <li>把 $v_2, v_5$ 缩成一点后，$v_5$ 原邻居 $\{v_1,v_3\}$ 已在 $v_2$ 邻域内，得简单图 $K_4$；</li>
-            <li>$G + e_1 = K_5 \ominus e_2$，再对 $e_2 = v_4 v_5$ 用一次公式得 $p_{K_5 \ominus e_2}(k) = p_{K_5}(k) + p_{K_4}(k)$。</li>
-          </ul>
-          <p>故 $p_G(k) = [k]_5 + 2[k]_4 = [k]_4\big((k-4)+2\big) = k(k-1)(k-2)^2(k-3)$。</p>
+          <p><strong>解法三：补边-缩边公式（一步秒杀）</strong></p>
+          <p>对唯一缺失的边 $e = v_2 v_5$ 应用 $p_G(k) = p_{G+e}(k) + p_{G\otimes e}(k)$：补上 $e$ 得到 $K_5$；将 $v_2, v_5$ 缩成一点后与 $\{v_1,v_3,v_4\}$ 两两相邻，得到简单图 $K_4$。故：</p>
+          $$p_G(k) = p_{K_5}(k) + p_{K_4}(k) = [k]_5 + [k]_4 = [k]_4\big((k-4) + 1\big) = k(k-1)(k-2)(k-3)^2.$$
 
           <div class="callout ok">
             <strong class="c-title">展开与三项快速验算（题 #602 性质）</strong>
-            展开得 $p_G(k) = k(k^2-4k+3)(k^2-4k+4) = k^5 - 8k^4 + 23k^3 - 28k^2 + 12k$。
-            <br>① 常数项为 $0$ ✓；② $k^4$ 系数为 $-8 = -|E(G)|$ ✓；③ 色数 $\chi(G) = 4$（含 $K_4$，且 4 色时 $v_5$ 可复用 $v_2$ 或 $v_4$ 的颜色，恰有 $4!\times 2 = 48$ 种着色，$p_G(4)=4\cdot 3\cdot 4\cdot 1 = 48$）✓。
+            展开得 $p_G(k) = k(k^2-3k+2)(k^2-6k+9) = k^5 - 9k^4 + 29k^3 - 39k^2 + 18k$。
+            <br>① 常数项为 $0$ ✓；② $k^4$ 系数为 $-9 = -|E(G)|$ ✓；③ 色数 $\chi(G) = 4$（含 $K_4$，且 4 色时 $v_1,v_2,v_3,v_4$ 用满 4 色有 $4!=24$ 种，$v_5$ 只能取 $v_2$ 的颜色，故恰有 $24$ 种，$p_G(4)=4\cdot 3\cdot 2\cdot 1^2 = 24$）✓。
           </div>
         </div>
       </div>
