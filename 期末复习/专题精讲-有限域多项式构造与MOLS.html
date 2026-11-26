@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>专题精讲：有限域的多项式构造与正交拉丁方（MOLS）</title>
+<title>一看就懂：多项式造有限域 & 正交拉丁方（MOLS）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -18,979 +18,1292 @@ window.renderTeX=function(el){if(window.renderMathInElement)renderMathInElement(
 </script>
 <style>
 :root{
-  --paper:#f5f6f3; --surface:#ffffff; --ink:#1c2422; --muted:#5d6a66; --line:#d7ddd9;
-  --accent:#1f6f5c; --accent-soft:#e1efe9; --mark:#f3cf5b; --mark-ink:#3b2f00; --warn:#b4472f; --warn-soft:#fae8e4;
-  --c1:#2a8c74; --c2:#2f6db5; --c3:#c65137; --c4:#7d4fb0; --c5:#c48a10;
-  --c1-soft:#d9f0e8; --c2-soft:#dceafe; --c3-soft:#fce2dc; --c4-soft:#eee3fa; --c5-soft:#faf0c8;
-  --serif:"Noto Serif SC","Songti SC",serif;
+  --bg:#f8f9fc;
+  --card:#ffffff;
+  --ink:#18202c;
+  --sub:#556275;
+  --line:#e3e8f0;
+  --brand:#3b5bdb;
+  --brand-bg:#edf2ff;
+  --brand-bd:#bac8ff;
+  --ok:#0f8a5f;
+  --ok-bg:#e6f7f0;
+  --ok-bd:#8ce0be;
+  --bad:#d63638;
+  --bad-bg:#fff0f0;
+  --bad-bd:#ffb3b5;
+  --warn:#b86b00;
+  --warn-bg:#fff8e6;
+  --warn-bd:#ffd57a;
+  --purple:#6c3fc5;
+  --purple-bg:#f3eeff;
+  --shadow:0 6px 24px rgba(24,32,44,.06);
+  --radius:16px;
   --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#121715; --surface:#1a211f; --ink:#e4ebe8; --muted:#9aa8a3; --line:#2e3935;
-  --accent:#62c3a6; --accent-soft:#1d3a32; --mark:#e2bd4f; --mark-ink:#241c00; --warn:#e48068; --warn-soft:#3a221d;
-  --c1:#48b89b; --c2:#6ca6e8; --c3:#e47c64; --c4:#b28ee6; --c5:#e2b84c;
-  --c1-soft:#1c3d34; --c2-soft:#1d334c; --c3-soft:#43241e; --c4-soft:#332445; --c5-soft:#3e3315;
-  color-scheme:dark}}
 *{box-sizing:border-box}
-body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;margin:0}
-.wrap{max-width:48rem;margin:0 auto;padding-inline:16px;padding-block:2rem 4rem}
-h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35}
-h1{font-size:1.85rem;margin:0 0 .4rem}
-h2{font-size:1.42rem;margin:2.8rem 0 .8rem;padding-top:1rem;border-top:1px solid var(--line)}
-h3{font-size:1.12rem;margin:1.7rem 0 .5rem}
-p{margin:.6rem 0}
-ul,ol{padding-left:1.35rem}
-a{color:var(--accent)}
-.lede{color:var(--muted)}
-.meta{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
-code,.mono{font-family:var(--mono);font-size:.92em}
-.katex{position:relative;font-size:1.06em}
-.katex .tex-punct{font-family:var(--sans);font-size:.92em;font-style:normal}
-.katex-display{margin:.6em 0}
-.rule .katex-display,.calc .katex-display,.ans .katex-display{margin:.35em 0}
-b,strong{font-weight:700}
-.toc{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.1rem 0 0;padding:0;list-style:none}
-.toc a{display:inline-block;padding:.2rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-size:.9rem;background:var(--surface)}
-.toc a:hover{border-color:var(--accent);color:var(--accent)}
-.rule{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.7rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0;overflow-x:auto}
-.rule p{margin:.25rem 0}
-.exam-note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:.65rem 1rem;margin:1rem 0;border-radius:0 6px 6px 0;font-size:.94rem}
-.exam-note b{color:var(--warn)}
-.tip{font-size:.94rem;color:var(--muted)}
-.tip b{color:var(--ink)}
-.calc{font-size:.95rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.7rem .95rem;margin:.75rem 0;overflow-x:auto;line-height:1.85}
-.calc p{margin:.3rem 0}
-/* cards grid */
-.bridge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.75rem;margin:1rem 0}
-.bridge-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.8rem .9rem}
-.bridge-card.hi{border-color:var(--accent);background:linear-gradient(180deg,var(--accent-soft),var(--surface) 45%)}
-.bridge-card .b-tag{font-size:.76rem;font-family:var(--mono);color:var(--accent);font-weight:700;text-transform:uppercase}
-.bridge-card h4{margin:.2rem 0 .45rem;font-size:1.02rem;font-family:var(--serif)}
-.bridge-card p{font-size:.9rem;margin:.3rem 0;line-height:1.6}
-/* machine panel */
-.machine{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.25rem 0}
-.machine .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.65rem}
-.machine .title{font-weight:700;font-size:.98rem}
-.machine .count{font-family:var(--mono);font-size:.84rem;color:var(--muted)}
-.controls{display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0;align-items:center}
-.controls label{font-size:.88rem;color:var(--muted);display:inline-flex;align-items:center;gap:.3rem}
-button,select,input{font:inherit}
-button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.28rem .68rem;cursor:pointer;font-size:.88rem;transition:border-color .15s,background .15s}
-button:hover{border-color:var(--accent)}
-button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
-button.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
-button:disabled{opacity:.42;cursor:default}
-select{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:.24rem .5rem;font-size:.88rem}
-.caption{margin-top:.7rem;padding:.7rem .9rem;background:var(--paper);border-radius:6px;font-size:.93rem;overflow-x:auto}
-.caption .hl{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:3px;font-weight:600}
-.badges{display:flex;flex-wrap:wrap;gap:.4rem;margin:.55rem 0}
-.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.82rem;padding:.16rem .58rem;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
-.badge.ok{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
-.badge.bad{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:600}
-.badge.gold{background:var(--c5-soft);border-color:var(--c5);color:var(--ink);font-weight:600}
-.badge.blue{background:var(--c2-soft);border-color:var(--c2);color:var(--c2);font-weight:600}
-/* coeff picker */
-.poly-builder{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;padding:.65rem .8rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;margin:.6rem 0;font-family:var(--mono);font-size:1rem}
-.poly-builder select{font-family:var(--mono);font-weight:700;padding:.18rem .35rem}
-.poly-preview{font-size:1.12rem;padding:.55rem .8rem;background:var(--paper);border-radius:8px;margin:.5rem 0;text-align:center;border:1px dashed var(--line)}
-/* eval cards */
-.eval-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;margin:.65rem 0}
-.eval-card{padding:.55rem .65rem;border-radius:8px;border:1px solid var(--line);background:var(--paper);text-align:center}
-.eval-card.is-root{border-color:var(--warn);background:var(--warn-soft)}
-.eval-card.not-root{border-color:var(--accent);background:var(--accent-soft)}
-.eval-card .ev-x{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
-.eval-card .ev-val{font-family:var(--mono);font-size:1.05rem;font-weight:700;margin:.15rem 0}
-.eval-card .ev-sub{font-size:.78rem}
-/* tables */
-.scroll{overflow-x:auto;margin:.8rem 0}
-table{border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums;width:100%}
-th,td{border-bottom:1px solid var(--line);padding:.36rem .5rem;text-align:left;vertical-align:middle}
-th{font-weight:600;color:var(--muted);font-size:.82rem;background:var(--paper);white-space:nowrap}
-table.num td,table.num th{text-align:center;font-family:var(--mono);white-space:nowrap}
-tr.row-ok td{background:var(--accent-soft)}
-tr.row-bad td{background:var(--warn-soft)}
-/* MOLS grid */
-.mols-boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin:.75rem 0}
-.mols-box{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:.6rem}
-.mols-box h4{margin:0 0 .45rem;font-size:.9rem;display:flex;justify-content:space-between;align-items:center}
-table.lat{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.78rem}
-table.lat th,table.lat td{border:1px solid var(--line);padding:.24rem .28rem;text-align:center;white-space:nowrap}
-table.lat th{background:var(--surface);color:var(--muted);font-weight:600}
-table.lat td{cursor:pointer;transition:background .12s}
-table.lat td:hover{background:var(--c2-soft)}
-table.lat td.active-cell{background:var(--mark);color:var(--mark-ink);font-weight:700;outline:2px solid var(--warn);outline-offset:-2px}
-table.lat td.pair-cell{font-size:.73rem}
-/* steps box */
-.step-box{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:.75rem .9rem;margin:.6rem 0;font-size:.93rem;line-height:1.85;overflow-x:auto}
-.step-box .st-title{font-weight:700;color:var(--accent);font-size:.88rem;margin-bottom:.25rem}
-.step-line{margin:.2rem 0}
-/* quiz */
-.q{margin:1rem 0;padding:.9rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px}
-.q .src{font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:700}
-details{margin-top:.55rem}
-summary{cursor:pointer;color:var(--accent);font-size:.9rem;font-weight:600}
-.ans{font-size:.94rem;margin-top:.4rem}
-.ans p{margin:.35rem 0}
-footer.foot{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.86rem;color:var(--muted);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}
-@media (max-width:520px){h1{font-size:1.5rem}.machine{padding:.8rem}}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.75;
+}
+.hero{
+  background:linear-gradient(135deg,#1d2b53 0%,#2c4380 55%,#3b5bdb 100%);
+  color:#fff;
+  padding:2.6rem 1.2rem 2.3rem;
+}
+.hero-inner{max-width:920px;margin:0 auto}
+.hero-pill{
+  display:inline-block;
+  font-size:.8rem;
+  font-weight:600;
+  letter-spacing:.04em;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.28);
+  padding:.22rem .75rem;
+  border-radius:999px;
+  margin-bottom:.8rem;
+}
+.hero h1{
+  margin:0 0 .65rem;
+  font-size:clamp(1.6rem,3.4vw,2.2rem);
+  line-height:1.25;
+  letter-spacing:-.01em;
+}
+.hero p{
+  margin:0;
+  max-width:680px;
+  color:rgba(255,255,255,.88);
+  font-size:1.02rem;
+}
+.nav-bar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(248,249,252,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:920px;
+  margin:0 auto;
+  padding:.55rem 1.2rem;
+  display:flex;
+  gap:.45rem;
+  overflow-x:auto;
+}
+.nav-inner a{
+  flex:0 0 auto;
+  text-decoration:none;
+  color:var(--sub);
+  font-size:.86rem;
+  font-weight:600;
+  padding:.32rem .78rem;
+  border-radius:999px;
+  border:1px solid transparent;
+  transition:all .15s;
+}
+.nav-inner a:hover{
+  color:var(--brand);
+  background:var(--brand-bg);
+  border-color:var(--brand-bd);
+}
+
+.main{max-width:920px;margin:0 auto;padding:1.6rem 1.2rem 4.5rem}
+
+/* Story Scene Card */
+.scene{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:1.6rem 1.6rem 1.8rem;
+  margin-bottom:1.8rem;
+}
+.scene-head{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  margin-bottom:.9rem;
+}
+.scene-num{
+  flex:0 0 auto;
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  background:var(--brand);
+  color:#fff;
+  font-weight:800;
+  font-size:1.05rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scene-title{margin:0;font-size:1.35rem;line-height:1.3}
+.scene-sub{margin:.15rem 0 0;color:var(--sub);font-size:.92rem}
+
+.tldr{
+  background:var(--brand-bg);
+  border:1px solid var(--brand-bd);
+  border-radius:12px;
+  padding:.85rem 1.05rem;
+  margin:1rem 0;
+  font-size:.97rem;
+}
+.tldr b{color:var(--brand)}
+
+.warn-box{
+  background:var(--warn-bg);
+  border:1px solid var(--warn-bd);
+  border-radius:12px;
+  padding:.85rem 1.05rem;
+  margin:1rem 0;
+  font-size:.95rem;
+}
+.warn-box b{color:var(--warn)}
+
+.ok-box{
+  background:var(--ok-bg);
+  border:1px solid var(--ok-bd);
+  border-radius:12px;
+  padding:.85rem 1.05rem;
+  margin:1rem 0;
+  font-size:.95rem;
+}
+.ok-box b{color:var(--ok)}
+
+.bad-box{
+  background:var(--bad-bg);
+  border:1px solid var(--bad-bd);
+  border-radius:12px;
+  padding:.85rem 1.05rem;
+  margin:1rem 0;
+  font-size:.95rem;
+}
+.bad-box b{color:var(--bad)}
+
+/* Two-column compare */
+.cols-2{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:1rem;
+  margin:1rem 0;
+}
+.mini-card{
+  background:var(--bg);
+  border:1.5px solid var(--line);
+  border-radius:14px;
+  padding:1rem 1.1rem;
+}
+.mini-card.accent{border-color:var(--brand-bd);background:linear-gradient(180deg,var(--brand-bg),var(--bg) 42%)}
+.mini-card h3{margin:0 0 .5rem;font-size:1.05rem;display:flex;align-items:center;gap:.4rem}
+.tag{
+  font-size:.74rem;
+  font-weight:700;
+  padding:.14rem .5rem;
+  border-radius:999px;
+  background:var(--brand);
+  color:#fff;
+}
+.tag.green{background:var(--ok)}
+.tag.red{background:var(--bad)}
+.tag.purple{background:var(--purple)}
+
+/* Switch lamps widget (Scene 1) */
+.lamp-lab{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:1.1rem;
+  margin:1rem 0;
+}
+.lamp-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.7rem;
+  align-items:center;
+  justify-content:center;
+  margin:.75rem 0;
+}
+.lamp-btn{
+  width:92px;
+  padding:.65rem .5rem;
+  border-radius:12px;
+  border:2px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  text-align:center;
+  transition:all .15s;
+}
+.lamp-btn.on{
+  border-color:var(--brand);
+  background:var(--brand-bg);
+  box-shadow:0 4px 12px rgba(59,91,219,.18);
+}
+.lamp-btn .bulb{
+  display:block;
+  font-size:1.35rem;
+  margin-bottom:.15rem;
+}
+.lamp-btn .bit{
+  font-family:var(--mono);
+  font-size:.82rem;
+  font-weight:700;
+  color:var(--sub);
+}
+.lamp-btn.on .bit{color:var(--brand)}
+.lamp-btn .term{
+  display:block;
+  font-family:var(--mono);
+  font-size:1rem;
+  font-weight:800;
+  margin-top:.1rem;
+}
+.card-deck{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.45rem;
+  justify-content:center;
+  margin-top:.8rem;
+}
+.deck-pill{
+  font-family:var(--mono);
+  font-size:.86rem;
+  padding:.28rem .65rem;
+  border-radius:8px;
+  border:1.5px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  transition:all .15s;
+}
+.deck-pill.active{
+  background:var(--brand);
+  color:#fff;
+  border-color:var(--brand);
+  font-weight:700;
+  transform:translateY(-1px);
+}
+.big-eq{
+  text-align:center;
+  font-size:1.25rem;
+  font-weight:800;
+  font-family:var(--mono);
+  padding:.6rem;
+  background:#fff;
+  border-radius:10px;
+  border:1px dashed var(--brand-bd);
+  color:var(--brand);
+}
+
+/* Mode tabs */
+.tab-row{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0}
+.tab-btn{
+  flex:1 1 160px;
+  padding:.65rem .8rem;
+  border-radius:12px;
+  border:2px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  text-align:left;
+  transition:all .15s;
+  font-family:inherit;
+}
+.tab-btn:hover{border-color:var(--brand-bd)}
+.tab-btn .t-top{font-size:.78rem;font-weight:700;color:var(--sub)}
+.tab-btn .t-poly{font-family:var(--mono);font-size:1rem;font-weight:800;margin:.12rem 0}
+.tab-btn .t-res{font-size:.78rem;font-weight:700}
+.tab-btn.sel-ok{border-color:var(--ok);background:var(--ok-bg)}
+.tab-btn.sel-ok .t-res{color:var(--ok)}
+.tab-btn.sel-bad{border-color:var(--bad);background:var(--bad-bg)}
+.tab-btn.sel-bad .t-res{color:var(--bad)}
+
+/* Crash Lab (Scene 2) */
+.crash-banner{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.65rem;
+  align-items:center;
+  justify-content:space-between;
+  padding:.85rem 1rem;
+  border-radius:12px;
+  margin:.75rem 0;
+  font-weight:700;
+}
+.crash-banner.ok{background:var(--ok-bg);border:1.5px solid var(--ok-bd);color:var(--ok)}
+.crash-banner.bad{background:var(--bad-bg);border:1.5px solid var(--bad-bd);color:var(--bad)}
+
+.grid-wrap{overflow-x:auto;margin:.7rem 0}
+table.mols-grid{
+  border-collapse:separate;
+  border-spacing:3px;
+  margin:0 auto;
+  font-family:var(--mono);
+  font-size:.76rem;
+}
+table.mols-grid th{
+  background:var(--bg);
+  color:var(--sub);
+  padding:.3rem .42rem;
+  border-radius:6px;
+  font-weight:700;
+  white-space:nowrap;
+}
+table.mols-grid td{
+  padding:.34rem .36rem;
+  text-align:center;
+  border-radius:6px;
+  cursor:pointer;
+  border:1.5px solid transparent;
+  transition:transform .1s,box-shadow .1s;
+  white-space:nowrap;
+}
+table.mols-grid td.cell-ok{
+  background:#eaf7f1;
+  color:#115e41;
+  border-color:#c3ebd9;
+}
+table.mols-grid td.cell-crash{
+  background:#ffe3e4;
+  color:#a81c1f;
+  border-color:#ff9fa2;
+  font-weight:700;
+}
+table.mols-grid td.cell-focus{
+  outline:3px solid var(--brand);
+  outline-offset:0;
+  transform:scale(1.06);
+  z-index:2;
+  position:relative;
+}
+table.mols-grid td.cell-twin{
+  background:#ffd166 !important;
+  color:#3b2600 !important;
+  border-color:#d98200 !important;
+  font-weight:800;
+}
+
+/* Scene 3: Root Test Cards */
+.test-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:.8rem;
+  margin:1rem 0;
+}
+.test-card{
+  border-radius:14px;
+  padding:.9rem 1rem;
+  border:1.5px solid var(--line);
+  background:var(--bg);
+}
+.test-card.pass{border-color:var(--ok-bd);background:var(--ok-bg)}
+.test-card.fail{border-color:var(--bad-bd);background:var(--bad-bg)}
+.test-card .tc-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:800;
+  margin-bottom:.4rem;
+}
+.test-card .tc-line{
+  font-family:var(--mono);
+  font-size:.86rem;
+  margin:.22rem 0;
+}
+.test-card .tc-verdict{
+  margin-top:.5rem;
+  padding-top:.45rem;
+  border-top:1px dashed rgba(0,0,0,.12);
+  font-size:.85rem;
+  font-weight:700;
+}
+
+/* Custom quick checker */
+.quick-checker{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:1rem 1.1rem;
+  margin-top:1rem;
+}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin:.5rem 0}
+.ctrl-row select,.ctrl-row button{
+  font-family:inherit;
+  font-size:.9rem;
+  padding:.36rem .75rem;
+  border-radius:8px;
+  border:1.5px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  cursor:pointer;
+}
+.ctrl-row button.primary{
+  background:var(--brand);
+  color:#fff;
+  border-color:var(--brand);
+  font-weight:700;
+}
+.ctrl-row button.active{
+  background:var(--brand-bg);
+  color:var(--brand);
+  border-color:var(--brand);
+  font-weight:700;
+}
+
+/* Scene 4: Step-by-step Card Replacement */
+.step-stage{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:1.1rem 1.2rem;
+  margin:.9rem 0;
+}
+.step-cards{
+  display:flex;
+  flex-direction:column;
+  gap:.65rem;
+  margin:.85rem 0;
+}
+.st-item{
+  background:#fff;
+  border:1.5px solid var(--line);
+  border-radius:12px;
+  padding:.75rem 1rem;
+  transition:all .2s;
+}
+.st-item.done{border-color:var(--ok-bd)}
+.st-item.current{border-color:var(--brand);box-shadow:0 4px 14px rgba(59,91,219,.12)}
+.st-item.hidden{display:none}
+.st-badge{
+  display:inline-block;
+  font-size:.76rem;
+  font-weight:800;
+  padding:.12rem .52rem;
+  border-radius:999px;
+  background:var(--brand-bg);
+  color:var(--brand);
+  margin-right:.45rem;
+}
+.chip-bad{
+  display:inline-block;
+  background:var(--bad-bg);
+  color:var(--bad);
+  border:1px solid var(--bad-bd);
+  border-radius:6px;
+  padding:0 .38rem;
+  font-family:var(--mono);
+  font-weight:800;
+}
+.chip-ok{
+  display:inline-block;
+  background:var(--ok-bg);
+  color:var(--ok);
+  border:1px solid var(--ok-bd);
+  border-radius:6px;
+  padding:0 .38rem;
+  font-family:var(--mono);
+  font-weight:800;
+}
+.chip-cancel{
+  display:inline-block;
+  background:#f1f3f5;
+  color:#868e96;
+  text-decoration:line-through;
+  border-radius:6px;
+  padding:0 .35rem;
+  font-family:var(--mono);
+}
+
+/* Scene 5: Interactive Quiz */
+.quiz-item{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:1rem 1.15rem;
+  margin:.95rem 0;
+}
+.quiz-item .q-tag{
+  font-size:.78rem;
+  font-weight:800;
+  color:var(--purple);
+  background:var(--purple-bg);
+  display:inline-block;
+  padding:.14rem .55rem;
+  border-radius:999px;
+  margin-bottom:.4rem;
+}
+.quiz-opts{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:.5rem;
+  margin:.75rem 0 .4rem;
+}
+.quiz-btn{
+  padding:.58rem .8rem;
+  border-radius:10px;
+  border:1.5px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  text-align:left;
+  font-family:inherit;
+  font-size:.93rem;
+  font-weight:600;
+  transition:all .15s;
+}
+.quiz-btn:hover{border-color:var(--brand);background:var(--brand-bg)}
+.quiz-btn.right{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.quiz-btn.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.quiz-fb{
+  margin-top:.55rem;
+  font-size:.92rem;
+  padding:.65rem .85rem;
+  border-radius:10px;
+  display:none;
+}
+.quiz-fb.show{display:block}
+.quiz-fb.right{background:var(--ok-bg);border:1px solid var(--ok-bd);color:#0b5d40}
+.quiz-fb.wrong{background:var(--bad-bg);border:1px solid var(--bad-bd);color:#8f1d1f}
+
+footer{
+  text-align:center;
+  color:var(--sub);
+  font-size:.85rem;
+  margin-top:2rem;
+}
+@media (max-width:600px){
+  .scene{padding:1.15rem 1rem}
+  .lamp-btn{width:78px}
+}
 </style>
 <body>
-<div class="wrap">
-  <p class="meta">第 10 章「组合设计」专题精讲 · 讲义 p.16–20（幻灯片 528–532）· 习题 #430, #457, #459 · 样卷 1.5</p>
-  <h1>有限域的多项式构造与正交拉丁方（MOLS）</h1>
-  <p class="lede">你已经熟悉的 4 元域 \(\{0, 1, i, 1+i\}\)，其实就是“用多项式造域”的最简版本。本页把<strong>怎么挑多项式（根条件）</strong>、<strong>怎么用方程降次算乘法/逆元</strong>，以及<strong>怎么套公式写出 \(p^k - 1\) 个相互正交 Latin 方</strong>一次性打通。</p>
-  <ul class="toc">
-    <li><a href="#s1">1. 从 4 元域到多项式造域</a></li>
-    <li><a href="#s2">2. 核心考法：怎么判多项式合不合法</a></li>
-    <li><a href="#s3">3. 选好方程后：加法、乘法降次与求逆元</a></li>
-    <li><a href="#s4">4. 终极闭环：用有限域构造 MOLS</a></li>
-    <li><a href="#s5">5. 考前 4 题自测</a></li>
-  </ul>
 
-  <!-- ==================== SECTION 1 ==================== -->
-  <h2 id="s1">1　直觉桥梁：4 元域 \(\{0,1,i,1+i\}\) 其实就是多项式！</h2>
-  <p>先回想你最熟悉的构造——<strong>从实数 \(\mathbb{R}\) 造复数 \(\mathbb{C}\)</strong>：我们在 \(\mathbb{R}\) 里找一个<strong>没有实数解</strong>的方程 \(x^2 + 1 = 0\)，硬把它的根起名叫 \(i\)，于是所有数都写成 \(a + bi\)，计算时只要见到 \(i^2\)，就用 \(i^2 = -1\) 换掉。</p>
-  <p>造<strong>有限域 \(\mathbb{F}_{p^k}\)</strong>（\(p\) 是素数，\(k \ge 2\)）用的就是<strong>一模一样的套路</strong>，只不过底数从实数 \(\mathbb{R}\) 换成了模 \(p\) 整数域 \(\mathbb{Z}_p = \{0, 1, \dots, p-1\}\)：</p>
-
-  <div class="bridge-grid">
-    <div class="bridge-card">
-      <div class="b-tag">熟悉参照 · 复数</div>
-      <h4>\(\mathbb{R} \longrightarrow \mathbb{C}\)</h4>
-      <p><b>挑无根方程</b>：\(x^2 + 1 = 0\)（2 次）</p>
-      <p><b>引入根</b>：\(i\)，降次规则 \(i^2 = -1\)</p>
-      <p><b>元素长相</b>：\(a + bi\)（次数 \(&lt; 2\)）</p>
-    </div>
-    <div class="bridge-card hi">
-      <div class="b-tag">你已掌握 · 4 元域</div>
-      <h4>\(\mathbb{Z}_2 \longrightarrow \mathbb{F}_{2^2}\)</h4>
-      <p><b>挑无根方程</b>：\(x^2 + x + 1 = 0\)（2 次）</p>
-      <p><b>引入根</b>：\(i\)，降次规则 \(i^2 = i + 1\)</p>
-      <p><b>元素长相</b>：\(a + bi\)（\(a,b\in\{0,1\}\)）</p>
-      <p class="tip">展开就是 \(\{0, 1, i, 1+i\}\)，共 \(2^2=4\) 个！</p>
-    </div>
-    <div class="bridge-card hi">
-      <div class="b-tag">样卷 1.5 · 8 元域</div>
-      <h4>\(\mathbb{Z}_2 \longrightarrow \mathbb{F}_{2^3}\)</h4>
-      <p><b>挑无根方程</b>：\(x^3 + x + 1 = 0\)（3 次）</p>
-      <p><b>引入根</b>：\(x\)（或 \(i\)），规则 \(x^3 = x + 1\)</p>
-      <p><b>元素长相</b>：\(a + bx + cx^2\)（\(a,b,c\in\{0,1\}\)）</p>
-      <p class="tip">3 个系数各 2 种选法，共 \(2^3=8\) 个！</p>
-    </div>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-pill">第 10 章组合设计 · 零抽象黑话图解版 · 对应样卷 1.5</div>
+    <h1>多项式造有限域 &amp; 正交拉丁方（MOLS）</h1>
+    <p>别被「域代数」「不可约多项式」这些吓人的词唬住！你已经会 4 元域的 <code>{0, 1, i, i+1}</code> 了——8 元域的多项式写法跟它<strong>完全是同一个游戏</strong>，只是从「2 盏灯」升级成了「3 盏灯」。</p>
   </div>
+</header>
 
-  <div class="rule">
-    <p><b>一句话看懂符号差异：</b></p>
-    <p>讲义 p.17–18 把新引入的根叫 <code>i</code>（写成 \(a+bi\)、\(a+bi+ci^2\)），而样卷 1.5 直接沿用了字母 <code>x</code>（写成 \(a+bx+cx^2\)）。<strong>它们完全是同一个意思</strong>——只是一个“满足该 \(k\) 次方程的占位符号”。系数有 \(k\) 个（常数项到 \(k-1\) 次项），每个系数取自 \(\mathbb{Z}_p\)，所以一共恰好有 \(p^k\) 个元素。</p>
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <a href="#act1">第 1 幕：2 盏灯 vs 3 盏灯</a>
+    <a href="#act2">第 2 幕：现场看选错方程怎么撞车</a>
+    <a href="#act3">第 3 幕：3 秒秒杀样卷 1.5</a>
+    <a href="#act4">第 4 幕：乘法降次与逆元（一步步动画）</a>
+    <a href="#act5">第 5 幕：3 题即点即测</a>
   </div>
+</nav>
 
-  <div class="scroll">
-    <table>
-      <thead>
-        <tr><th>目标域大小 \(p^k\)</th><th>底域 \(\mathbb{Z}_p\)</th><th>所需方程次数 \(k\)</th><th>元素多项式形式</th><th>常见合法方程（不可约）</th><th>降次替换规则（模 \(p\)）</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>\(4 = 2^2\)</td><td>\(\mathbb{Z}_2=\{0,1\}\)</td><td>2 次</td><td>\(a + bi\)</td><td>\(x^2 + x + 1 = 0\)</td><td>\(i^2 = i + 1\)</td></tr>
-        <tr class="row-ok"><td>\(8 = 2^3\)</td><td>\(\mathbb{Z}_2=\{0,1\}\)</td><td>3 次</td><td>\(a + bx + cx^2\)</td><td>\(x^3 + x + 1 = 0\) 或 \(x^3 + x^2 + 1 = 0\)</td><td>\(x^3 = x + 1\) 或 \(x^3 = x^2 + 1\)</td></tr>
-        <tr><td>\(9 = 3^2\)</td><td>\(\mathbb{Z}_3=\{0,1,2\}\)</td><td>2 次</td><td>\(a + bi\)</td><td>\(x^2 + 1 = 0\)（或 \(x^2+x+2=0\)）</td><td>\(i^2 = -1 \equiv 2\)</td></tr>
-        <tr><td>\(27 = 3^3\)</td><td>\(\mathbb{Z}_3=\{0,1,2\}\)</td><td>3 次</td><td>\(a + bi + ci^2\)</td><td>\(x^3 + 2x + 1 = 0\)（讲义 p.18）</td><td>\(i^3 = -2i - 1 \equiv i + 2\)</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p class="tip"><b>注：</b>在 \(\mathbb{Z}_2\) 里 \(-1 \equiv +1 \pmod 2\)，所以移项不用改符号（\(x^3 + x + 1 = 0 \iff x^3 = x + 1\)）；在 \(\mathbb{Z}_3\) 里 \(-1 \equiv 2,\; -2 \equiv 1 \pmod 3\)，移项时记得把负号转成模 3 的正数！</p>
+<main class="main">
 
-  <!-- ==================== SECTION 2 ==================== -->
-  <h2 id="s2">2　核心考法 1：怎么判断多项式是否“满足根条件”？</h2>
-  <p>为什么 4 元域不能选 \(x^2 + 1 = 0\)，8 元域不能选 \(x^3 + 1 = 0\)？因为它们在 \(\mathbb{Z}_2\) 上<strong>可以因式分解</strong>：</p>
-  <div class="calc">
-    <p><b>反例 1（4 元域误选 \(x^2+1=0\)）：</b>在 \(\mathbb{Z}_2\) 下 \((x+1)^2 = x^2 + 2x + 1 \equiv x^2 + 1\)。如果强行令 \(i^2 + 1 = 0\)，就会得到 \((i+1)\cdot(i+1) = 0\)。两个<strong>非零</strong>元素相乘居然等于 \(0\)（称为<strong>零因子</strong>），导致 \(i+1\) 根本没有乘法逆元，<strong>构不成域</strong>！</p>
-    <p><b>反例 2（8 元域误选 \(x^3+1=0\)）：</b>在 \(\mathbb{Z}_2\) 下 \(x^3 + 1 = (x+1)(x^2 + x + 1)\)。强行令 \(x^3+1=0\) 就会出现非零元 \(x+1\) 与非零元 \(x^2+x+1\) 乘积为 \(0\)，同样不是域！</p>
-  </div>
-
-  <div class="rule">
-    <p><b>2 次 / 3 次多项式不可约判别定理（考场必背）：</b></p>
-    <p>系数在 \(\mathbb{Z}_p\) 中的 <strong>2 次或 3 次</strong>多项式 \(f(x)\) 不能非平凡因式分解（不可约）\(\iff\) <strong>\(f(x)\) 在 \(\mathbb{Z}_p\) 中没有根</strong>！</p>
-    <p><b>原理：</b>如果 2 次或 3 次多项式能拆成两个更低次多项式的乘积，次数拆分只能是 \(2=1+1\) 或 \(3=1+2\)，<strong>必定含有一个 1 次因式 \((x-r)\)</strong>，也就是必定在 \(\mathbb{Z}_p\) 里有根 \(r\)。</p>
-    <p><b>操作步骤：</b>把 \(x = 0, 1, \dots, p-1\) 逐个代入 \(f(x)\) 并<strong>模 \(p\)</strong>：只要有一个算出 \(0\) 就立刻淘汰；全部都不为 \(0\) 就过关！</p>
-  </div>
-
-  <div class="exam-note">
-    <b>\(\mathbb{Z}_2\) 考场 2 秒速判口诀 + 避坑提醒：</b><br>
-    ① 当底域是 \(\mathbb{Z}_2 = \{0, 1\}\) 时，2 次或 3 次多项式不可约 \(\iff\) <b>常数项为 \(1\)</b>（保证 \(f(0)=1\neq 0\)）且 <b>非零项的总个数为奇数</b>（保证 \(f(1)\equiv 1\pmod 2\)）！<br>
-    ② <b>防坑：</b>“无根 \(\iff\) 不可约”只对 <b>2 次和 3 次</b>成立！如果是 4 次多项式（如 \(x^4+x^2+1=(x^2+x+1)^2\)），虽然在 \(\mathbb{Z}_2\) 中无根，但仍能拆成“2 次 \(\times\) 2 次”。不过课程与考试里的 \(4,8,9,27\) 元域全都是 2 次或 3 次，放心直接验根！
-  </div>
-
-  <!-- Interactive Demo A -->
-  <div class="machine" id="demoA">
-    <div class="head">
-      <div class="title">交互演示 A：多项式“验根判别机”（一键检验样卷 1.5 与讲义原例）</div>
-      <div class="count" id="daStatus"></div>
-    </div>
-    <div class="controls">
-      <label>底域 \(\mathbb{Z}_p\)：
-        <select id="daP">
-          <option value="2" selected>Z₂ = {0, 1}</option>
-          <option value="3">Z₃ = {0, 1, 2}</option>
-          <option value="5">Z₅ = {0, 1, 2, 3, 4}</option>
-        </select>
-      </label>
-      <label>次数 \(k\)：
-        <select id="daK">
-          <option value="2">2 次（造 p² 元域）</option>
-          <option value="3" selected>3 次（造 p³ 元域）</option>
-        </select>
-      </label>
-    </div>
-    <div class="controls">
-      <span class="tip"><b>一键载入样卷 / 讲义：</b></span>
-      <button data-preset="2,3,1,0,0,1">样卷1.5 (i) x³+1</button>
-      <button data-preset="2,3,1,0,1,1" class="sel">样卷1.5 (ii) x³+x+1</button>
-      <button data-preset="2,3,1,1,0,1">样卷1.5 (iii) x³+x²+1</button>
-      <button data-preset="2,3,1,1,1,1">样卷1.5 (iv) x³+x²+x+1</button>
-      <button data-preset="2,2,1,1,1">4元域 x²+x+1</button>
-      <button data-preset="2,2,1,0,1">反例 x²+1 (mod 2)</button>
-      <button data-preset="3,2,1,0,1">9元域 x²+1 (mod 3)</button>
-      <button data-preset="3,3,1,0,2,1">讲义27元域 x³+2x+1</button>
-    </div>
-    <div class="poly-builder" id="daBuilder"></div>
-    <div class="poly-preview" id="daPreview"></div>
-    <div class="eval-grid" id="daEvalGrid"></div>
-    <div class="badges" id="daBadges"></div>
-    <div class="caption" id="daCaption"></div>
-  </div>
-
-  <h3>回到你发的原题：样卷 1.5 完整逐项解析</h3>
-  <p>题目问在 \(\mathbb{Z}_2 = \{0, 1\}\) 上构造 \(8 = 2^3\) 元域，下列 4 个 3 次方程中哪个满足根条件（即在 \(\mathbb{Z}_2\) 上不可约、无根）：</p>
-  <div class="scroll">
-    <table>
-      <thead>
-        <tr><th>选项</th><th>多项式 \(f(x)\)</th><th>\(f(0) \bmod 2\)</th><th>\(f(1) \bmod 2\)</th><th>总项数</th><th>\(\mathbb{Z}_2\) 上因式分解</th><th>结论</th></tr>
-      </thead>
-      <tbody>
-        <tr class="row-bad"><td>(i)</td><td>\(x^3 + 1\)</td><td>\(1\)</td><td>\(1+1=2\equiv 0\)</td><td>2（偶）</td><td>\((x+1)(x^2+x+1)\)</td><td>❌ 有根 \(1\)，淘汰</td></tr>
-        <tr class="row-ok"><td>(ii)</td><td>\(x^3 + x + 1\)</td><td>\(1\)</td><td>\(1+1+1=3\equiv 1\)</td><td>3（奇）</td><td>不可分解</td><td>✅ 合法！</td></tr>
-        <tr class="row-ok"><td>(iii)</td><td>\(x^3 + x^2 + 1\)</td><td>\(1\)</td><td>\(1+1+1=3\equiv 1\)</td><td>3（奇）</td><td>不可分解</td><td>✅ 合法！</td></tr>
-        <tr class="row-bad"><td>(iv)</td><td>\(x^3 + x^2 + x + 1\)</td><td>\(1\)</td><td>\(1+1+1+1=4\equiv 0\)</td><td>4（偶）</td><td>\((x+1)^3\)</td><td>❌ 有根 \(1\)，淘汰</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>因此，满足根条件的是 <strong>(ii) 或 (iii)</strong>，样卷 1.5 选 <strong>(c)</strong>。</p>
-
-  <!-- ==================== SECTION 3 ==================== -->
-  <h2 id="s3">3　核心考法 2：选好方程后，怎么算加法、乘法和逆元？</h2>
-  <p>如果大题或作业（比如习题 <code>#430</code>、讲义 p.19）给了一个合法多项式，让你在这个域里做运算，完全不用死背整张乘法表，只要记住下面<strong>三招</strong>：</p>
-  <ol>
-    <li><b>加法（最省事）</b>：按幂次对齐，同类项系数相加再<strong>模 \(p\)</strong>。特别在 \(\mathbb{Z}_2\) 里，\(1+1=0\)，<strong>同一项出现两次就直接消掉</strong>！</li>
-    <li><b>乘法（展开 \(\to\) 模 \(p\) \(\to\) 反复降次）</b>：先像初中多项式一样全部乘开，系数模 \(p\)；如果出现了 \(x^k\) 或更高次项，就用方程改写的<strong>降次规则</strong>（如 \(x^3 = x + 1\)）反复代换，直到所有项的次数都 \(&lt; k\)。</li>
-    <li><b>求逆元 \(A^{-1}\)</b>（找 \(B\) 使得 \(A \cdot B = 1\)）：
-      <ul>
-        <li><b>巧算降次法</b>（考试最快！）：利用方程本身凑出 \(1\)。例如 \(x^3 + x + 1 = 0 \implies x^3 + x = 1 \implies x(x^2 + 1) = 1\)，一眼看出 \(x^{-1} = x^2 + 1\)！</li>
-        <li><b>待定系数法</b>（通法）：设 \(B = a + bx + cx^2\)，展开 \(A\cdot B\) 降次后，令常数项为 \(1\)、其余项系数为 \(0\)，解模 \(p\) 线性方程组。</li>
-        <li><b>查表/试乘</b>：8 元域总共才 7 个非零元，实在卡住挨个试乘也只要半分钟！</li>
-      </ul>
-    </li>
-  </ol>
-
-  <!-- Interactive Demo B -->
-  <div class="machine" id="demoB">
-    <div class="head">
-      <div class="title">交互演示 B：有限域算术与降次工坊（完整展开每一步）</div>
-      <div class="count" id="dbRuleBadge"></div>
-    </div>
-    <div class="controls">
-      <label>选择有限域：
-        <select id="dbField">
-          <option value="f4">F₄ = Z₂[i] / (i² + i + 1)（4元域）</option>
-          <option value="f8a" selected>F₈ = Z₂[x] / (x³ + x + 1)（习题 #430 / 样卷1.5 ii）</option>
-          <option value="f8b">F₈ = Z₂[x] / (x³ + x² + 1)（样卷1.5 iii）</option>
-          <option value="f9">F₉ = Z₃[i] / (i² + 1)（9元域 / 习题 #457）</option>
-          <option value="f27">F₂₇ = Z₃[i] / (i³ + 2i + 1)（讲义 p.18-19 原例）</option>
-        </select>
-      </label>
-    </div>
-    <div class="controls">
-      <label>元素 \(A\)：<select id="dbA"></select></label>
-      <label>元素 \(B\)：<select id="dbB"></select></label>
-      <button id="dbSwap">交换 A ↔ B</button>
-    </div>
-    <div class="controls" id="dbPresets"></div>
-    <div class="step-box" id="dbAddBox"></div>
-    <div class="step-box" id="dbMulBox"></div>
-    <div class="step-box" id="dbInvBox"></div>
-  </div>
-
-  <!-- ==================== SECTION 4 ==================== -->
-  <h2 id="s4">4　终极闭环：多项式域怎么造出 \(p^k - 1\) 个正交拉丁方（MOLS）？</h2>
-  <p>现在把你最初的问题彻底收口：为什么 8 阶 MOLS、4 阶 MOLS、9 阶 MOLS 非得用这种“多项式有限域”不可？</p>
-  <div class="rule">
-    <p><b>有限域构造 MOLS 万能公式（讲义幻灯片 569–570）：</b></p>
-    <p>设 \(q = p^k\) 元域的全部元素排成列表 \(\alpha_0, \alpha_1, \dots, \alpha_{q-1}\)（通常令 \(\alpha_0 = 0,\; \alpha_1 = 1\)）。对每一个<strong>非零元素</strong> \(\alpha_r \neq 0\)，定义一张 \(q \times q\) 方阵 \(L^{(r)}\)，其第 \(i\) 行第 \(j\) 列的格子填入：</p>
-    \[a_{ij}^{(r)} = \alpha_r \cdot \alpha_i + \alpha_j\]
-    <p>因为非零元共有 \(q - 1\) 个，所以一口气就能造出 <strong>\(q - 1\) 个两两正交的 \(q\) 阶拉丁方</strong>（这已经达到理论上限 \(N(q) = q - 1\)）！</p>
-  </div>
-
-  <p><b>一行公式看懂“为什么多项式不可约 \(\iff\) MOLS 绝不撞车”：</b></p>
-  <div class="calc">
-    <p>把 \(L^{(r)}\) 和 \(L^{(s)}\)（\(\alpha_r \neq \alpha_s\)）叠在一起。如果两个位置 \((i,j)\) 和 \((i',j')\) 出现了完全相同的有序对，就有：</p>
-    \[\begin{cases} \alpha_r \alpha_i + \alpha_j = \alpha_r \alpha_{i'} + \alpha_{j'} \\ \alpha_s \alpha_i + \alpha_j = \alpha_s \alpha_{i'} + \alpha_{j'} \end{cases} \xrightarrow{\text{两式相减}} (\alpha_r - \alpha_s)(\alpha_i - \alpha_{i'}) = 0\]
-    <p>因为我们挑的多项式<strong>不可约</strong>，造出来的是真正的<strong>域（没有零因子）</strong>，所以非零元 \(\alpha_r - \alpha_s\) 一定有乘法逆元！两边同乘 \((\alpha_r - \alpha_s)^{-1}\)，立刻推出 \(\alpha_i = \alpha_{i'}\)，回代得 \(\alpha_j = \alpha_{j'}\)。也就是说：<strong>不同格子绝对不可能出现重复的有序对！</strong></p>
-  </div>
-
-  <!-- Interactive Demo C -->
-  <div class="machine" id="demoC">
-    <div class="head">
-      <div class="title">交互演示 C：有限域 MOLS 生成与正交叠合校验器（点击任意格子看计算过程）</div>
-      <div class="count" id="dcCount"></div>
-    </div>
-    <div class="controls">
-      <label>选择阶数与域：
-        <select id="dcField">
-          <option value="f4" selected>4 阶（F₄: i²+i+1，3 个 MOLS）</option>
-          <option value="f8a">8 阶（F₈: x³+x+1，7 个 MOLS）</option>
-          <option value="f9">9 阶（F₉: i²+1，8 个 MOLS）</option>
-        </select>
-      </label>
-      <label>乘子 \(\alpha_r\)：<select id="dcR"></select></label>
-      <label>乘子 \(\alpha_s\)：<select id="dcS"></select></label>
-      <label>显示方式：
-        <select id="dcView">
-          <option value="poly" selected>多项式符号（如 1+i）</option>
-          <option value="num">数字编号（0, 1, 2, ...）</option>
-        </select>
-      </label>
-    </div>
-    <div class="badges" id="dcBadges"></div>
-    <div class="caption" id="dcCellExplain">点击下方任意一个格子，查看 \(a_{ij}^{(r)} = \alpha_r \alpha_i + \alpha_j\) 与 \(a_{ij}^{(s)} = \alpha_s \alpha_i + \alpha_j\) 的具体多项式计算！</div>
-    <div class="mols-boards" id="dcBoards"></div>
-  </div>
-
-  <!-- ==================== SECTION 5 ==================== -->
-  <h2 id="s5">5　考前 4 题自测（做完彻底过关）</h2>
-
-  <div class="q">
-    <div class="src">自测 1 · 样卷 1.5 原题再检验（8 元域）</div>
-    <p>若把底域换为 \(\mathbb{Z}_2\)，用 3 次多项式 \(f(x)=0\) 造 8 元域，在 (i) \(x^3+x^2\)，(ii) \(x^3+x+1\)，(iii) \(x^3+x^2+x\)，(iv) \(x^3+x^2+1\) 中，哪些合法？用“2 秒口诀”立刻报出答案。</p>
-    <details>
-      <summary>展开看解析</summary>
-      <div class="ans">
-        <p>口诀：\(\mathbb{Z}_2\) 上 2/3 次多项式不可约 \(\iff\) <strong>常数项为 \(1\) 且总项数为奇数</strong>。</p>
-        <p>(i)、(iii) 常数项是 \(0\)（有根 \(x=0\)），直接淘汰；(ii)、(iv) 常数项为 \(1\) 且都是 3 项（奇数），均无根，<strong>(ii) 和 (iv) 合法</strong>。</p>
+  <!-- ==================== ACT 1 ==================== -->
+  <section class="scene" id="act1">
+    <div class="scene-head">
+      <div class="scene-num">1</div>
+      <div>
+        <h2 class="scene-title">先接上头：你记住的 <code>0, 1, i, i+1</code> 其实就是多项式！</h2>
+        <p class="scene-sub">把「多项式」想成「一排开关灯」，把「方程」想成「算超格时的换牌规矩」。</p>
       </div>
-    </details>
-  </div>
+    </div>
 
-  <div class="q">
-    <div class="src">自测 2 · \(\mathbb{Z}_3\) 迁移（对应习题 #457 构造 9 阶 MOLS）</div>
-    <p>要构造 9 阶（\(3^2\)）相互正交 Latin 方，需要从 \(\mathbb{Z}_3 = \{0, 1, 2\}\) 出发选一个 2 次不可约多项式。判断下面四个多项式哪些满足根条件：</p>
-    <p>(A) \(x^2 + 1\)　　(B) \(x^2 + 2\)　　(C) \(x^2 + x + 1\)　　(D) \(x^2 + x + 2\)</p>
-    <details>
-      <summary>展开看解析</summary>
-      <div class="ans">
-        <p>在 \(\mathbb{Z}_3\) 中逐一代入 \(x = 0, 1, 2\)（结果模 3）：</p>
-        <ul>
-          <li><b>(A) \(x^2+1\)</b>：\(f(0)=1,\; f(1)=2,\; f(2)=5\equiv 2\)，全不为 \(0\) \(\implies\) <b>✅ 不可约</b>（降次规则 \(i^2 = 2\)）。</li>
-          <li><b>(B) \(x^2+2\)</b>：\(f(1)=3\equiv 0\)（有根 \(1\)，因 \(x^2+2 \equiv x^2-1 = (x-1)(x+1)\)）\(\implies\) ❌ 淘汰。</li>
-          <li><b>(C) \(x^2+x+1\)</b>：\(f(1)=3\equiv 0\)（有根 \(1\)，因 \((x+2)^2 = x^2+4x+4 \equiv x^2+x+1\)）\(\implies\) ❌ 淘汰。</li>
-          <li><b>(D) \(x^2+x+2\)</b>：\(f(0)=2,\; f(1)=4\equiv 1,\; f(2)=8\equiv 2\)，全不为 \(0\) \(\implies\) <b>✅ 不可约</b>。</li>
-        </ul>
-        <p>答案：<strong>(A) 和 (D)</strong>（注意：不能把 \(\mathbb{Z}_2\) 的“奇数项口诀”套到 \(\mathbb{Z}_3\)，必须老老实实代 \(0, 1, 2\)！）。</p>
+    <div class="tldr">
+      <b>先记住全篇最重要的一句话：</b>题目里其实出现了<strong>两种完全不同角色的多项式</strong>，千万别混在一起看！<br>
+      ① <b>牌面（元素本身）</b>：像 \(a + bx + cx^2\)，只是给 8 张牌起的名字（类似 3 盏开关灯）。<br>
+      ② <b>换牌规矩（题目给的方程）</b>：像 \(x^3 + x + 1 = 0\)，是两张牌相乘<strong>超出 3 盏灯（出现 \(x^3\)）</strong>时，用来把 \(x^3\) 换回牌堆里的规矩！
+    </div>
+
+    <div class="cols-2">
+      <div class="mini-card">
+        <h3><span class="tag">你已经会的</span> 4 元域（\(2^2 = 4\) 张牌）</h3>
+        <p><b>只有 2 盏灯：</b><code>1</code> 和 <code>i</code>，每盏灯只有 <code>0</code>（灭）或 <code>1</code>（亮）。</p>
+        <p>所有亮灭组合正好 4 张牌：<code>0</code>、<code>1</code>、<code>i</code>、<code>1+i</code>，写成式子就是 \(a + bi\)。</p>
+        <p><b>算乘法出界了怎么办？</b>比如 \(i \times i = i^2\)，没有 <code>i²</code> 这盏灯！</p>
+        <p><b>换牌规矩：</b>用 2 次方程 \(i^2 + i + 1 = 0\)，移项（模 2 下减号就是加号）变成 <b>见 \(i^2\) 就换成 \(i + 1\)</b>！</p>
       </div>
-    </details>
-  </div>
-
-  <div class="q">
-    <div class="src">自测 3 · 习题 #430 核心计算（8 元域乘法与逆元）</div>
-    <p>在由 \(x^3 + x + 1 = 0\)（系数在 \(\mathbb{Z}_2\) 中）构造的 8 元域里，求：(1) \((1+x)(1+x+x^2)\)；(2) \((1+x)^{-1}\)。</p>
-    <details>
-      <summary>展开看解析</summary>
-      <div class="ans">
-        <p>降次规则：\(x^3 = x + 1\)，且模 2 下同类项出现两次就消掉。</p>
-        <p><b>(1) 乘法：</b>\((1+x)(1+x+x^2) = 1 + x + x^2 + x + x^2 + x^3 = 1 + x^3\)（两个 \(x\) 抵消、两个 \(x^2\) 抵消）。再代入 \(x^3 = x + 1\)，得 \(1 + (x + 1) = x\)！</p>
-        <p><b>(2) 求 \((1+x)^{-1}\)：</b>利用刚算出的 \((1+x)(1+x+x^2) = x\)，或者巧用方程：先算 \(x^{-1} = x^2+1\)（因为 \(x(x^2+1)=x^3+x=1\)），于是两边乘 \(x^2+1\)：</p>
-        \[(1+x)^{-1} = (1+x+x^2)(x^2+1) = 1+x+x^2+x^2+x^3+x^4 = 1+x+x^3+x\cdot x^3\]
-        <p>代入 \(x^3 = x+1\)：\(1 + x + (x+1) + x(x+1) = x^2 + x\)！验证：\((1+x)(x+x^2) = x + x^2 + x^2 + x^3 = x + (x+1) = 1\) ✅！（可以在上方「演示 B」里点习题 #430 预设核对全部 6 小问。）</p>
+      <div class="mini-card accent">
+        <h3><span class="tag purple">样卷 1.5</span> 8 元域（\(2^3 = 8\) 张牌）</h3>
+        <p><b>只是多加了 1 盏灯：</b><code>1</code>、<code>x</code>、<code>x²</code>（题目把字母 <code>i</code> 改写成了 <code>x</code>，意思一模一样！）。</p>
+        <p>3 盏灯的亮灭组合正好 \(2^3 = 8\) 张牌，写成式子就是 \(a + bx + cx^2\)。</p>
+        <p><b>算乘法出界了怎么办？</b>比如 \(x \times x^2 = x^3\)，没有 <code>x³</code> 这盏灯！</p>
+        <p><b>换牌规矩：</b>必须立一条 <b>3 次方程</b>，比如 \(x^3 + x + 1 = 0\)，也就是 <b>见 \(x^3\) 就换成 \(x + 1\)</b>！</p>
       </div>
-    </details>
-  </div>
+    </div>
 
-  <div class="q">
-    <div class="src">自测 4 · 防坑概念题（4 次多项式陷阱）</div>
-    <p>有人想构造 \(16 = 2^4\) 元域，挑了 \(\mathbb{Z}_2\) 上的 4 次多项式 \(f(x) = x^4 + x^2 + 1\)。他代入 \(f(0) = 1 \neq 0\)、\(f(1) = 3 \equiv 1 \neq 0\)，于是说“没有根所以不可约，可以用来造 16 元域”。他说得对吗？</p>
-    <details>
-      <summary>展开看解析</summary>
-      <div class="ans">
-        <p><b>不对！</b>“在 \(\mathbb{Z}_p\) 中无根 \(\iff\) 不可约”<strong>只保证对 2 次和 3 次成立</strong>。</p>
-        <p>对 4 次多项式，虽然没有 1 次因式，但可能拆成“2 次 \(\times\) 2 次”！事实上在 \(\mathbb{Z}_2\) 中，\((x^2+x+1)^2 = x^4 + 2x^3 + 3x^2 + 2x + 1 \equiv x^4 + x^2 + 1\)，它完全可以非平凡分解，因此<strong>不能</strong>用来造 16 元域（合法的 4 次不可约多项式如 \(x^4+x+1\)）。</p>
+    <div class="lamp-lab">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.5rem">
+        <strong>点一点开关，感受一下 4 元域和 8 元域的「牌面」是怎么生成的：</strong>
+        <div class="ctrl-row" style="margin:0">
+          <button id="lampMode4" class="active">4 元域（2 盏灯：1, i）</button>
+          <button id="lampMode8">8 元域（3 盏灯：1, x, x²）</button>
+        </div>
       </div>
-    </details>
-  </div>
+      <div class="lamp-row" id="lampSwitches"></div>
+      <div class="big-eq" id="lampResult"></div>
+      <p style="text-align:center;font-size:.86rem;color:var(--sub);margin:.55rem 0 .2rem">这就是这个域的全部牌堆（点击任意一张牌，上方开关会同步切换）：</p>
+      <div class="card-deck" id="lampDeck"></div>
+    </div>
+  </section>
 
-  <footer class="foot">
-    <span>组合数学期末复习 · 第 10 章组合设计</span>
-    <span>离线自包含（内置 KaTeX 渲染与多项式域引擎）</span>
-  </footer>
-</div>
+  <!-- ==================== ACT 2 ==================== -->
+  <section class="scene" id="act2">
+    <div class="scene-head">
+      <div class="scene-num">2</div>
+      <div>
+        <h2 class="scene-title">核心疑问：为什么不是随便哪条 3 次方程都能用？</h2>
+        <p class="scene-sub">别听抽象定义，直接拿样卷 1.5 的 4 个方程套进 8 阶拉丁方公式，<strong>亲眼看它们会不会撞车</strong>！</p>
+      </div>
+    </div>
+
+    <p>回顾一下怎么用有限域造一对 8 阶正交拉丁方（MOLS）：<br>
+    随便挑两个不同的非零乘子（这里就挑最简单的 <code>r = 1</code> 和 <code>s = x</code>），第 \(i\) 行第 \(j\) 列分别填入：</p>
+    <div style="text-align:center;font-size:1.05rem;margin:.5rem 0 1rem">
+      第一张拉丁方：\(A_{ij} = 1 \cdot \alpha_i + \alpha_j\)　　　第二张拉丁方：\(B_{ij} = x \cdot \alpha_i + \alpha_j\)
+    </div>
+    <p>两张表叠在一起，一共有 \(8 \times 8 = 64\) 个格子。所谓<strong>「正交」</strong>，就是这 64 个格子里的有序对 \((A_{ij}, B_{ij})\) <strong>必须 64 个全都不一样，不能撞车！</strong></p>
+
+    <p style="font-weight:700;margin-top:1rem">👇 点击下面样卷 1.5 的 4 个候选方程，现场看 8×8 叠合表的结果：</p>
+    <div class="tab-row" id="crashTabs">
+      <button class="tab-btn" data-eq="i">
+        <div class="t-top">选项 (i)</div>
+        <div class="t-poly">x³ + 1 = 0</div>
+        <div class="t-res">点击测试 →</div>
+      </button>
+      <button class="tab-btn" data-eq="ii">
+        <div class="t-top">选项 (ii)</div>
+        <div class="t-poly">x³ + x + 1 = 0</div>
+        <div class="t-res">点击测试 →</div>
+      </button>
+      <button class="tab-btn" data-eq="iii">
+        <div class="t-top">选项 (iii)</div>
+        <div class="t-poly">x³ + x² + 1 = 0</div>
+        <div class="t-res">点击测试 →</div>
+      </button>
+      <button class="tab-btn" data-eq="iv">
+        <div class="t-top">选项 (iv)</div>
+        <div class="t-poly">x³ + x² + x + 1 = 0</div>
+        <div class="t-res">点击测试 →</div>
+      </button>
+    </div>
+
+    <div class="crash-banner" id="crashBanner"></div>
+    <div id="crashReason"></div>
+    <p style="font-size:.86rem;color:var(--sub);margin:.4rem 0">提示：下面展示的是把 \(A_{ij}=\alpha_i+\alpha_j\) 和 \(B_{ij}=x\alpha_i+\alpha_j\) 叠在一起的 64 个有序对（为了紧凑，把 8 张牌编号为 0–7，悬停或点击任意格子可看多项式原貌；如果撞车，点击任意红格会同时用<strong style="color:#b86b00">金黄色</strong>亮出跟它撞车的双胞胎格子！）。</p>
+    <div class="grid-wrap" id="crashGridWrap"></div>
+    <div id="crashCellDetail" class="tldr" style="margin-top:.7rem"></div>
+  </section>
+
+  <!-- ==================== ACT 3 ==================== -->
+  <section class="scene" id="act3">
+    <div class="scene-head">
+      <div class="scene-num">3</div>
+      <div>
+        <h2 class="scene-title">考场 3 秒秒杀法：不用画表，怎么一眼看出方程炸不炸？</h2>
+        <p class="scene-sub">刚才亲眼看到了：只要方程能<strong>拆成两张小牌相乘</strong>，就会有非零牌乘出 0，拉丁方立刻撞车！</p>
+      </div>
+    </div>
+
+    <div class="tldr">
+      <b>为什么「代入验根」就能一秒抓出坏方程？（大白话版）</b><br>
+      一个 <b>2 次或 3 次</b>多项式如果能拆开（比如 \(x^3 + 1 = (x+1)(x^2+x+1)\)），拆出来的碎块里<strong>必然至少有一块是 1 次的</strong>（比如 \(x\) 或 \(x+1\)）。<br>
+      只要含 1 次块，就说明把 \(\mathbb{Z}_p\) 里的某个数字（在 \(\mathbb{Z}_2\) 里只可能是 <b>0</b> 或 <b>1</b>）代进去，结果一定会变成 <b>0</b>！
+    </div>
+
+    <div class="ok-box">
+      <b>做题唯一动作（2 次 / 3 次方程通用）：</b><br>
+      把底域 \(\mathbb{Z}_p\) 里的每个数（模 2 就试 <b>0, 1</b>；模 3 就试 <b>0, 1, 2</b>）逐个代进方程算余数：<br>
+      • <b>只要有一个数算出来 = 0</b> \(\implies\) 能拆开 \(\implies\) 会撞车 \(\implies\) <b>❌ 直接淘汰！</b><br>
+      • <b>全部数算出来都不等于 0</b> \(\implies\) 拆不开 \(\implies\) 绝不撞车 \(\implies\) <b>✅ 过关！</b>
+    </div>
+
+    <p style="font-weight:700;margin-top:1rem">把样卷 1.5 的 4 个选项拉出来，3 秒全部解决：</p>
+    <div class="test-grid">
+      <div class="test-card fail">
+        <div class="tc-head"><span>(i) \(x^3 + 1\)</span><span class="tag red">淘汰</span></div>
+        <div class="tc-line">代 x=0：0 + 1 = 1 (≠0)</div>
+        <div class="tc-line">代 x=1：1 + 1 = 2 ≡ <b>0</b> ❌</div>
+        <div class="tc-verdict">x=1 是根！可拆成 (x+1)(x²+x+1)，撞车！</div>
+      </div>
+      <div class="test-card pass">
+        <div class="tc-head"><span>(ii) \(x^3 + x + 1\)</span><span class="tag green">合法</span></div>
+        <div class="tc-line">代 x=0：0 + 0 + 1 = 1 (≠0)</div>
+        <div class="tc-line">代 x=1：1 + 1 + 1 = 3 ≡ 1 (≠0)</div>
+        <div class="tc-verdict">0 和 1 都不是根！拆不开，选它！</div>
+      </div>
+      <div class="test-card pass">
+        <div class="tc-head"><span>(iii) \(x^3 + x^2 + 1\)</span><span class="tag green">合法</span></div>
+        <div class="tc-line">代 x=0：0 + 0 + 1 = 1 (≠0)</div>
+        <div class="tc-line">代 x=1：1 + 1 + 1 = 3 ≡ 1 (≠0)</div>
+        <div class="tc-verdict">0 和 1 都不是根！拆不开，选它！</div>
+      </div>
+      <div class="test-card fail">
+        <div class="tc-head"><span>(iv) \(x^3 + x^2 + x + 1\)</span><span class="tag red">淘汰</span></div>
+        <div class="tc-line">代 x=0：1 (≠0)</div>
+        <div class="tc-line">代 x=1：1+1+1+1 = 4 ≡ <b>0</b> ❌</div>
+        <div class="tc-verdict">x=1 是根！可拆成 (x+1)(x²+1)，撞车！</div>
+      </div>
+    </div>
+    <p style="font-weight:700">所以样卷 1.5 直接锁定 <span style="color:var(--ok)">(c) (ii) 或 (iii)</span>！</p>
+
+    <div class="warn-box">
+      <b>两条考场超值提醒：</b><br>
+      1. <b>模 2（4 元域、8 元域）偷懒口诀：</b>看两眼就行——① 必须有常数项 <code>+ 1</code>（否则代 0 得 0）；② <b>总项数必须是奇数</b>（2 项、4 项代 1 都是偶数 ≡ 0，必炸！3 项代 1 等于 3 ≡ 1，稳过！）。<br>
+      2. <b>换到模 3（9 元域 \(3^2\)、27 元域 \(3^3\)）怎么办？</b>不能用奇数项口诀，老老实实把 <b>0、1、2</b> 三个数代进去算模 3！比如 9 元域选 \(x^2 + 1\)：代 0 得 1，代 1 得 2，代 2 得 \(5 \equiv 2\)，全不是 0 \(\implies\) 过关！（所以模 3 里 \(x^2+1\) 可以造 9 元域，而在模 2 里 \(x^2+1\) 代 1 得 0 就不行！）
+    </div>
+
+    <div class="quick-checker">
+      <strong>自己随便拼一个方程，立刻验根（支持模 2 和模 3）：</strong>
+      <div class="ctrl-row">
+        <label>模数：
+          <select id="qcP">
+            <option value="2" selected>模 2（Z₂: 试 0, 1）</option>
+            <option value="3">模 3（Z₃: 试 0, 1, 2）</option>
+          </select>
+        </label>
+        <label>次数：
+          <select id="qcK">
+            <option value="2">2 次</option>
+            <option value="3" selected>3 次</option>
+          </select>
+        </label>
+        <span id="qcCoeffs" style="display:inline-flex;gap:.35rem;align-items:center;font-family:var(--mono);font-weight:700"></span>
+      </div>
+      <div id="qcOut" style="margin-top:.6rem"></div>
+    </div>
+  </section>
+
+  <!-- ==================== ACT 4 ==================== -->
+  <section class="scene" id="act4">
+    <div class="scene-head">
+      <div class="scene-num">4</div>
+      <div>
+        <h2 class="scene-title">进阶一步：选好方程后，怎么算乘法和逆元？</h2>
+        <p class="scene-sub">作业习题 <code>#430</code> 考的就是这个——其实只有两招：<strong>「相同项碰灯灭」+「见红牌就换牌」</strong>。</p>
+      </div>
+    </div>
+
+    <p>选定 8 元域方程 \(x^3 + x + 1 = 0\)，先把换牌规矩写在草稿纸最顶上：</p>
+    <div class="big-eq" style="margin:.6rem 0 1rem">见 x³ 就换成 x + 1　｜　见 x⁴ = x·x³ 就换成 x² + x</div>
+
+    <div class="step-stage">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem">
+        <strong>选一道真题 / 习题，点「下一步」看每一步怎么化简：</strong>
+        <div class="ctrl-row" style="margin:0" id="animPresetRow">
+          <button data-anim="0" class="active">例 1：x × x²（最简体验）</button>
+          <button data-anim="1">例 2：#430(v) (1+x)(1+x+x²)</button>
+          <button data-anim="2">例 3：#430(iv) x²(1+x+x²)</button>
+          <button data-anim="3">例 4：#430(vi) 求 (1+x)⁻¹</button>
+        </div>
+      </div>
+
+      <div class="step-cards" id="animCards"></div>
+
+      <div class="ctrl-row" style="justify-content:space-between">
+        <div>
+          <button id="animPrev">← 上一步</button>
+          <button id="animNext" class="primary">下一步 →</button>
+          <button id="animAll">全部展开</button>
+        </div>
+        <span id="animProgress" style="font-size:.86rem;color:var(--sub);font-family:var(--mono)"></span>
+      </div>
+    </div>
+
+    <div class="tldr" style="margin-top:.8rem">
+      <b>求逆元（比如问 \(x^{-1}\) 或 \((1+x)^{-1}\) 是谁）最省脑子的 2 个窍门：</b><br>
+      ① <b>顺着方程凑 1</b>：比如 \(x^3 + x + 1 = 0 \implies x^3 + x = 1 \implies x(x^2 + 1) = 1\)，一眼看出 \(x^{-1} = x^2 + 1\)！<br>
+      ② <b>8 元域总共就 7 张非零牌</b>，考试实在没灵感，拿备选的牌挨个乘一乘，乘出来等于 1 的就是答案，绝对不会丢分！
+    </div>
+  </section>
+
+  <!-- ==================== ACT 5 ==================== -->
+  <section class="scene" id="act5">
+    <div class="scene-head">
+      <div class="scene-num">5</div>
+      <div>
+        <h2 class="scene-title">3 题即点即测：点一下选项，看看自己是不是真通了！</h2>
+        <p class="scene-sub">全做对，这类题在期末考场上就是稳拿的送分题。</p>
+      </div>
+    </div>
+
+    <div class="quiz-item" data-quiz="q1" data-ans="c">
+      <div class="q-tag">第 1 题 · 样卷 1.5 原题实战</div>
+      <p style="margin:.2rem 0">用 \(\mathbb{Z}_2\) 上的 3 次多项式造 8 元域（8 阶 MOLS），下面哪几个满足根条件？<br>
+      (i) \(x^3+1=0\)　(ii) \(x^3+x+1=0\)　(iii) \(x^3+x^2+1=0\)　(iv) \(x^3+x^2+x+1=0\)</p>
+      <div class="quiz-opts">
+        <button class="quiz-btn" data-opt="a">(a) 只有 (i)</button>
+        <button class="quiz-btn" data-opt="b">(b) 只有 (iv)</button>
+        <button class="quiz-btn" data-opt="c">(c) (ii) 或 (iii)</button>
+        <button class="quiz-btn" data-opt="d">(d) (ii), (iii) 或 (iv)</button>
+      </div>
+      <div class="quiz-fb" id="fb-q1"></div>
+    </div>
+
+    <div class="quiz-item" data-quiz="q2" data-ans="b">
+      <div class="q-tag">第 2 题 · 换模 3（9 阶 MOLS，习题 #457）</div>
+      <p style="margin:.2rem 0">想用 \(\mathbb{Z}_3 = \{0, 1, 2\}\) 上的 <strong>2 次</strong>多项式造 \(9 = 3^2\) 元域，下面哪个方程<strong>可以</strong>用？（把 0, 1, 2 代进去算模 3！）</p>
+      <div class="quiz-opts">
+        <button class="quiz-btn" data-opt="a">(a) \(x^2 + 2 = 0\)</button>
+        <button class="quiz-btn" data-opt="b">(b) \(x^2 + 1 = 0\)</button>
+        <button class="quiz-btn" data-opt="c">(c) \(x^2 + x + 1 = 0\)</button>
+        <button class="quiz-btn" data-opt="d">(d) \(x^2 + 2x = 0\)</button>
+      </div>
+      <div class="quiz-fb" id="fb-q2"></div>
+    </div>
+
+    <div class="quiz-item" data-quiz="q3" data-ans="d">
+      <div class="q-tag">第 3 题 · 换牌口算</div>
+      <p style="margin:.2rem 0">在 \(x^3 + x + 1 = 0\)（模 2）造出的 8 元域里，\(x^2 \cdot (x + 1)\) 等于多少？</p>
+      <div class="quiz-opts">
+        <button class="quiz-btn" data-opt="a">(a) \(x^2 + 1\)</button>
+        <button class="quiz-btn" data-opt="b">(b) \(x + 1\)</button>
+        <button class="quiz-btn" data-opt="c">(c) \(x^2 + x\)</button>
+        <button class="quiz-btn" data-opt="d">(d) \(x^2 + x + 1\)</button>
+      </div>
+      <div class="quiz-fb" id="fb-q3"></div>
+    </div>
+  </section>
+
+  <footer>2026 秋《组合数学》期末专题 · 第 10 章有限域与 MOLS（离线自包含）</footer>
+</main>
 
 <script>
-/* Keep Chinese punctuation glued to inline TeX */
-(function(){
-  var r = window.renderTeX; if (!r) return;
-  var AFTER = /^[，。；：、）！？”」]+/, BEFORE = /[（“「]$/;
-  function mark(t){ var s = document.createElement('span'); s.className = 'tex-punct'; s.textContent = t; return s; }
-  function glue(root){
-    (root || document.body).querySelectorAll('.katex').forEach(function(k){
-      if (k.closest('.katex-display') || k.dataset.glued) return;
-      k.dataset.glued = '1';
-      var html = k.querySelector('.katex-html'); if (!html) return;
-      var bases = html.querySelectorAll(':scope > .base'); if (!bases.length) return;
-      var u = (k.parentNode.tagName === 'SPAN' && k.parentNode.childNodes.length === 1) ? k.parentNode : k;
-      var nx = u.nextSibling, pv = u.previousSibling;
-      var m = nx && nx.nodeType === 3 ? nx.data.match(AFTER) : null;
-      var b = pv && pv.nodeType === 3 ? pv.data.match(BEFORE) : null;
-      if (m){ nx.data = nx.data.slice(m[0].length); bases[bases.length - 1].appendChild(mark(m[0])); }
-      if (b){ pv.data = pv.data.slice(0, -1); bases[0].insertBefore(mark(b[0]), bases[0].firstChild); }
-    });
-  }
-  window.renderTeX = function(el){ r(el); glue(el); };
-})();
-
 function $(id){ return document.getElementById(id); }
 function tex(el){ if (window.renderTeX) window.renderTeX(el); }
 function mod(a, p){ return ((a % p) + p) % p; }
 
-/* Format polynomial from array coeffs [c0, c1, ..., cd] (ascending or descending) */
-/* Here coeffs[d] is coefficient of v^d (ascending power: coeffs[0] is constant) */
-function polyToTeX(coeffs, v, desc){
-  var terms = [];
-  var idxs = [];
-  for (var i = 0; i < coeffs.length; i++) idxs.push(i);
-  if (desc) idxs.reverse();
-  idxs.forEach(function(d){
-    var c = coeffs[d];
-    if (!c) return;
-    if (d === 0) terms.push(String(c));
-    else if (d === 1) terms.push((c === 1 ? '' : String(c)) + v);
-    else terms.push((c === 1 ? '' : String(c)) + v + '^' + d);
-  });
-  return terms.length ? terms.join(' + ') : '0';
+function polyPlain(asc, v){
+  var sup = {2:'²', 3:'³', 4:'⁴'};
+  var parts = [];
+  for (var d = asc.length - 1; d >= 0; d--){
+    var c = asc[d];
+    if (!c) continue;
+    if (d === 0) parts.push(String(c));
+    else if (d === 1) parts.push((c === 1 ? '' : c) + v);
+    else parts.push((c === 1 ? '' : c) + v + (sup[d] || ('^' + d)));
+  }
+  return parts.length ? parts.join('+') : '0';
 }
 
-function polyToPlain(coeffs, v, desc){
-  var sup = {'2':'²','3':'³','4':'⁴'};
-  var terms = [];
-  var idxs = [];
-  for (var i = 0; i < coeffs.length; i++) idxs.push(i);
-  if (desc) idxs.reverse();
-  idxs.forEach(function(d){
-    var c = coeffs[d];
-    if (!c) return;
-    if (d === 0) terms.push(String(c));
-    else if (d === 1) terms.push((c === 1 ? '' : String(c)) + v);
-    else terms.push((c === 1 ? '' : String(c)) + v + (sup[d] || ('^' + d)));
-  });
-  return terms.length ? terms.join('+') : '0';
-}
-
-/* ==================== DEMO A: Irreducible Poly Root Checker ==================== */
+/* ==================== ACT 1: Switch Lamps ==================== */
 (function(){
-  var p = 2, k = 3;
-  // descending coeffs [c_k, c_{k-1}, ..., c_0]
-  var descCoeffs = [1, 0, 1, 1];
+  var mode = 4; // 4 or 8
+  var bits = [1, 1, 0]; // [c0, c1, c2]
 
-  function buildControls(){
-    var b = $('daBuilder');
-    b.innerHTML = '<span>f(x) =</span>';
-    for (var idx = 0; idx <= k; idx++){
-      var deg = k - idx;
-      if (idx > 0){
-        var plus = document.createElement('span');
-        plus.textContent = '+';
-        b.appendChild(plus);
-      }
-      var sel = document.createElement('select');
-      sel.dataset.idx = String(idx);
-      var start = (idx === 0) ? 1 : 0; // leading coeff must be nonzero
-      for (var c = start; c < p; c++){
-        var opt = document.createElement('option');
-        opt.value = String(c);
-        opt.textContent = String(c);
-        if (c === descCoeffs[idx]) opt.selected = true;
-        sel.appendChild(opt);
-      }
-      sel.addEventListener('change', function(){
-        descCoeffs[Number(this.dataset.idx)] = Number(this.value);
-        clearPresetHighlight();
-        renderA();
+  function renderLamp(){
+    var k = (mode === 4) ? 2 : 3;
+    var v = (mode === 4) ? 'i' : 'x';
+    var labels = (mode === 4) ? ['常数 1', '一次项 i'] : ['常数 1', '一次项 x', '二次项 x²'];
+
+    var swHTML = '';
+    for (var d = 0; d < k; d++){
+      var on = bits[d] === 1;
+      swHTML += '<button class="lamp-btn ' + (on ? 'on' : '') + '" data-d="' + d + '">' +
+        '<span class="bulb">' + (on ? '💡' : '⚫') + '</span>' +
+        '<span class="bit">系数 = ' + bits[d] + '</span>' +
+        '<span class="term">' + labels[d] + '</span>' +
+        '</button>';
+    }
+    $('lampSwitches').innerHTML = swHTML;
+    $('lampSwitches').querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        var d = Number(this.dataset.d);
+        bits[d] = 1 - bits[d];
+        renderLamp();
       });
-      b.appendChild(sel);
-      if (deg > 0){
-        var sp = document.createElement('span');
-        sp.innerHTML = deg === 1 ? 'x' : ('x<sup>' + deg + '</sup>');
-        b.appendChild(sp);
-      }
-    }
-    var eq0 = document.createElement('span');
-    eq0.textContent = '= 0  (mod ' + p + ')';
-    b.appendChild(eq0);
-  }
-
-  function clearPresetHighlight(){
-    document.querySelectorAll('#demoA button[data-preset]').forEach(function(btn){ btn.classList.remove('sel'); });
-  }
-
-  function polyDivLinear(desc, root, p){
-    // Synthetic division of desc by (x - root) mod p
-    var q = [];
-    var carry = 0;
-    for (var i = 0; i < desc.length - 1; i++){
-      carry = mod(carry * root + desc[i], p);
-      q.push(carry);
-    }
-    return q; // descending coeffs of quotient
-  }
-
-  function renderA(){
-    var asc = descCoeffs.slice().reverse();
-    var pTex = polyToTeX(asc, 'x', true);
-    $('daPreview').innerHTML = '\\(f(x) = ' + pTex + '\\)　（在 \\(\\mathbb{Z}_{' + p + '}\\) 上，欲造 \\(' + p + '^' + k + ' = ' + Math.pow(p, k) + '\\) 元域）';
-    tex($('daPreview'));
-
-    var roots = [];
-    var cards = '';
-    for (var x = 0; x < p; x++){
-      var raw = 0;
-      var pieces = [];
-      for (var i = 0; i <= k; i++){
-        var deg = k - i;
-        var c = descCoeffs[i];
-        if (c === 0) continue;
-        var termVal = c * Math.pow(x, deg);
-        raw += termVal;
-        if (deg === 0) pieces.push(String(c));
-        else if (deg === 1) pieces.push((c === 1 ? '' : c + '·') + x);
-        else pieces.push((c === 1 ? '' : c + '·') + x + '<sup>' + deg + '</sup>');
-      }
-      var res = mod(raw, p);
-      var isRoot = (res === 0);
-      if (isRoot) roots.push(x);
-      cards += '<div class="eval-card ' + (isRoot ? 'is-root' : 'not-root') + '">' +
-        '<div class="ev-x">代入 x = ' + x + '</div>' +
-        '<div class="ev-val">f(' + x + ') ≡ ' + res + '</div>' +
-        '<div class="ev-sub">' + (pieces.join('+') || '0') + ' = ' + raw + ' (mod ' + p + ') ' + (isRoot ? '❌ 有根' : '✓ 非零') + '</div>' +
-        '</div>';
-    }
-    $('daEvalGrid').innerHTML = cards;
-
-    var irred = (roots.length === 0);
-    $('daStatus').textContent = irred ? ('不可约 · 可造 ' + Math.pow(p, k) + ' 元域') : ('有根 · 不可用于造域');
-
-    if (irred){
-      // Compute reduction rule x^k = ...
-      // Need inverse of leading coeff mod p
-      var lead = descCoeffs[0], invLead = 1;
-      for (var t = 1; t < p; t++) if (mod(lead * t, p) === 1) { invLead = t; break; }
-      var redAsc = [];
-      for (var d = 0; d < k; d++){
-        redAsc.push(mod(-asc[d] * invLead, p));
-      }
-      var redTex = polyToTeX(redAsc, 'x', true);
-      $('daBadges').innerHTML =
-        '<span class="badge ok">✅ 在 \\(\\mathbb{Z}_{' + p + '}\\) 中无根</span>' +
-        '<span class="badge ok">✅ ' + k + ' 次不可约，满足根条件</span>' +
-        '<span class="badge gold">降次规则：\\(x^' + k + ' = ' + redTex + '\\)</span>';
-      tex($('daBadges'));
-
-      var extra = (p === 2) ? '（速判验证：常数项为 1，且非零项总数为 ' + asc.filter(Boolean).length + '，是奇数！）' : '';
-      $('daCaption').innerHTML = '<b>结论：</b>把 \\(\\mathbb{Z}_{' + p + '}\\) 里所有数代入都不为 0，故 \\(' + pTex + '\\) 无法在 \\(\\mathbb{Z}_{' + p + '}\\) 上非平凡分解，<b>可以用来构造 ' + Math.pow(p, k) + ' 元有限域</b>！' + extra + ' 运算时只要遇到 \\(x^' + k + '\\)，直接替换为 <span class="hl">\\(' + redTex + '\\)</span> 即可。';
-      tex($('daCaption'));
-    } else {
-      var r0 = roots[0];
-      var qDesc = polyDivLinear(descCoeffs, r0, p);
-      var qAsc = qDesc.slice().reverse();
-      var linAsc = [mod(-r0, p), 1]; // x - r0 mod p
-      var linTex = polyToTeX(linAsc, 'x', true);
-      var qTex = polyToTeX(qAsc, 'x', true);
-      $('daBadges').innerHTML =
-        '<span class="badge bad">❌ 在 \\(\\mathbb{Z}_{' + p + '}\\) 中有根：x = ' + roots.join(', ') + '</span>' +
-        '<span class="badge bad">❌ 可因式分解，不能造域</span>';
-      tex($('daBadges'));
-      $('daCaption').innerHTML = '<b>淘汰原因（零因子灾难）：</b>因为 \\(f(' + r0 + ') \\equiv 0 \\pmod{' + p + '}\\)，该多项式必含因式 \\((' + linTex + ')\\)，可分解为：' +
-        '\\[ ' + pTex + ' \\equiv (' + linTex + ')(' + qTex + ') \\pmod{' + p + '} \\]' +
-        '若强行令 \\(' + pTex + ' = 0\\)，则两个<strong>非零</strong>元素 \\(' + linTex + '\\) 与 \\(' + qTex + '\\) 的乘积等于 \\(0\\)，它们没有乘法逆元，<strong>构不成有限域</strong>，也无法构造正交拉丁方！';
-      tex($('daCaption'));
-    }
-  }
-
-  $('daP').addEventListener('change', function(){
-    p = Number(this.value);
-    descCoeffs = descCoeffs.map(function(c, i){ return i === 0 ? (mod(c, p) || 1) : mod(c, p); });
-    clearPresetHighlight();
-    buildControls();
-    renderA();
-  });
-  $('daK').addEventListener('change', function(){
-    k = Number(this.value);
-    descCoeffs = (k === 2) ? [1, 1 % p, 1] : [1, 0, 1, 1];
-    clearPresetHighlight();
-    buildControls();
-    renderA();
-  });
-  document.querySelectorAll('#demoA button[data-preset]').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var arr = this.dataset.preset.split(',').map(Number);
-      p = arr[0]; k = arr[1];
-      descCoeffs = arr.slice(2);
-      $('daP').value = String(p);
-      $('daK').value = String(k);
-      clearPresetHighlight();
-      this.classList.add('sel');
-      buildControls();
-      renderA();
     });
-  });
 
-  buildControls();
-  renderA();
+    var curArr = bits.slice(0, k);
+    var curStr = polyPlain(curArr, v);
+    var curNum = 0;
+    for (var d2 = 0; d2 < k; d2++) curNum += curArr[d2] * (1 << d2);
+    $('lampResult').textContent = '当前牌面： ' + curStr + '　（开关状态：[' + curArr.join(', ') + ']）';
+
+    var deckHTML = '';
+    var total = 1 << k;
+    for (var n = 0; n < total; n++){
+      var arr = [];
+      for (var j = 0; j < k; j++) arr.push((n >> j) & 1);
+      deckHTML += '<button class="deck-pill ' + (n === curNum ? 'active' : '') + '" data-n="' + n + '">' + polyPlain(arr, v) + '</button>';
+    }
+    $('lampDeck').innerHTML = deckHTML;
+    $('lampDeck').querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        var n = Number(this.dataset.n);
+        for (var j = 0; j < k; j++) bits[j] = (n >> j) & 1;
+        renderLamp();
+      });
+    });
+  }
+
+  $('lampMode4').addEventListener('click', function(){
+    mode = 4; bits = [1, 1, 0];
+    this.classList.add('active'); $('lampMode8').classList.remove('active');
+    renderLamp();
+  });
+  $('lampMode8').addEventListener('click', function(){
+    mode = 8; bits = [1, 1, 1];
+    this.classList.add('active'); $('lampMode4').classList.remove('active');
+    renderLamp();
+  });
+  renderLamp();
 })();
 
-/* ==================== Finite Field Engine (for Demo B & Demo C) ==================== */
-var FIELDS = {
-  f4:  { name:'F₄',  p:2, k:2, v:'i', modPoly:[1,1,1],   red:[1,1],   desc:'i² + i + 1 = 0  ⇒  i² = i + 1' },
-  f8a: { name:'F₈',  p:2, k:3, v:'x', modPoly:[1,1,0,1], red:[1,1,0], desc:'x³ + x + 1 = 0  ⇒  x³ = x + 1' },
-  f8b: { name:'F₈',  p:2, k:3, v:'x', modPoly:[1,0,1,1], red:[1,0,1], desc:'x³ + x² + 1 = 0  ⇒  x³ = x² + 1' },
-  f9:  { name:'F₉',  p:3, k:2, v:'i', modPoly:[1,0,1],   red:[2,0],   desc:'i² + 1 = 0  ⇒  i² = 2 (mod 3)' },
-  f27: { name:'F₂₇', p:3, k:3, v:'i', modPoly:[1,2,0,1], red:[2,1,0], desc:'i³ + 2i + 1 = 0  ⇒  i³ = i + 2 (mod 3)' }
-};
-
-function fieldElements(F){
-  var elems = [];
-  var total = Math.pow(F.p, F.k);
-  for (var n = 0; n < total; n++){
-    var c = [];
-    var x = n;
-    for (var d = 0; d < F.k; d++){
-      c.push(x % F.p);
-      x = Math.floor(x / F.p);
-    }
-    elems.push(c);
-  }
-  return elems;
-}
-
-function gfAdd(F, a, b){
-  var out = [];
-  for (var d = 0; d < F.k; d++) out.push(mod((a[d]||0) + (b[d]||0), F.p));
-  return out;
-}
-
-function gfMulRaw(F, a, b){
-  var raw = new Array(2 * F.k - 1).fill(0);
-  for (var i = 0; i < F.k; i++){
-    for (var j = 0; j < F.k; j++){
-      raw[i + j] += a[i] * b[j];
-    }
-  }
-  return raw;
-}
-
-function gfMulWithSteps(F, a, b){
-  var raw = gfMulRaw(F, a, b);
-  var modRaw = raw.map(function(c){ return mod(c, F.p); });
-  var cur = modRaw.slice();
-  var steps = [];
-  for (var deg = cur.length - 1; deg >= F.k; deg--){
-    var coeff = cur[deg];
-    if (coeff === 0) continue;
-    var shift = deg - F.k;
-    var beforeTex = polyToTeX(cur, F.v, false);
-    cur[deg] = 0;
-    for (var r = 0; r < F.k; r++){
-      cur[r + shift] = mod(cur[r + shift] + coeff * F.red[r], F.p);
-    }
-    var afterTex = polyToTeX(cur, F.v, false);
-    var lhsTerm = (coeff === 1 ? '' : coeff) + F.v + '^' + deg;
-    var rhsArr = new Array(F.k + shift).fill(0);
-    for (var r2 = 0; r2 < F.k; r2++) rhsArr[r2 + shift] = mod(coeff * F.red[r2], F.p);
-    steps.push({
-      replace: lhsTerm + ' = ' + polyToTeX(rhsArr, F.v, false),
-      before: beforeTex,
-      after: afterTex
-    });
-  }
-  return { raw: raw, modRaw: modRaw, steps: steps, result: cur.slice(0, F.k) };
-}
-
-function gfMul(F, a, b){
-  return gfMulWithSteps(F, a, b).result;
-}
-
-function elemEqual(a, b){
-  if (a.length !== b.length) return false;
-  for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-  return true;
-}
-
-function isZero(a){ return a.every(function(c){ return c === 0; }); }
-
-function gfInv(F, a){
-  if (isZero(a)) return null;
-  var one = new Array(F.k).fill(0); one[0] = 1;
-  var elems = fieldElements(F);
-  for (var i = 0; i < elems.length; i++){
-    if (elemEqual(gfMul(F, a, elems[i]), one)) return elems[i];
-  }
-  return null;
-}
-
-function elemIndex(F, a){
-  var idx = 0, mult = 1;
-  for (var d = 0; d < F.k; d++){ idx += a[d] * mult; mult *= F.p; }
-  return idx;
-}
-
-/* ==================== DEMO B: Arithmetic & Reduction Workshop ==================== */
+/* ==================== ACT 2: Crash Lab (8x8 MOLS Overlay) ==================== */
 (function(){
-  var fKey = 'f8a';
-  var elems = [];
-  var idxA = 3, idxB = 7; // 1+x and 1+x+x^2 in f8a
+  // 8 elements as [c0, c1, c2] indexed 0..7
+  var ELEMS = [];
+  for (var n = 0; n < 8; n++) ELEMS.push([n & 1, (n >> 1) & 1, (n >> 2) & 1]);
+  var NAMES = ELEMS.map(function(e){ return polyPlain(e, 'x'); });
 
-  var PRESETS_B = {
-    f4: [
-      { label:'i × i', a:[0,1], b:[0,1] },
-      { label:'i × (1+i)', a:[0,1], b:[1,1] },
-      { label:'(1+i) × (1+i)', a:[1,1], b:[1,1] }
-    ],
-    f8a: [
-      { label:'#430(i) (1+x)+(1+x+x²)', a:[1,1,0], b:[1,1,1] },
-      { label:'#430(iii) x⁻¹', a:[0,1,0], b:[1,0,1] },
-      { label:'#430(iv) x²×(1+x+x²)', a:[0,0,1], b:[1,1,1] },
-      { label:'#430(v) (1+x)(1+x+x²)', a:[1,1,0], b:[1,1,1] },
-      { label:'#430(vi) (1+x)⁻¹', a:[1,1,0], b:[0,1,1] }
-    ],
-    f8b: [
-      { label:'x × x²', a:[0,1,0], b:[0,0,1] },
-      { label:'(1+x)(1+x²)', a:[1,1,0], b:[1,0,1] },
-      { label:'(x+x²)²', a:[0,1,1], b:[0,1,1] }
-    ],
-    f9: [
-      { label:'i × i', a:[0,1], b:[0,1] },
-      { label:'(1+i)(2+i)', a:[1,1], b:[2,1] },
-      { label:'(1+2i)(1+2i)', a:[1,2], b:[1,2] }
-    ],
-    f27: [
-      { label:'讲义p.19 (2+i+2i²)+(1+i+i²)', a:[2,1,2], b:[1,1,1] },
-      { label:'讲义p.19 (1+i)(2+i²)', a:[1,1,0], b:[2,0,1] },
-      { label:'讲义p.19 (1+2i²)(1+i+2i²)', a:[1,0,2], b:[1,1,2] },
-      { label:'讲义p.19 (2+i+2i²)⁻¹', a:[2,1,2], b:[1,0,1] }
-    ]
+  var EQS = {
+    i: {
+      label: '(i) x³ + 1 = 0',
+      rule: 'x³ = 1',
+      red: [1, 0, 0], // x^3 -> 1
+      ok: false,
+      factor: 'x³ + 1 = (x + 1)(x² + x + 1)',
+      zeroDemo: '牌 (x+1) 和牌 (x²+x+1) 都不是 0，但一相乘就变成 x³+1 = 0！所以乘子 1 和 x 造出的两张表会大面积撞车！'
+    },
+    ii: {
+      label: '(ii) x³ + x + 1 = 0',
+      rule: 'x³ = x + 1',
+      red: [1, 1, 0],
+      ok: true,
+      factor: '在模 2 下完全拆不开（无根）',
+      zeroDemo: '任意两张非零牌相乘绝不会变成 0，64 个格子里的有序对全部唯一，零撞车！'
+    },
+    iii: {
+      label: '(iii) x³ + x² + 1 = 0',
+      rule: 'x³ = x² + 1',
+      red: [1, 0, 1],
+      ok: true,
+      factor: '在模 2 下完全拆不开（无根）',
+      zeroDemo: '任意两张非零牌相乘绝不会变成 0，64 个格子里的有序对全部唯一，零撞车！'
+    },
+    iv: {
+      label: '(iv) x³ + x² + x + 1 = 0',
+      rule: 'x³ = x² + x + 1',
+      red: [1, 1, 1],
+      ok: false,
+      factor: 'x³ + x² + x + 1 = (x + 1)(x² + 1)',
+      zeroDemo: '牌 (x+1) 和牌 (x²+1) 都不是 0，但一相乘就变成 x³+x²+x+1 = 0！两张表叠在一起立刻撞车！'
+    }
   };
 
-  function populateSelects(){
-    var F = FIELDS[fKey];
-    elems = fieldElements(F);
-    var opts = elems.map(function(e, i){
-      return '<option value="' + i + '">' + polyToPlain(e, F.v, false) + '</option>';
-    }).join('');
-    $('dbA').innerHTML = opts;
-    $('dbB').innerHTML = opts;
-    if (idxA >= elems.length) idxA = Math.min(2, elems.length - 1);
-    if (idxB >= elems.length) idxB = Math.min(3, elems.length - 1);
-    $('dbA').value = String(idxA);
-    $('dbB').value = String(idxB);
+  function add8(aIdx, bIdx){ return aIdx ^ bIdx; }
+  function mul8(aIdx, bIdx, red){
+    var a = ELEMS[aIdx], b = ELEMS[bIdx];
+    var raw = [0, 0, 0, 0, 0];
+    for (var i = 0; i < 3; i++){
+      for (var j = 0; j < 3; j++) raw[i + j] ^= (a[i] & b[j]);
+    }
+    // reduce deg 4 then deg 3
+    if (raw[4]){
+      raw[4] = 0;
+      for (var r = 0; r < 3; r++) raw[r + 1] ^= red[r];
+    }
+    if (raw[3]){
+      raw[3] = 0;
+      for (var r2 = 0; r2 < 3; r2++) raw[r2] ^= red[r2];
+    }
+    return raw[0] + 2 * raw[1] + 4 * raw[2];
+  }
 
-    var pr = $('dbPresets');
-    pr.innerHTML = '<span class="tip"><b>课程例题快捷载入：</b></span>';
-    (PRESETS_B[fKey] || []).forEach(function(item){
-      var btn = document.createElement('button');
-      btn.textContent = item.label;
-      btn.addEventListener('click', function(){
-        idxA = elemIndex(F, item.a);
-        idxB = elemIndex(F, item.b);
-        $('dbA').value = String(idxA);
-        $('dbB').value = String(idxB);
-        renderB();
-      });
-      pr.appendChild(btn);
+  var curEq = 'i';
+  var focusI = 0, focusJ = 7;
+
+  function renderCrash(){
+    var E = EQS[curEq];
+    // Update tab buttons
+    document.querySelectorAll('#crashTabs button').forEach(function(btn){
+      var k = btn.dataset.eq;
+      btn.classList.remove('sel-ok', 'sel-bad');
+      var resEl = btn.querySelector('.t-res');
+      resEl.textContent = EQS[k].ok ? '✅ 零撞车' : '💥 会撞车';
+      if (k === curEq) btn.classList.add(E.ok ? 'sel-ok' : 'sel-bad');
     });
-  }
 
-  function renderB(){
-    var F = FIELDS[fKey];
-    var a = elems[idxA], b = elems[idxB];
-    var aTex = polyToTeX(a, F.v, false), bTex = polyToTeX(b, F.v, false);
-    $('dbRuleBadge').textContent = F.desc;
-
-    /* Addition */
-    var sum = gfAdd(F, a, b);
-    var sumRaw = a.map(function(c, i){ return c + b[i]; });
-    $('dbAddBox').innerHTML =
-      '<div class="st-title">① 域加法（同类项相加再模 ' + F.p + '）</div>' +
-      '<div class="step-line">\\((' + aTex + ') + (' + bTex + ') = ' + polyToTeX(sumRaw, F.v, false) + ' \\equiv \\mathbf{' + polyToTeX(sum, F.v, false) + '} \\pmod{' + F.p + '}\\)</div>';
-    tex($('dbAddBox'));
-
-    /* Multiplication */
-    var m = gfMulWithSteps(F, a, b);
-    var mulHTML = '<div class="st-title">② 域乘法（普通展开 → 模 ' + F.p + ' → 逐步降次）</div>';
-    mulHTML += '<div class="step-line"><b>第 1 步（普通展开）：</b>\\((' + aTex + ')(' + bTex + ') = ' + polyToTeX(m.raw, F.v, false) + '\\)</div>';
-    if (polyToTeX(m.raw, F.v, false) !== polyToTeX(m.modRaw, F.v, false)){
-      mulHTML += '<div class="step-line"><b>第 2 步（系数模 ' + F.p + '）：</b>\\(\\equiv ' + polyToTeX(m.modRaw, F.v, false) + '\\)</div>';
+    // Compute overlay for r=1 (idx 1) and s=x (idx 2)
+    var pairs = [];
+    var countMap = {};
+    var locMap = {};
+    for (var i = 0; i < 8; i++){
+      var row = [];
+      for (var j = 0; j < 8; j++){
+        var a = add8(mul8(1, i, E.red), j);
+        var b = add8(mul8(2, i, E.red), j);
+        var key = a + ',' + b;
+        row.push({ a: a, b: b, key: key });
+        countMap[key] = (countMap[key] || 0) + 1;
+        if (!locMap[key]) locMap[key] = [];
+        locMap[key].push([i, j]);
+      }
+      pairs.push(row);
     }
-    if (m.steps.length === 0){
-      mulHTML += '<div class="step-line"><b>降次：</b>当前最高次已 \\(&lt; ' + F.k + '\\)，无需降次！</div>';
-    } else {
-      m.steps.forEach(function(st, i){
-        mulHTML += '<div class="step-line"><b>降次 ' + (i + 1) + '：</b>代入 \\(' + st.replace + '\\)，化简为 \\(' + st.after + '\\)</div>';
+    var uniqueCount = Object.keys(countMap).length;
+    var crashCells = 0;
+    for (var i2 = 0; i2 < 8; i2++){
+      for (var j2 = 0; j2 < 8; j2++){
+        if (countMap[pairs[i2][j2].key] > 1) crashCells++;
+      }
+    }
+
+    // Banner
+    var ban = $('crashBanner');
+    ban.className = 'crash-banner ' + (E.ok ? 'ok' : 'bad');
+    ban.innerHTML = E.ok
+      ? '<span>✅ 完美正交！64 格里出现 64 种不同有序对（0 撞车）</span><span>换牌规矩：' + E.rule + '</span>'
+      : '<span>💥 严重撞车！64 格里只有 ' + uniqueCount + ' 种有序对，全部 ' + crashCells + ' 格都撞上了双胞胎！</span><span>换牌规矩：' + E.rule + '</span>';
+
+    $('crashReason').innerHTML = '<div class="' + (E.ok ? 'ok-box' : 'bad-box') + '" style="margin:.4rem 0">' +
+      '<b>' + (E.ok ? '为什么稳过？' : '撞车真凶：') + '</b>' + E.factor + '。' + E.zeroDemo + '</div>';
+
+    // Focus twin list
+    var fCell = pairs[focusI][focusJ];
+    var twins = locMap[fCell.key] || [];
+
+    // Build 8x8 table
+    var h = '<table class="mols-grid"><thead><tr><th>行 i \\ 列 j</th>';
+    for (var c = 0; c < 8; c++) h += '<th title="编号 ' + c + ' = ' + NAMES[c] + '">' + c + ':' + NAMES[c] + '</th>';
+    h += '</tr></thead><tbody>';
+    for (var r = 0; r < 8; r++){
+      h += '<tr><th>' + r + ':' + NAMES[r] + '</th>';
+      for (var c2 = 0; c2 < 8; c2++){
+        var cell = pairs[r][c2];
+        var isCrash = countMap[cell.key] > 1;
+        var isFocus = (r === focusI && c2 === focusJ);
+        var isTwin = !isFocus && twins.some(function(p){ return p[0] === r && p[1] === c2; });
+        var cls = isCrash ? 'cell-crash' : 'cell-ok';
+        if (isFocus) cls += ' cell-focus';
+        if (isTwin) cls += ' cell-twin';
+        h += '<td class="' + cls + '" data-i="' + r + '" data-j="' + c2 + '" title="(' + NAMES[cell.a] + ', ' + NAMES[cell.b] + ')">(' + cell.a + ',' + cell.b + ')</td>';
+      }
+      h += '</tr>';
+    }
+    h += '</tbody></table>';
+    $('crashGridWrap').innerHTML = h;
+
+    $('crashGridWrap').querySelectorAll('td').forEach(function(td){
+      td.addEventListener('click', function(){
+        focusI = Number(this.dataset.i);
+        focusJ = Number(this.dataset.j);
+        renderCrash();
       });
-    }
-    mulHTML += '<div class="step-line"><b>最终结果：</b>\\((' + aTex + ') \\times (' + bTex + ') = \\mathbf{' + polyToTeX(m.result, F.v, false) + '}\\)</div>';
-    $('dbMulBox').innerHTML = mulHTML;
-    tex($('dbMulBox'));
+    });
 
-    /* Inverse */
-    var invA = gfInv(F, a);
-    var invHTML = '<div class="st-title">③ 乘法逆元 \\(A^{-1}\\)</div>';
-    if (!invA){
-      invHTML += '<div class="step-line">元素 \\(A = 0\\) 是零元，在任何域中都没有乘法逆元。</div>';
+    // Cell detail explanation
+    var det = '<b>当前选中格：</b>第 <code>' + focusI + '</code> 行（<code>' + NAMES[focusI] + '</code>），第 <code>' + focusJ + '</code> 列（<code>' + NAMES[focusJ] + '</code>） → ' +
+      '有序对为 <b>(' + fCell.a + ', ' + fCell.b + ')</b>，即多项式 <code>(' + NAMES[fCell.a] + ', ' + NAMES[fCell.b] + ')</code>。';
+    if (twins.length > 1){
+      var other = twins.filter(function(p){ return !(p[0] === focusI && p[1] === focusJ); })[0];
+      det += '<br><span style="color:var(--bad);font-weight:700">⚠️ 撞车现场：</span>金黄色高亮的第 <code>' + other[0] + '</code> 行（<code>' + NAMES[other[0]] + '</code>）、第 <code>' + other[1] + '</code> 列（<code>' + NAMES[other[1]] + '</code>）算出来<strong>居然也是 (' + fCell.a + ', ' + fCell.b + ')</strong>！两张表根本不正交！';
     } else {
-      var invTex = polyToTeX(invA, F.v, false);
-      invHTML += '<div class="step-line">\\((' + aTex + ')^{-1} = \\mathbf{' + invTex + '}\\)　（验证：\\((' + aTex + ')(' + invTex + ') = 1\\) ✅）</div>';
+      det += '<br><span style="color:var(--ok);font-weight:700">✅ 独一无二：</span>全表 64 个格子里，只有这 1 个格子出现 (' + fCell.a + ', ' + fCell.b + ')！';
     }
-    $('dbInvBox').innerHTML = invHTML;
-    tex($('dbInvBox'));
+    $('crashCellDetail').innerHTML = det;
   }
 
-  $('dbField').addEventListener('change', function(){
-    fKey = this.value;
-    if (fKey === 'f4'){ idxA = 2; idxB = 3; }
-    else if (fKey === 'f8a'){ idxA = 3; idxB = 7; }
-    else if (fKey === 'f8b'){ idxA = 3; idxB = 5; }
-    else if (fKey === 'f9'){ idxA = 4; idxB = 5; }
-    else { idxA = 4; idxB = 11; }
-    populateSelects();
-    renderB();
+  document.querySelectorAll('#crashTabs button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      curEq = this.dataset.eq;
+      // Pick an iconic crashing cell for (i) and (iv)
+      if (curEq === 'i'){ focusI = 0; focusJ = 7; }
+      else if (curEq === 'iv'){ focusI = 0; focusJ = 5; }
+      else { focusI = 2; focusJ = 3; }
+      renderCrash();
+    });
   });
-  $('dbA').addEventListener('change', function(){ idxA = Number(this.value); renderB(); });
-  $('dbB').addEventListener('change', function(){ idxB = Number(this.value); renderB(); });
-  $('dbSwap').addEventListener('click', function(){
-    var t = idxA; idxA = idxB; idxB = t;
-    $('dbA').value = String(idxA); $('dbB').value = String(idxB);
-    renderB();
-  });
-
-  populateSelects();
-  renderB();
+  renderCrash();
 })();
 
-/* ==================== DEMO C: MOLS Generator & Orthogonality Checker ==================== */
+/* ==================== ACT 3: Quick Root Checker ==================== */
 (function(){
-  var fKey = 'f4';
-  var rIdx = 1, sIdx = 2;
-  var viewMode = 'poly';
-  var activeI = 1, activeJ = 2;
-  var elems = [];
+  var p = 2, k = 3;
+  var desc = [1, 0, 1, 1]; // leading coeff fixed to 1 for simplicity
 
-  function fmtElem(F, idx){
-    return viewMode === 'num' ? String(idx) : polyToPlain(elems[idx], F.v, false);
-  }
-
-  function populateC(){
-    var F = FIELDS[fKey];
-    elems = fieldElements(F);
-    var opts = '';
-    for (var i = 1; i < elems.length; i++){
-      opts += '<option value="' + i + '">' + polyToPlain(elems[i], F.v, false) + ' (编号 ' + i + ')</option>';
-    }
-    $('dcR').innerHTML = opts;
-    $('dcS').innerHTML = opts;
-    rIdx = 1;
-    sIdx = Math.min(2, elems.length - 1);
-    activeI = 1; activeJ = Math.min(2, elems.length - 1);
-    $('dcR').value = String(rIdx);
-    $('dcS').value = String(sIdx);
-  }
-
-  function renderC(){
-    var F = FIELDS[fKey];
-    var q = elems.length;
-    var rEl = elems[rIdx], sEl = elems[sIdx];
-    $('dcCount').textContent = q + ' 阶 · 共可造 ' + (q - 1) + ' 个 MOLS';
-
-    // Build L^(r), L^(s), and overlay pairs
-    var gridR = [], gridS = [], pairSet = new Set();
-    for (var i = 0; i < q; i++){
-      var rowR = [], rowS = [];
-      for (var j = 0; j < q; j++){
-        var vr = elemIndex(F, gfAdd(F, gfMul(F, rEl, elems[i]), elems[j]));
-        var vs = elemIndex(F, gfAdd(F, gfMul(F, sEl, elems[i]), elems[j]));
-        rowR.push(vr);
-        rowS.push(vs);
-        pairSet.add(vr + ',' + vs);
+  function buildQC(){
+    var box = $('qcCoeffs');
+    box.innerHTML = '<span>x' + (k === 3 ? '³' : '²') + '</span>';
+    for (var i = 1; i <= k; i++){
+      var deg = k - i;
+      var plus = document.createElement('span'); plus.textContent = '+'; box.appendChild(plus);
+      var sel = document.createElement('select');
+      sel.dataset.idx = String(i);
+      for (var c = 0; c < p; c++){
+        var o = document.createElement('option');
+        o.value = String(c); o.textContent = String(c);
+        if (c === desc[i]) o.selected = true;
+        sel.appendChild(o);
       }
-      gridR.push(rowR);
-      gridS.push(rowS);
+      sel.addEventListener('change', function(){
+        desc[Number(this.dataset.idx)] = Number(this.value);
+        renderQC();
+      });
+      box.appendChild(sel);
+      if (deg > 0){
+        var sp = document.createElement('span');
+        sp.textContent = deg === 1 ? 'x' : 'x²';
+        box.appendChild(sp);
+      }
     }
+  }
 
-    var isOrth = (pairSet.size === q * q);
-    $('dcBadges').innerHTML =
-      '<span class="badge blue">乘子 1：\\(\\alpha_r = ' + polyToTeX(rEl, F.v, false) + '\\)</span>' +
-      '<span class="badge blue">乘子 2：\\(\\alpha_s = ' + polyToTeX(sEl, F.v, false) + '\\)</span>' +
-      '<span class="badge ' + (isOrth ? 'ok' : 'bad') + '">' +
-        (isOrth ? ('✅ 正交校验通过：' + pairSet.size + ' / ' + (q*q) + ' 个有序对全不相同！') : ('❌ 相同乘子：仅 ' + pairSet.size + ' / ' + (q*q) + ' 个不同有序对（请选不同的 α_r 和 α_s）')) +
-      '</span>';
-    tex($('dcBadges'));
+  function renderQC(){
+    var asc = desc.slice().reverse();
+    var polyStr = polyPlain(asc, 'x');
+    var lines = [];
+    var roots = [];
+    for (var x = 0; x < p; x++){
+      var val = 0;
+      for (var i = 0; i <= k; i++) val += desc[i] * Math.pow(x, k - i);
+      var r = mod(val, p);
+      if (r === 0) roots.push(x);
+      lines.push('代 x=' + x + ' → ' + val + ' ≡ ' + r + ' (mod ' + p + ')' + (r === 0 ? ' ❌ 有根！' : ' ✓'));
+    }
+    var ok = roots.length === 0;
+    var redAsc = [];
+    for (var d = 0; d < k; d++) redAsc.push(mod(-asc[d], p));
+    var redStr = polyPlain(redAsc, 'x');
 
-    function buildTable(title, grid, isOverlay){
-      var h = '<div class="mols-box"><h4><span>' + title + '</span></h4><div class="scroll" style="margin:0"><table class="lat"><thead><tr><th>i\\j</th>';
-      for (var j = 0; j < q; j++) h += '<th>' + fmtElem(F, j) + '</th>';
-      h += '</tr></thead><tbody>';
-      for (var i = 0; i < q; i++){
-        h += '<tr><th>' + fmtElem(F, i) + '</th>';
-        for (var j2 = 0; j2 < q; j2++){
-          var cls = [];
-          if (i === activeI && j2 === activeJ) cls.push('active-cell');
-          if (isOverlay) cls.push('pair-cell');
-          var val = isOverlay ? ('(' + fmtElem(F, gridR[i][j2]) + ',' + fmtElem(F, gridS[i][j2]) + ')') : fmtElem(F, grid[i][j2]);
-          h += '<td class="' + cls.join(' ') + '" data-i="' + i + '" data-j="' + j2 + '">' + val + '</td>';
+    $('qcOut').innerHTML =
+      '<div class="' + (ok ? 'ok-box' : 'bad-box') + '" style="margin:0">' +
+      '<b>检验 ' + polyStr + ' = 0（模 ' + p + '）：</b><br>' +
+      '<span style="font-family:var(--mono);font-size:.88rem">' + lines.join('　｜　') + '</span><br>' +
+      (ok
+        ? '<b>✅ 过关！</b>所有数代入都不是 0，拆不开！可造 ' + Math.pow(p, k) + ' 元域，换牌规矩：<code>x' + (k === 3 ? '³' : '²') + ' = ' + redStr + '</code>'
+        : '<b>❌ 淘汰！</b>发现根 x = ' + roots.join(', ') + '，说明它能拆出一次因式，用来造拉丁方必撞车！') +
+      '</div>';
+  }
+
+  $('qcP').addEventListener('change', function(){
+    p = Number(this.value);
+    desc = (k === 2) ? [1, 0, 1] : (p === 3 ? [1, 0, 2, 1] : [1, 0, 1, 1]);
+    buildQC(); renderQC();
+  });
+  $('qcK').addEventListener('change', function(){
+    k = Number(this.value);
+    desc = (k === 2) ? [1, p === 2 ? 1 : 0, 1] : (p === 3 ? [1, 0, 2, 1] : [1, 0, 1, 1]);
+    buildQC(); renderQC();
+  });
+  buildQC(); renderQC();
+})();
+
+/* ==================== ACT 4: Step-by-step Replacement Animation ==================== */
+(function(){
+  var ANIMS = [
+    {
+      title: '计算 x × x²',
+      steps: [
+        { tag: '第 1 步 · 展开', html: '直接按普通乘法乘起来：\\(x \\cdot x^2 = \\) <span class="chip-bad">x³</span>（糟糕，超出 3 盏灯了！）' },
+        { tag: '第 2 步 · 红牌换绿牌', html: '掏出换牌规矩：把 <span class="chip-bad">x³</span> 直接换成 <span class="chip-ok">x + 1</span>！' },
+        { tag: '✅ 完成', html: '最终答案：\\(x \\cdot x^2 = \\mathbf{x + 1}\\)（安全回到 8 张牌里面！）' }
+      ]
+    },
+    {
+      title: '习题 #430(v)：计算 (1 + x)(1 + x + x²)',
+      steps: [
+        { tag: '第 1 步 · 普通展开', html: '像初中一样全乘开：\\(1 + x + x^2 + x + x^2 + \\)<span class="chip-bad">x³</span>' },
+        { tag: '第 2 步 · 相同项碰灯灭', html: '模 2 下出现两次就消掉：\\(1 + \\)<span class="chip-cancel">x + x</span> \\(+\\) <span class="chip-cancel">x² + x²</span> \\(+\\) <span class="chip-bad">x³</span> \\(= 1 + \\)<span class="chip-bad">x³</span>' },
+        { tag: '第 3 步 · 红牌换绿牌', html: '把 <span class="chip-bad">x³</span> 换成 <span class="chip-ok">x + 1</span>，式子变成：\\(1 + \\)<span class="chip-ok">(x + 1)</span>' },
+        { tag: '✅ 第 4 步 · 再碰灯灭', html: '两个常数 1 碰在一起消掉：<span class="chip-cancel">1 + 1</span> \\(+ x = \\mathbf{x}\\)！太清爽了！' }
+      ]
+    },
+    {
+      title: '习题 #430(iv)：计算 x² × (1 + x + x²)',
+      steps: [
+        { tag: '第 1 步 · 普通展开', html: '把 \\(x^2\\) 乘进去：\\(x^2 + \\)<span class="chip-bad">x³</span> \\(+\\) <span class="chip-bad">x⁴</span>（两张红牌出界了！）' },
+        { tag: '第 2 步 · 两张红牌一起换', html: '把 <span class="chip-bad">x³</span> 换成 <span class="chip-ok">x + 1</span>；把 <span class="chip-bad">x⁴</span> \\(= x \\cdot x^3\\) 换成 <span class="chip-ok">x² + x</span>' },
+        { tag: '第 3 步 · 拼回原式', html: '\\(x^2 + \\)<span class="chip-ok">(x + 1)</span> \\(+\\) <span class="chip-ok">(x² + x)</span>' },
+        { tag: '✅ 第 4 步 · 碰灯抵消', html: '<span class="chip-cancel">x² + x²</span> \\(+\\) <span class="chip-cancel">x + x</span> \\(+ 1 = \\mathbf{1}\\)！（顺便还白捡一个结论：\\(x^2\\) 和 \\(1+x+x^2\\) 互为逆元！）' }
+      ]
+    },
+    {
+      title: '习题 #430(vi)：求 (1 + x)⁻¹（找谁乘 (1+x) 等于 1）',
+      steps: [
+        { tag: '第 1 步 · 借用刚才的方程凑 1', html: '方程是 \\(x^3 + x + 1 = 0\\)，移项得 \\(x^3 + x = 1\\)，也就是 \\(x(x^2 + 1) = 1\\)，所以先白捡：\\(x^{-1} = x^2 + 1\\)！' },
+        { tag: '第 2 步 · 联动例 2 的结果', html: '刚才例 2 算过 \\((1+x)(1+x+x^2) = x\\)。两边同乘 \\(x^{-1} = x^2 + 1\\)，右边就变成 1 了！' },
+        { tag: '第 3 步 · 展开并换牌', html: '\\((1+x)^{-1} = (1+x+x^2)(x^2+1) = 1 + x + \\)<span class="chip-cancel">x² + x²</span>\\( + \\)<span class="chip-bad">x³</span>\\( + \\)<span class="chip-bad">x⁴</span> \\(= 1 + x + \\)<span class="chip-ok">(x+1)</span>\\( + \\)<span class="chip-ok">(x²+x)</span>' },
+        { tag: '✅ 第 4 步 · 碰灯收尾', html: '两个 1 消掉、两个 x 消掉，剩下 <span class="chip-ok">x² + x</span>！验算：\\((1+x)(x^2+x) = x^2+x+x^3+x^2 = x + (x+1) = 1\\) ✅！' }
+      ]
+    }
+  ];
+
+  var curAnim = 0, stepIdx = 0;
+
+  function renderAnim(){
+    var A = ANIMS[curAnim];
+    var h = '<div style="font-weight:800;font-size:1.03rem;margin-bottom:.25rem">' + A.title + '</div>';
+    A.steps.forEach(function(st, idx){
+      var cls = 'st-item';
+      if (idx > stepIdx) cls += ' hidden';
+      else if (idx === stepIdx) cls += ' current';
+      else cls += ' done';
+      h += '<div class="' + cls + '"><span class="st-badge">' + st.tag + '</span>' + st.html + '</div>';
+    });
+    $('animCards').innerHTML = h;
+    tex($('animCards'));
+
+    $('animPrev').disabled = (stepIdx === 0);
+    $('animNext').disabled = (stepIdx >= A.steps.length - 1);
+    $('animProgress').textContent = '进度：第 ' + (stepIdx + 1) + ' / ' + A.steps.length + ' 步';
+  }
+
+  document.querySelectorAll('#animPresetRow button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#animPresetRow button').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      curAnim = Number(this.dataset.anim);
+      stepIdx = 0;
+      renderAnim();
+    });
+  });
+  $('animPrev').addEventListener('click', function(){ if (stepIdx > 0){ stepIdx--; renderAnim(); } });
+  $('animNext').addEventListener('click', function(){ if (stepIdx < ANIMS[curAnim].steps.length - 1){ stepIdx++; renderAnim(); } });
+  $('animAll').addEventListener('click', function(){ stepIdx = ANIMS[curAnim].steps.length - 1; renderAnim(); });
+  renderAnim();
+})();
+
+/* ==================== ACT 5: Instant Quiz ==================== */
+(function(){
+  var EXPLAIN = {
+    q1: {
+      ok: '✅ 秒杀成功！模 2 下看两眼：常数项都是 1，再数项数——(i) 有 2 项（偶，代 1 得 0 淘汰），(iv) 有 4 项（偶，代 1 得 0 淘汰），只有 (ii) 和 (iii) 是 3 项（奇数，代 0 和 1 都不为 0），选 (c)！',
+      bad: '❌ 再数一次项数或代 x=1 试试：(i) 代 1 得 1+1=0；(iv) 代 1 得 1+1+1+1=4≡0，这两个都会撞车！只有 (ii) 和 (iii) 代 0、代 1 都得 1（不为 0）。'
+    },
+    q2: {
+      ok: '✅ 漂亮！对 x²+1 逐个代模 3：代 0 得 1，代 1 得 2，代 2 得 5≡2，全不为 0！而 (a) 代 1 得 3≡0，(c) 代 1 得 3≡0，(d) 代 0 得 0，全有根被淘汰。',
+      bad: '❌ 记得是模 3（逢 3 归 0）：(a) 代 1 得 1+2=3≡0；(c) 代 1 得 1+1+1=3≡0；(d) 没常数项代 0 得 0。只有 (b) x²+1 代 0, 1, 2 分别得 1, 2, 2，全不是 0！'
+    },
+    q3: {
+      ok: '✅ 算对了！展开得 x³ + x²，见红牌 x³ 立刻换成 x + 1，合起来就是 x² + x + 1！',
+      bad: '❌ 一步步来：x²(x+1) = x³ + x²，然后把出界的 x³ 换成 x + 1，变成 (x + 1) + x² = x² + x + 1！'
+    }
+  };
+
+  document.querySelectorAll('.quiz-item').forEach(function(box){
+    var qid = box.dataset.quiz;
+    var ans = box.dataset.ans;
+    var fb = $('fb-' + qid);
+    box.querySelectorAll('.quiz-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        box.querySelectorAll('.quiz-btn').forEach(function(b){ b.classList.remove('right', 'wrong'); });
+        var pick = this.dataset.opt;
+        if (pick === ans){
+          this.classList.add('right');
+          fb.className = 'quiz-fb show right';
+          fb.textContent = EXPLAIN[qid].ok;
+        } else {
+          this.classList.add('wrong');
+          fb.className = 'quiz-fb show wrong';
+          fb.textContent = EXPLAIN[qid].bad;
         }
-        h += '</tr>';
-      }
-      h += '</tbody></table></div></div>';
-      return h;
-    }
-
-    $('dcBoards').innerHTML =
-      buildTable('拉丁方 L(r)：α_r = ' + polyToPlain(rEl, F.v, false), gridR, false) +
-      buildTable('拉丁方 L(s)：α_s = ' + polyToPlain(sEl, F.v, false), gridS, false) +
-      buildTable('叠合有序对 (L(r), L(s))', null, true);
-
-    $('dcBoards').querySelectorAll('td[data-i]').forEach(function(td){
-      td.addEventListener('click', function(){
-        activeI = Number(this.dataset.i);
-        activeJ = Number(this.dataset.j);
-        renderC();
       });
     });
-
-    // Explain active cell
-    var ai = elems[activeI], aj = elems[activeJ];
-    var resR = elems[gridR[activeI][activeJ]];
-    var resS = elems[gridS[activeI][activeJ]];
-    $('dcCellExplain').innerHTML =
-      '<b>当前高亮格：</b>行 \\(\\alpha_i = ' + polyToTeX(ai, F.v, false) + '\\)，列 \\(\\alpha_j = ' + polyToTeX(aj, F.v, false) + '\\)<br>' +
-      '• 在 \\(L^{(r)}\\) 中：\\((' + polyToTeX(rEl, F.v, false) + ')\\cdot(' + polyToTeX(ai, F.v, false) + ') + (' + polyToTeX(aj, F.v, false) + ') = \\mathbf{' + polyToTeX(resR, F.v, false) + '}\\)<br>' +
-      '• 在 \\(L^{(s)}\\) 中：\\((' + polyToTeX(sEl, F.v, false) + ')\\cdot(' + polyToTeX(ai, F.v, false) + ') + (' + polyToTeX(aj, F.v, false) + ') = \\mathbf{' + polyToTeX(resS, F.v, false) + '}\\)<br>' +
-      '• 叠合得到唯一有序对：<span class="hl">\\((' + polyToTeX(resR, F.v, false) + ',\\; ' + polyToTeX(resS, F.v, false) + ')\\)</span>';
-    tex($('dcCellExplain'));
-  }
-
-  $('dcField').addEventListener('change', function(){ fKey = this.value; populateC(); renderC(); });
-  $('dcR').addEventListener('change', function(){ rIdx = Number(this.value); renderC(); });
-  $('dcS').addEventListener('change', function(){ sIdx = Number(this.value); renderC(); });
-  $('dcView').addEventListener('change', function(){ viewMode = this.value; renderC(); });
-
-  populateC();
-  renderC();
+  });
 })();
 </script>
-
 <script id="katex-run">renderTeX(document.body);</script>
